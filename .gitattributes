@@ -1,0 +1,25 @@
+# S*BASIC sources:
+*_bas linguist-language=BASIC
+
+# SBim-format S*BASIC sources:
+*_sbim linguist-language=BASIC
+
+# Binary S*BASIC extensions:
+*_code binary
+
+# Screenshots:
+*_scr binary
+
+# Fonts:
+*_font binary
+
+# Media -- Floppy images:
+*.img binary
+
+# Media -- Hard disk images:
+*.win binary
+
+# Media -- Q-emuLator packages:
+*.qlpak binary
+
+# vim: filetype=config

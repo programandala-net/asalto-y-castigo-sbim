@@ -1,0 +1,37 @@
+= Asalto y castigo
+:author: Marcos Cruz (programandala.net)
+:revdate: 2017-09-10
+
+In <<en,English>> below.
+
+== [[es]]Español
+
+_Asalto y castigo_ es una versión para
+http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
+QL] de la http://www.caad.es/baltasarq/if/asaltoDicen.html[aventura de
+texto homónima original] (2009), en español.
+
+_Asalto y castigo_ está escrito en SuperBASIC.
+
+Sede del proyecto:
+http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
+
+Otras versiones en desarrollo:
+http://programandala.net/es.programa.asalto_y_castigo.html
+
+== [[en]]English
+
+_Asalto y castigo_ (Assault and Punishment) is a
+http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
+QL].  port of the Spanish
+http://www.caad.es/baltasarq/if/asaltoDicen.html[original homonymous
+text adventure] (2009).
+
+_Asalto y castigo_ is written in SuperBASIC.
+
+Project homepage:
+http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
+
+Other versions under development:
+http://programandala.net/es.programa.asalto_y_castigo.html
+
