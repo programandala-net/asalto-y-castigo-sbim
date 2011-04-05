@@ -3,7 +3,6 @@
    2 rem Autor de las versiones originales para ZX Spectrum y Blassic: baltasarq@yahoo.es
 
 
- 100 rem bucleJuego
  111 init_ql
  112 credits
  113 init_vars
@@ -12,10 +11,12 @@
  116 intro
  118 look
  119 rep game
- 120   proc2
+ 120   plot
  122   let t$=accept$
  125   parser
- 130   do_action:rem actions
+ 127   print uno,otro
+ 128   print action,obj
+ 130   do_action
  140 endrep
 
 
@@ -36,62 +37,71 @@
  558 if n>5:if m$(1 to 5)="golpe":let action=4: ret
  559 if n>4:if m$(1 to 4)="romp":let action=4: ret
  560 if n>7:let n=7: let m$=m$(1 to 7)
- 565 let i=1: let f=Accs+1: let m=2
+ 565 let i=1: let f=actions+1: let m=2
  574 rep what_for:rem rename!!!
  575   let m=int((i+f)/2)
- 580   if a$(m,1 to n)=m$:let action=m: exit what_for
+ 580   if action$(m,1 to n)=m$:let action=m: exit what_for
  582   if i=m:exit what_for
- 585   if a$(m)>m$:let f=m: next what_for
+ 585   if action$(m)>m$:let f=m: next what_for
  590   let i=m
  591 endrep
  592 enddef
 
-1000 rem alcance
-1005 let aqui=0
-1010 if o(obj,1)=0 or o(obj,1)=nloc:let aqui=1
-1015 ret
+1000 deffn is_here(thing)
+1010   ret thing_data(thing,1)=0 or thing_data(thing,1)=nloc
+1015 enddef
 
-2000 let t$="": rem objsLoc
-2005 for n=1 to Objs
-2010 if o(n,1)=nloc and o(n,2)=2:let t$=t$&"  - "&chr$(code(n$(n,1))-diff)&n$(n,2 to)&nl$: next n:exit n
-2015 if o(n,1)=nloc:let t$=t$&"  - "&n$(n)&nl$
-2035 endfor n
-2045 if t$<>"":print "Puedes ver:"&nl$&t$
-2050 ret
+1998 defproc list_present_things
+1999   loc n,t$
+2000   let t$="": rem objsLoc
+2005   for n=1 to things
+2010     if thing_data(n,1)=nloc and thing_data(n,2)=2:let t$=t$&"  - "&chr$(code(thing$(n,1))-diff)&thing$(n,2 to)&nl$: next n:exit n
+2015     if thing_data(n,1)=nloc:let t$=t$&"  - "&thing$(n)&nl$
+2035   endfor n
+2045   if len(t$):print "Puedes ver:"&nl$&t$
+2050 enddef
 
-2500 rem proc1
-2502 let m$=""
-2505 if nloc=11 or nloc=38 or nloc=44:let o(15,1)=nloc
-2510 if nloc=16:let m$="En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
-2515 if nloc<10 and d(8,1)<>0:let m$="Tus hombres siguen tus pasos."
-2520 if o(2,1)<>255 and o(16,2)=0 and (nloc=46 or sig=1):let m$="Tu benefactor te sigue, esperanzado.": let o(2,1)=nloc: ret
-2530 if nloc=28:let d(28,3)=0: ret
-2540 if nloc=31 and d(31,1)=0:let m$="Las rocas bloquean el camino.": ret
-2545 if nloc=31:let m$="Las rocas yacen desmoronadas a lo largo del pasaje.": ret
-2999 ret
+2500 deffn location_plot$
 
-3000 defproc proc2
+2505 if nloc=11 or nloc=38 or nloc=44:let thing_data(15,1)=nloc
+
+2510 if nloc=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
+2515 if nloc<10 and d(8,1):ret "Tus hombres siguen tus pasos."
+2520 if thing_data(2,1)<>255 and thing_data(16,2)=0 and (nloc=46 or sig=1):let thing_data(2,1)=nloc: ret "Tu benefactor te sigue, esperanzado."
+2530 if nloc=28:let d(28,3)=0: ret ""
+2540 if nloc=31
+2545   if d(31,1)
+2546     ret "Las rocas yacen desmoronadas a lo largo del pasaje."
+2547   else
+2548     ret "Las rocas bloquean el camino."
+2579   endif
+2580 endif
+2600 ret ""
+2999 enddef
+
+3000 defproc plot
+
 3010 if not(nloc<>8 or d(8,1)=0)
 3015 let d(8,1)=0:let trSax=1: narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa.":end_of_scene
-3020 print : narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos.":wait: cls_
+3020 narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos.":wait: cls_
 3025 narrate "Tus oficiales te conminan a huir."
 3026 speak "Capturando a un general britano, ganan doblemente."
 3027 narrate "Sabes que es cierto, y te duele.":wait
 
 3099 else
 
-3100 if trSax>0 and nloc<12:let trSax=trSax+1: narrate "No sabes cuanto tiempo te queda ...": print
+3100 if trSax>0 and nloc<12:let trSax=trSax+1: narrate "No sabes cuanto tiempo te queda..."
 3200 if trSax>10 and nloc<12:narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:": speak "Bien, bien. Del gran Ulfius podremos sacar una buena ventaja.":end_of_scene: let action=17:do_action:ret
-3300 if nloc<10 and d(8,1)=0:narrate "Tus hombres luchan con denuedo contra los sajones.": print 
-3400 let obj=4: gosub 1000: if nloc>19 and aqui=0:narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver.":end_of_scene: let nloc=17: look: ret
+3300 if nloc<10 and d(8,1)=0:narrate "Tus hombres luchan con denuedo contra los sajones."
+3400 let obj=4: if nloc>19 and not is_here(obj):narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver.":end_of_scene: let nloc=17: look: ret
 
 3500 if nloc<>51:ret
-3505 narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado.":wait: print
+3505 narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado.":wait
 3510 narrate "Pides audiencia al rey, Uther Pendragon.":end_of_scene: cls_
 3515 speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza.":wait
-3520 print : narrate "No puedes entenderlo. El rey, tu amigo.":wait
-3525 print : narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer.":end_of_scene
-3530 narrate "Te has ganado un buen descanso": print : print : let action=17:do_action
+3520 narrate "No puedes entenderlo. El rey, tu amigo.":wait
+3525 narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer.":end_of_scene
+3530 narrate "Te has ganado un buen descanso": let action=17:do_action
 
 4535 endif
 
@@ -102,137 +112,180 @@
 7005 if action=-1:narrate "No conozco ese verbo.": ret
 7010 if action_type(action)=1 and uno=-1:_debug 7010:narrate not_seen$: ret
 7015 if action_type(action)=2 and (uno=-1 or otro=-1):_debug 7015:narrate not_seen$: ret
-7020 if action_type(action)>0:let obj=uno: gosub 1000: if aqui=0:_debug 7020:narrate not_seen$: ret
-7030 if action_type(action)=2 and otro<>-1:let obj=otro: gosub 1000: if aqui=0:_debug 7030:narrate not_seen$: ret
-7045 if action<>17:goto 7055
+7020 if action_type(action)>0:let obj=uno: if not is_here(obj):_debug 7020:narrate not_seen$: ret
+7030 if action_type(action)=2 and otro<>-1:let obj=otro: if not is_here(obj):_debug 7030:narrate not_seen$: ret
 7050 if action=17:if yes("¿Quieres volver a intentarlo?"):run:else:cls_:stop
 7055 if action=13:look: ret
-7060 if action=10 and uno=-1:gosub 7950: ret
-7062 if action=10:let obj=uno: gosub 1000: if aqui=1:narrate o$(uno): ret
+7060 if action=10 and uno=-1:action_inventory: ret
+7062 if action=10:let obj=uno: if is_here(obj):narrate thing_description$(uno): ret
 7064 if action=10:narrate not_seen$: ret
-7065 if action=14:let numDir=1: gosub 7900: ret
-7070 if action=16:let numDir=2: gosub 7900: ret
-7075 if action=9:let numDir=3: gosub 7900: ret
-7080 if action=15:let numDir=4: gosub 7900: ret
-7085 if action=3:let numDir=5: gosub 7900: ret
-7090 if action=1:let numDir=6: gosub 7900: ret
-7095 if action=5:narrate k$:end_of_scene: ret
-7100 if action=7:gosub 7515: ret
-7110 if action=8:gosub 7500: ret
-7115 if action<>6 or nloc<>11:goto 7150
-7120 let nloc=12: narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido.":end_of_scene
-7130 print : narrate "Consigues emerger, si bien en un sitio desconocido de la caverna ...":end_of_scene: look: ret
-7150 if action=6:narrate "No tiene sentido nadar ahora.": ret
-7160 if action=4:gosub 7530: ret
-7170 if action=11:gosub 7600: ret
-7180 if action=18:gosub 7700: ret
-7190 if action<>2 or nloc<>47:goto 7250
-7200 let obj=16: gosub 1000: if aqui<>1:goto 7250
-7210 narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado.":wait: print
-7220 speak "Ambrosio, alegre, se despide de ti. 'Estoy seguro de que volveremos a vernos', dice. Se ha ido."
-7230 let o(2,1)=255: let o(16,1)=255: let o$(19)="Entreabierta.": let d(47,4)=48: ret
+7065 if action=14:action_move 1: ret
+7070 if action=16:action_move 2: ret
+7075 if action=9:action_move 3: ret
+7080 if action=15:action_move 4: ret
+7085 if action=3:action_move 5: ret
+7090 if action=1:action_move 6: ret
+7095 if action=5:narrate help$:end_of_scene: ret
+7100 if action=7:action_take: ret
+7110 if action=8:action_drop: ret
+7115 if action=6
+7116   if nloc=11
+7120   let nloc=12
+7122   narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
+7124   end_of_scene
+7130   narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
+7132   end_of_scene
+7134   look
+7135   else
+7150   narrate "No tiene sentido nadar ahora."
+7155   endif
+7156   ret
+7157 endif
+7160 if action=4:action_brake: ret
+7170 if action=11:action_speak: ret
+7180 if action=18:action_fling: ret
+7190 if action=2 and nloc=47
+7200 let obj=16: if not is_here(obj)
+7210   narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado.":wait
+7220   speak "Ambrosio, alegre, se despide de ti. 'Estoy seguro de que volveremos a vernos', dice. Se ha ido."
+7230   let thing_data(2,1)=255: let thing_data(16,1)=255: let thing_description$(19)="Entreabierta.": let d(47,4)=48: ret
+7240 endif
 7250 if action=2 and nloc=47:narrate "El candado bloquea la puerta.": ret
 7260 if action=2:narrate "No hay nada que abrir ahora.": ret
-7270 if action=12:gosub 7715: ret
-7499 gosub 7990: ret
+7270 if action=12:action_insert: ret
+
+7290 narrate "No puedes hacer eso."
 
 7500 enddef do_action
 
 
-7501 rem deja
+7501 defproc action_drop
 7502 if uno=10 and nloc<12:narrate "No, es lo que queda de tu padre.": ret
 7504 if uno=4:narrate "No, sin luz es imposible moverse por la caverna.": ret
-7506 if o(uno,1)=0:let o(uno,1)=nloc: narrate "Hecho.": ret
-7510 narrate "No llevas eso contigo.": ret
+7506 if thing_data(uno,1)=0:let thing_data(uno,1)=nloc: narrate "Hecho.": ret
+7510 narrate "No llevas eso contigo."
+7511 enddef
 
-7515 rem coge
-7516 if o(uno,1)=0:narrate "Pero si ya lo tienes ...": ret
-7518 if uno=16 and o(16,2)=1:narrate "Ambrosio la retiene consigo.": ret
-7520 if o(uno,2)<>0:narrate "No es algo que se pueda coger.": ret
-7525 let o(uno,1)=0: narrate "Hecho.": ret
+7515 defproc action_take
+7516 if thing_data(uno,1)=0:narrate "Pero si ya lo tienes...": ret
+7518 if uno=16 and thing_data(16,2)=1:narrate "Ambrosio la retiene consigo.": ret
+7520 if thing_data(uno,2)<>0:narrate "No es algo que se pueda coger.": ret
+7525 let thing_data(uno,1)=0: narrate "Hecho."
+7526 enddef
 
-7530 rem romper
+7530 defproc action_brake
+
 7532 let n=0: let obj=otro: if otro=-1:let otro=10: let obj=10: let n=1
-7535 gosub 1000
-7536 if uno=22 and otro=10 and cortado=0 and n<>1 and aqui=1:narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.": ret
-7537 if uno=22 and otro=17 and cortado=0 and aqui=1:let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.": ret
-7538 if uno=22 and cortado=0 then narrate "El problema es encontrar la herramienta adecuada para hacerlo.": return
-7539 if uno=22 and cortado=1 then narrate "La punta ya es lo suficientemente afilada.":return
-7540 if uno=6 and ((aqui=1 and otro=10) or n=1):let o(6,1)=255: let o(11,1)=0: let o(12,1)=0: let o(23,1)=0: narrate "Rasgas la capa, como buenamente puedes.": ret
-7541 if uno=6:goto 7595
-7542 if uno=20 and otro=22 and aqui=1 and n=0 and cortado=1:let o(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
-7544 if uno=20 and otro=22 and aqui=1 and n=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.": ret
+
+7534 rem temp structure!!!
+7535 rep not_with_that
+
+7536 if uno=22 and otro=10 and cortado=0 and n<>1 and is_here(obj):narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.": ret
+7537 if uno=22 and otro=17 and cortado=0 and is_here(obj):let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.": ret
+7538 if uno=22 and cortado=0 then narrate "El problema es encontrar la herramienta adecuada para hacerlo.": ret
+7539 if uno=22 and cortado=1 then narrate "La punta ya es lo suficientemente afilada.":ret
+7540 if uno=6 and ((is_here(obj) and otro=10) or n=1):let thing_data(6,1)=255: let thing_data(11,1)=0: let thing_data(12,1)=0: let thing_data(23,1)=0: narrate "Rasgas la capa, como buenamente puedes.": ret
+7541 if uno=6:exit not_with_that
+7542 if uno=20 and otro=22 and is_here(obj) and n=0 and cortado=1:let thing_data(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
+7544 if uno=20 and otro=22 and is_here(obj) and n=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.": ret
 7545 if uno=20 and otro=10:narrate "Tu espada no hace nada, ni, por descontado, tus manos desnudas.": ret
-7550 if aqui=0:narrate "En cualquier caso, no con las manos desnudas.": ret
-7552 if uno=20 and otro=22:let o(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
-7555 let obj=3: gosub 1000: if uno<>17 or otro<>10 or aqui<>1:goto 7560
-7557 let o(3,1)=255: let o(4,1)=nloc: let n$(3)="amorfa": let n$(4)="antorcha": narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha.": ret
+7550 if not is_here(obj):narrate "En cualquier caso, no con las manos desnudas.": ret
+7552 if uno=20 and otro=22:let thing_data(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
+7555 let obj=3
+7556 if uno=17 and otro=10 and is_here(obj)
+7557 let thing_data(3,1)=255: let thing_data(4,1)=nloc: let thing$(3)="amorfa": let thing$(4)="antorcha": narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha.": ret
+7559 endif
 7560 if uno=17 and otro=10:narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones.": ret
-7565 if uno=17:goto 7595
-7570 if uno=21 and otro=10:narrate "Ante los amenazadores tajos, la serpiente huye.": let d(43,2)=44: let o(21,1)=255: ret
-7575 if uno=21:goto 7595
+7565 if uno=17:exit not_with_that
+7570 if uno=21 and otro=10:narrate "Ante los amenazadores tajos, la serpiente huye.": let d(43,2)=44: let thing_data(21,1)=255: ret
+7575 if uno=21:exit not_with_that
 7590 narrate "Eso no es lo adecuado ahora.": ret
 
-7595 narrate "Con eso no...": ret
+7592 endrep not_with_that
 
-7600 rem habla
-7601 if uno<>2 then goto 7660
-7602 if o(2,1)<>19:goto 7625
+7595 narrate "Con eso no..."
 
-7605 let o(3,1)=0: let o(17,1)=0: let o(2,1)=46: speak "Hola, buen hombre.": speak "Hola, Ulfius. Mi nombre es Ambrosio.":end_of_scene: print
+7596 enddef
+
+7597 defproc action_speak
+7600 sel on uno
+
+7601 =2 
+
+7602 if thing_data(2,1)=19
+
+7605 let thing_data(3,1)=0: let thing_data(17,1)=0: let thing_data(2,1)=46: speak "Hola, buen hombre.": speak "Hola, Ulfius. Mi nombre es Ambrosio.":end_of_scene: print
 7610 narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. y tras tanto acontecido, llora desconsoladamente.":wait: cls_
-7615 narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados.":wait: print : speak "Bien, Ambrosio, emprendamos la marcha.": print
-7620 narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero ... ha desaparecido.":wait: print : narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre.":end_of_scene: ret
+7615 narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados.":wait: speak "Bien, Ambrosio, emprendamos la marcha."
+7620 narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero... ha desaparecido.":wait: narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre.":end_of_scene: ret
+7622 endif
 
-7625 if nloc<>46 or sig<>0:goto 7655
+7625 if nloc=46 and sig=0
 7630 speak "La llave, Ambrosio, estaba ya en tu poder. y es obvio que conoceis un camino mas corto."
 7635 speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debeis hacer el vuestro, verlo todo con vuestros ojos.": narrate "Ulfius sacude la cabeza."
 7640 speak "No lo entiendo, la verdad."
+7641 endif
 
-7655 if nloc>=45 and nloc<=47:speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva.": let o(16,1)=0: let o(16,2)=0: let sig=1: ret
+7655 if nloc>=45 and nloc<=47:speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva.": let thing_data(16,1)=0: let thing_data(16,2)=0: let sig=1
 
-7660 if uno=13:gosub 7670: ret
-7665 narrate "No tiene sentido hablar con eso.": ret
+7660 =13:talk_to_the_man
+7665 =remainder:narrate "No tiene sentido hablar con eso."
+7666 endsel
+7667 enddef
 
-7670 if hablado=0:speak "Me llamo Ulfius y ...": narrate "El hombre asiente, impaciente.": speak "Somos refugiados de la gran guerra. Buscamos la paz."
-7680 let hablado=1
-7685 let obj=18: gosub 1000: if aqui<>1:goto 7697
-7687 let o(18,1)=18: narrate "El hombre se irrita.": speak "No podemos permitiros huir con la piedra del druida.": narrate "Hace un gesto..."
+7668 defproc talk_to_the_man
+7670 if not talked_to_the_man
+7671   speak "Me llamo Ulfius y..."
+7672   narrate "El hombre asiente, impaciente."
+7674   speak "Somos refugiados de la gran guerra. Buscamos la paz."
+7674   let talked_to_the_man=1
+7675 endif
+7685 let obj=18: if is_here(obj)
+7687 let thing_data(18,1)=18: narrate "El hombre se irrita.": speak "No podemos permitiros huir con la piedra del druida.": narrate "Hace un gesto..."
 7690 speak "La piedra debe devolverse a su lugar de encierro.": narrate "Un hombre te arrebata la piedra y se la lleva.": ret
+7696 else
+7697 let obj=10: if is_here(obj):narrate "El hombre se enfurece, y alza su mano indicando al norte.": speak "Nadie portando armas puede pasar.": ret
+7698 let d(28,3)=29: narrate "El hombre, calmado, indica hacia el este y habla:": speak "Si vienes en paz, puedes ir en paz.": narrate "Todos se apartan y permiten ahora el paso al este."
+7699 endif
+7700 enddef
 
-7697 let obj=10: gosub 1000: if aqui=1:narrate "El hombre se enfurece, y alza su mano indicando al norte.": speak "Nadie portando armas puede pasar.": ret
-7699 let d(28,3)=29: narrate "El hombre, calmado, indica hacia el este y habla:": speak "Si vienes en paz, puedes ir en paz.": narrate "Todos se apartan y permiten ahora el paso al este.": ret
-
-7700 rem tira
-7705 if nloc=19 and (uno=10 or uno=18) and hablado=1:let o(uno,1)=39: narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista.": ret
+7701 defproc action_fling
+7705 if nloc=19 and (uno=10 or uno=18) and talked_to_the_man:let thing_data(uno,1)=39: narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista.": ret
 7707 if nloc=19:narrate "No quieres perder eso.": ret
 7709 if nloc=13 or nloc=16:narrate "No hay suficiente profundidad.": ret
-7710 narrate "No tiene sentido tirar nada ahora.": ret
+7710 narrate "No tiene sentido tirar nada ahora."
+7711 enddef
 
-7715 rem mete
+7715 defproc action_insert
 7720 if otro<>14:narrate "No tiene sentido meter nada en eso.": ret
-7730 if uno=18 or uno=9:let o(uno,1)=255
-7735 if o(18,1)=255 and o(9,1)=255:let d(41,2)=42: narrate "La gran roca se desplaza y deja el paso libre.": ret
+7730 if uno=18 or uno=9:let thing_data(uno,1)=255
+7735 if thing_data(18,1)=255 and thing_data(9,1)=255:let d(41,2)=42: narrate "La gran roca se desplaza y deja el paso libre.": ret
 7737 if uno<>18 and uno<>9:narrate "No encaja.": ret
-7740 narrate "Encaja: metido. Desaparece en su interior.": ret
+7740 narrate "Encaja: metido. Desaparece en su interior."
+7741 enddef
 
-7900 rem movs
-7905 if d(nloc,numDir)>0:let nloc=d(nloc,numDir): look: ret
-7910 narrate "No es posible.": ret
+7900 defproc action_move(direction)
+7904   rem formerly if x>0, check!!!
+7905   if d(nloc,direction)
+7906     let nloc=d(nloc,direction): look
+7907   else
+7910     narrate "No es posible."
+7912   endif
+7915 enddef
 
-7950 let t$="": rem inv
-7952 for n=1 to Objs
-7954 if o(n,1)=0:let t$=t$&"  - "&n$(n)&nl$
-7956 endfor n
-7958 if t$<>""
-7959   print "Inventario:"\\t$
+7949 defproc action_inventory
+7950 loc i,t$
+7951 let t$=""
+7952 for i=1 to things
+7954   if thing_data(i,1)=0:let t$=t$&"  - "&thing$(i)&nl$
+7956 endfor i
+7958 if len(t$)
+7959   print "Inventario:"\\t$:pause
 7960 else
 7961   narrate "No llevas nada contigo."
 7962 endif
-7970 ret
+7970 enddef
 
-7990 narrate "No puedes hacer eso."
-7999 ret
 
 8000 defproc parser
 
@@ -250,7 +303,8 @@
 8028 endrep find_last
 
 8029 rep loopx1
-8030   if first>last:exit loopx1
+8030   rem todo all this is not needed because a special input will be used!!!
+8031   if first>last:exit loopx1
 8035   let chrAsc=code(t$(first))
 8040   if chrAsc>=chrA and chrAsc<=chrZ:let chrAsc=diff+chrAsc
 8045   if chrAsc<>code(" ")
@@ -283,10 +337,10 @@
 
 8104 else
 
-8105   if uno=-1:locObj
-8106     let uno=obj
-8107   else
-8110     if otro=-1:locObj: let otro=obj
+8105   if uno=-1
+8106     locObj:let uno=obj
+8108   else
+8110     if otro=-1:locObj:let otro=obj
 8111   endif
 
 8112 endif
@@ -297,20 +351,20 @@
 
 8121 enddef
 
-8155 defproc locObj
+8155 defproc locObj:rem todo must be a function!!!
 
 8157 if m$="anciano" or m$="jefe":let obj=13: ret
 8160 let n=len(m$): let obj=-1: if n=0:ret
 8162 if n>9:let n=9: let m$=m$(1 to 9)
 8165 if n>2:if m$(1 to 3)="ojo":let obj=14: ret
 8167 if n>6:if m$(1 to 7)="agujero":let obj=14: ret
-8170 let i=1: let f=Objs+1
+8170 let i=1: let f=things+1
 
 8174 rep xxx1
 8175   let m=int((i+f)/2)
-8180   if n$(m,1 to n)=m$:let obj=m: ret
+8180   if thing$(m,1 to n)=m$:let obj=m: ret
 8185   if m=i:ret
-8190   if n$(m)>m$:let f=m: next xxx1:exit xxx1
+8190   if thing$(m)>m$:let f=m: next xxx1
 8192   let i=m
 8194 endrep xxx1
 
@@ -328,7 +382,7 @@
 
 9960 defproc end_of_scene:rem rename!!!
 9965   ink dark_green
-9966   print\"..."\\
+9966   print "..."\\
 9997   ink light_grey
 9968   wait
 9969 enddef
@@ -338,19 +392,21 @@
 9974   rep press_key:if inkey$<>"":exit press_key
 9976 enddef
 
-9980 def proc look
+9977 def proc look
+9978   loc message$
 9981   cls_
-9982   gosub 2500: describe h$(nloc) 
-9984   if m$<>"":print:narrate m$: let m$=""
-9986   print : gosub 2000
+9982   describe h$(nloc) 
+9983   let message$=location_plot$()
+9984   if len(message$):narrate message$
+9986   list_present_things 
 9987 enddef
 
 9990 deffn accept$
 9991   loc command$
 9992   ink yellow
 9993   rep valid_command
-9994     input "> ";command$
-9995     if command$="":next valid_command
+9994     input \"> ";command$
+9995     if command$<>"":exit valid_command
 9996   endrep valid_command
 9997   ink light_grey
 9998   ret command$
@@ -366,20 +422,23 @@
 11202   ink yellow
 11203   let last=len(quote$)
 11204   if quote$(last)="." and quote$(last-1)<>"."
-11215     narrate '"'&quote$(to last-1)&'".'
+11215     type '"'&quote$(to last-1)&'".'
 11216   else
-11217     narrate '"'&quote$(to last)&'"'
+11217     type '"'&quote$(to last)&'"'
 11219   endif
-11222   ink light_grey
 11225 enddef
 
 11300 defproc describe(txt$)
 11305   ink dark_cyan
-11307   narrate txt$
-11308   ink light_grey
+11307   type txt$
 11310 enddef
 
-11390 defproc narrate(txt$)
+11350 defproc narrate(txt$)
+11360   ink light_grey
+11370   type txt$
+11390 enddef
+
+11399 defproc type(txt$)
 11400   local text$,first,last
 11410   if len(txt$)
 11420     let text$=txt$&" "
@@ -391,6 +450,7 @@
 11480       endif
 11490     endfor last
 11500   endif
+11505   print\\
 11510 enddef
 
 12000 defproc init_ql
@@ -419,12 +479,12 @@
 
 30000 defproc intro
 30010 cls_
-30012 narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja.":wait: print
+30012 narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja.":wait
 30014 narrate "Piensas en el encargo realizado por Uther Pendragon. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
-30020 wait: print : narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
+30020 wait: narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
 30026 end_of_scene
 30030 cls_ : speak "Sire Ulfius, la batalla ha terminado."
-30040 print : narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
+30040 narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
 30048 end_of_scene
 30050 enddef
 
@@ -432,16 +492,13 @@
 31905 let nloc=15
 31910 let sig=0
 31915 let trSax=0
-31920 let hablado=0
-31925 let action=-1
-31930 let uno=-1
-31935 let otro=-1
+31920 let talked_to_the_man=0
 31940 let cortado=0
 31945 let not_seen$="No lo veo, o no es importante."
 31950 let chrA=code("A")
 31955 let chrZ=code("Z")
-31960 let diff=abs(code("a")-chrA)
-31965 let k$="Direcciones: n(orte), s(ur), e(ste), o(este), arriba, abajo. (m)irar redescribe un lugar, (ex)aminar permite examinar un objeto, o, al no indicar nada, a ti. Se puede cortar, nadar, atacar, empujar o golpear algo, cogerlo, dejarlo, y tirarlo."
+31960 let diff=abs(code("a")-chrA):rem used to change the letter case, todo improve!!!
+31965 let help$="Direcciones: n(orte), s(ur), e(ste), thing_data(este), arriba, abajo. (m)irar redescribe un lugar, (ex)aminar permite examinar un objeto, o, al no indicar nada, a ti. Se puede cortar, nadar, atacar, empujar o golpear algo, cogerlo, dejarlo, y tirarlo."
 31970 enddef
 
 31000 defproc read_data
@@ -451,48 +508,46 @@
 31002 restore
 
 31005 rem locs
-31010 let Locs=51
-31015 dim h$(Locs,255)
-31016 for i=1 to Locs
+31010 let locations=51
+31015 dim h$(locations,255)
+31016 for i=1 to locations
 31020   read h$(i)
 31025 endfor i
 
-31136 rem Dirs
-31141 let Dirs=6
-31142 dim d(Locs,Dirs)
-31146 for i=1 to Locs
-31151   for j=1 to Dirs
+31136 rem directions
+31141 let directions=6
+31142 dim d(locations,directions)
+31146 for i=1 to locations
+31151   for j=1 to directions
 31156     read d(n,j)
 31161   endfor j
 31166 endfor i
 
-31282 rem nObjs
-31287 let Objs=23
-31288 dim n$(Objs,9)
-31292 for i=1 to Objs
-31297   read n$(i)
+31287 let things=23
+31288 dim thing$(things,9)
+31292 for i=1 to things
+31297   read thing$(i)
 31302 endfor i
 
-31430 rem dObjs
-31432 dim o$(Objs,128)
-31437 for i=1 to Objs
-31442   read o$(i)
+31432 dim thing_description$(things,128)
+31437 for i=1 to things
+31442   read thing_description$(i)
 31447 endfor i
 
-31572 rem atrObjs
-31577 dim o(objs,2)
-31582 for i=1 to Objs
+31572 rem atrthings
+31577 dim thing_data(things,2)
+31582 for i=1 to things
 31587   for j=1 to 2
-31592     read o(n,j)
+31592     read thing_data(i,j)
 31597   endfor j
 31602 endfor i
 
-31603 rem accs
-31605 let Accs=18
-31606 dim a$(Accs,7)
-31607 dim action_type(Accs)
-31610 for i=1 to Accs
-31615   read a$(i),action_type(i)
+31603 rem actions
+31605 let actions=18
+31606 dim action$(actions,7)
+31607 dim action_type(actions)
+31610 for i=1 to actions
+31615   read action$(i),action_type(i)
 31620 endfor i
 
 31700 enddef
@@ -608,7 +663,7 @@
 32457 data "Justo en la mitad del puente, debe sostener algo importante."
 32462 data "Ambrosio es un hombre de mediana edad, que te mira afable."
 32467 data "Apagada.","Ilumina perfectamente."
-32477 data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados."
+32477 data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados.":rem respectivamente?!!!
 32482 data "Tu capa de general, de fina lana tintada de negro."
 32487 data "No ves nada por la cortina de agua. El lago es muy poco profundo."
 32492 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
@@ -617,7 +672,7 @@
 32507 data "Un trozo un poco grande de capa."
 32512 data "Un hilo se ha desprendido al cortar la capa con la espada."
 32517 data "Es el jefe de los refugiados."
-32522 data "El Idolo tiene dos agujeros por ojos."
+32522 data "El idolo tiene dos agujeros por ojos."
 32527 data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
 32532 data "Una llave grande, de hierro herrumboso."
 32537 data "Se trata de una dura y afilada piedra."
