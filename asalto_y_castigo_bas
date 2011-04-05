@@ -94,8 +94,7 @@ defproc plot
     if location<10 and not location_exit(8,1)
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
-    let obj=4
-    if location>19 and not is_here(obj)
+    if location>19 and not is_here(4)
       narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
       end_of_scene
       let location=17:action_look
@@ -131,15 +130,19 @@ defproc do_action
 
   if action_type(action)=1 and object=-1:_debug 7010:narrate not_seen$:ret
   if action_type(action)=2 and (object=-1 or complement=-1):_debug 7015:narrate not_seen$:ret
-  if action_type(action)>0:let obj=object:if not is_here(obj):_debug 7020:narrate not_seen$:ret
-  if action_type(action)=2 and complement<>-1:let obj=complement:if not is_here(obj):_debug 7030:narrate not_seen$:ret
+  if action_type(action)>0:if not is_here(object):_debug 7020:narrate not_seen$:ret
+  if action_type(action)=2 and complement<>-1:if not is_here(complement):_debug 7030:narrate not_seen$:ret
 
   sel on action
     =17:if yes("¿Quieres volver a intentarlo?"):run:else:cls_:stop
     =13:action_look
-    =10 and object=-1:action_inventory
-    =10:let obj=object:if is_here(obj):narrate thing_description$(object)
-    =10:narrate not_seen$
+    =10
+      if object=-1:action_inventory:ret
+      if is_here(object)
+        narrate thing_description$(object)
+      endif
+        narrate not_seen$
+      endif
     =14:action_move 1
     =16:action_move 2
     =9:action_move 3
@@ -176,8 +179,7 @@ enddef
 defproc action_open
 
   if location=47
-    let obj=16
-    if is_here(obj)
+    if is_here(16)
       narrate "El candado bloquea la puerta."
     else
       narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
@@ -197,10 +199,17 @@ defproc action_open
 enddef
 
 defproc action_drop
-  if object=10 and location<12:narrate "No, es lo que queda de tu padre.":ret
-  if object=4:narrate "No, sin luz es imposible moverse por la caverna.":ret
-  if thing_data(object,1)=0:let thing_data(object,1)=location:narrate "Hecho.":ret
-  narrate "No llevas eso contigo."
+
+  sel on object
+    =10:if location<12:narrate "No, es lo que queda de tu padre.":ret
+    =4:narrate "No, sin luz es imposible moverse por la caverna.":ret
+  endsel
+  if thing_data(object,1)=0
+    let thing_data(object,1)=location
+    narrate "Hecho."
+  else
+    narrate "No llevas eso contigo."
+  endif
 enddef
 
 defproc action_take
@@ -212,35 +221,35 @@ enddef
 
 defproc action_brake
 
-  let n=0
-  let obj=complement
+  loc no_tool_specified,tool
+
+  let no_tool_specified=0
   if complement=-1
     let complement=10
-    let obj=10
-    let n=1
+    let no_tool_specified=1
   endif
+  let tool=complement
 
   rem temp structure!!!
   rep not_with_that
 
-  if object=22 and complement=10 and cortado=0 and n<>1 and is_here(obj):narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.":ret
-  if object=22 and complement=17 and cortado=0 and is_here(obj):let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.":ret
+  if object=22 and complement=10 and cortado=0 and no_tool_specified<>1 and is_here(tool):narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.":ret
+  if object=22 and complement=17 and cortado=0 and is_here(tool):let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.":ret
   if object=22 and cortado=0 then narrate "El problema es encontrar la herramienta adecuada para hacerlo.":ret
   if object=22 and cortado=1 then narrate "La punta ya es lo suficientemente afilada.":ret
 
-  if object=6 and ((is_here(obj) and complement=10) or n=1):let thing_data(6,1)=255:let thing_data(11,1)=0:let thing_data(12,1)=0:let thing_data(23,1)=0:narrate "Rasgas la capa, como buenamente puedes.":ret
+  if object=6 and ((is_here(tool) and complement=10) or no_tool_specified=1):let thing_data(6,1)=255:let thing_data(11,1)=0:let thing_data(12,1)=0:let thing_data(23,1)=0:narrate "Rasgas la capa, como buenamente puedes.":ret
   if object=6:exit not_with_that
 
-  if object=20 and complement=22 and is_here(obj) and n=0 and cortado=1:let thing_data(20,1)=255:let location_exit(31,1)=32:narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.":ret
-  if object=20 and complement=22 and is_here(obj) and n=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.":ret
+  if object=20 and complement=22 and is_here(tool) and no_tool_specified=0 and cortado=1:let thing_data(20,1)=255:let location_exit(31,1)=32:narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.":ret
+  if object=20 and complement=22 and is_here(tool) and no_tool_specified=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.":ret
   if object=20 and complement=10:narrate "Tu espada no hace nada, ni, por descontado, tus manos desnudas.":ret
-  if not is_here(obj):narrate "En cualquier caso, no con las manos desnudas.":ret
+  if not is_here(tool):narrate "En cualquier caso, no con las manos desnudas.":ret
   if object=20 and complement=22:let thing_data(20,1)=255:let location_exit(31,1)=32:narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.":ret
-  let obj=3
-  if object=17 and complement=10 and is_here(obj)
+
+  if object=17 and complement=10 and is_here(tool)
     let thing_data(3,1)=255:let thing_data(4,1)=location:let thing$(3)="amorfa":let thing$(4)="antorcha":narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha.":ret
   endif
-
   if object=17 and complement=10:narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones.":ret
   if object=17:exit not_with_that
 
