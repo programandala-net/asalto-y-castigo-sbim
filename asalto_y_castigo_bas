@@ -1,711 +1,1054 @@
-   1 rem Asalto y Castigo
-
-   2 rem Autor de las versiones originales para ZX Spectrum y Blassic: baltasarq@yahoo.es
-
-
- 111 init_ql
- 112 credits
- 113 init_vars
- 114 read_data
- 115 end_of_scene
- 116 intro
- 118 look
- 119 rep game
- 120   plot
- 122   let t$=accept$
- 125   parser
- 127   print uno,otro
- 128   print action,obj
- 130   do_action
- 140 endrep
-
-
- 540 defproc locVerbo
- 542 let action=-1: let n=len(m$)
- 544 if not n
- 546   if m$="e":let action=9: ret
- 548   if m$="m":let action=13: ret
- 549 endif
- 550 if n>2:if m$(1 to 3)="nad":let action=6: ret
- 551 if n>6:if m$(1 to 6)="recort":let action=4: ret
- 552 if n>4:if m$(1 to 4)="afil":let action=4: ret
- 553 if n>3:if m$(1 to 3)="mat":let action=4: ret
- 554 if m$="examinate" or m$="examinarte":let action=10: ret
- 555 if m$="fin":let action=17: ret
- 556 if n>4:if m$(1 to 4)="cort":let action=4: ret
- 557 if n>5:if m$(1 to 5)="empuj":let action=4: ret
- 558 if n>5:if m$(1 to 5)="golpe":let action=4: ret
- 559 if n>4:if m$(1 to 4)="romp":let action=4: ret
- 560 if n>7:let n=7: let m$=m$(1 to 7)
- 565 let i=1: let f=actions+1: let m=2
- 574 rep what_for:rem rename!!!
- 575   let m=int((i+f)/2)
- 580   if action$(m,1 to n)=m$:let action=m: exit what_for
- 582   if i=m:exit what_for
- 585   if action$(m)>m$:let f=m: next what_for
- 590   let i=m
- 591 endrep
- 592 enddef
-
-1000 deffn is_here(thing)
-1010   ret thing_data(thing,1)=0 or thing_data(thing,1)=nloc
-1015 enddef
-
-1998 defproc list_present_things
-1999   loc n,t$
-2000   let t$="": rem objsLoc
-2005   for n=1 to things
-2010     if thing_data(n,1)=nloc and thing_data(n,2)=2:let t$=t$&"  - "&chr$(code(thing$(n,1))-diff)&thing$(n,2 to)&nl$: next n:exit n
-2015     if thing_data(n,1)=nloc:let t$=t$&"  - "&thing$(n)&nl$
-2035   endfor n
-2045   if len(t$):print "Puedes ver:"&nl$&t$
-2050 enddef
-
-2500 deffn location_plot$
-
-2505 if nloc=11 or nloc=38 or nloc=44:let thing_data(15,1)=nloc
-
-2510 if nloc=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
-2515 if nloc<10 and d(8,1):ret "Tus hombres siguen tus pasos."
-2520 if thing_data(2,1)<>255 and thing_data(16,2)=0 and (nloc=46 or sig=1):let thing_data(2,1)=nloc: ret "Tu benefactor te sigue, esperanzado."
-2530 if nloc=28:let d(28,3)=0: ret ""
-2540 if nloc=31
-2545   if d(31,1)
-2546     ret "Las rocas yacen desmoronadas a lo largo del pasaje."
-2547   else
-2548     ret "Las rocas bloquean el camino."
-2579   endif
-2580 endif
-2600 ret ""
-2999 enddef
-
-3000 defproc plot
-
-3010 if not(nloc<>8 or d(8,1)=0)
-3015 let d(8,1)=0:let trSax=1: narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa.":end_of_scene
-3020 narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos.":wait: cls_
-3025 narrate "Tus oficiales te conminan a huir."
-3026 speak "Capturando a un general britano, ganan doblemente."
-3027 narrate "Sabes que es cierto, y te duele.":wait
-
-3099 else
-
-3100 if trSax>0 and nloc<12:let trSax=trSax+1: narrate "No sabes cuanto tiempo te queda..."
-3200 if trSax>10 and nloc<12:narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:": speak "Bien, bien. Del gran Ulfius podremos sacar una buena ventaja.":end_of_scene: let action=17:do_action:ret
-3300 if nloc<10 and d(8,1)=0:narrate "Tus hombres luchan con denuedo contra los sajones."
-3400 let obj=4: if nloc>19 and not is_here(obj):narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver.":end_of_scene: let nloc=17: look: ret
-
-3500 if nloc<>51:ret
-3505 narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado.":wait
-3510 narrate "Pides audiencia al rey, Uther Pendragon.":end_of_scene: cls_
-3515 speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza.":wait
-3520 narrate "No puedes entenderlo. El rey, tu amigo.":wait
-3525 narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer.":end_of_scene
-3530 narrate "Te has ganado un buen descanso": let action=17:do_action
-
-4535 endif
-
-4999 enddef
-
-7000 defproc do_action
-
-7005 if action=-1:narrate "No conozco ese verbo.": ret
-7010 if action_type(action)=1 and uno=-1:_debug 7010:narrate not_seen$: ret
-7015 if action_type(action)=2 and (uno=-1 or otro=-1):_debug 7015:narrate not_seen$: ret
-7020 if action_type(action)>0:let obj=uno: if not is_here(obj):_debug 7020:narrate not_seen$: ret
-7030 if action_type(action)=2 and otro<>-1:let obj=otro: if not is_here(obj):_debug 7030:narrate not_seen$: ret
-7050 if action=17:if yes("¿Quieres volver a intentarlo?"):run:else:cls_:stop
-7055 if action=13:look: ret
-7060 if action=10 and uno=-1:action_inventory: ret
-7062 if action=10:let obj=uno: if is_here(obj):narrate thing_description$(uno): ret
-7064 if action=10:narrate not_seen$: ret
-7065 if action=14:action_move 1: ret
-7070 if action=16:action_move 2: ret
-7075 if action=9:action_move 3: ret
-7080 if action=15:action_move 4: ret
-7085 if action=3:action_move 5: ret
-7090 if action=1:action_move 6: ret
-7095 if action=5:narrate help$:end_of_scene: ret
-7100 if action=7:action_take: ret
-7110 if action=8:action_drop: ret
-7115 if action=6
-7116   if nloc=11
-7120   let nloc=12
-7122   narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
-7124   end_of_scene
-7130   narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
-7132   end_of_scene
-7134   look
-7135   else
-7150   narrate "No tiene sentido nadar ahora."
-7155   endif
-7156   ret
-7157 endif
-7160 if action=4:action_brake: ret
-7170 if action=11:action_speak: ret
-7180 if action=18:action_fling: ret
-7190 if action=2 and nloc=47
-7200 let obj=16: if not is_here(obj)
-7210   narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado.":wait
-7220   speak "Ambrosio, alegre, se despide de ti. 'Estoy seguro de que volveremos a vernos', dice. Se ha ido."
-7230   let thing_data(2,1)=255: let thing_data(16,1)=255: let thing_description$(19)="Entreabierta.": let d(47,4)=48: ret
-7240 endif
-7250 if action=2 and nloc=47:narrate "El candado bloquea la puerta.": ret
-7260 if action=2:narrate "No hay nada que abrir ahora.": ret
-7270 if action=12:action_insert: ret
-
-7290 narrate "No puedes hacer eso."
-
-7500 enddef do_action
-
-
-7501 defproc action_drop
-7502 if uno=10 and nloc<12:narrate "No, es lo que queda de tu padre.": ret
-7504 if uno=4:narrate "No, sin luz es imposible moverse por la caverna.": ret
-7506 if thing_data(uno,1)=0:let thing_data(uno,1)=nloc: narrate "Hecho.": ret
-7510 narrate "No llevas eso contigo."
-7511 enddef
-
-7515 defproc action_take
-7516 if thing_data(uno,1)=0:narrate "Pero si ya lo tienes...": ret
-7518 if uno=16 and thing_data(16,2)=1:narrate "Ambrosio la retiene consigo.": ret
-7520 if thing_data(uno,2)<>0:narrate "No es algo que se pueda coger.": ret
-7525 let thing_data(uno,1)=0: narrate "Hecho."
-7526 enddef
-
-7530 defproc action_brake
-
-7532 let n=0: let obj=otro: if otro=-1:let otro=10: let obj=10: let n=1
-
-7534 rem temp structure!!!
-7535 rep not_with_that
-
-7536 if uno=22 and otro=10 and cortado=0 and n<>1 and is_here(obj):narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.": ret
-7537 if uno=22 and otro=17 and cortado=0 and is_here(obj):let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.": ret
-7538 if uno=22 and cortado=0 then narrate "El problema es encontrar la herramienta adecuada para hacerlo.": ret
-7539 if uno=22 and cortado=1 then narrate "La punta ya es lo suficientemente afilada.":ret
-7540 if uno=6 and ((is_here(obj) and otro=10) or n=1):let thing_data(6,1)=255: let thing_data(11,1)=0: let thing_data(12,1)=0: let thing_data(23,1)=0: narrate "Rasgas la capa, como buenamente puedes.": ret
-7541 if uno=6:exit not_with_that
-7542 if uno=20 and otro=22 and is_here(obj) and n=0 and cortado=1:let thing_data(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
-7544 if uno=20 and otro=22 and is_here(obj) and n=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.": ret
-7545 if uno=20 and otro=10:narrate "Tu espada no hace nada, ni, por descontado, tus manos desnudas.": ret
-7550 if not is_here(obj):narrate "En cualquier caso, no con las manos desnudas.": ret
-7552 if uno=20 and otro=22:let thing_data(20,1)=255: let d(31,1)=32: narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.": ret
-7555 let obj=3
-7556 if uno=17 and otro=10 and is_here(obj)
-7557 let thing_data(3,1)=255: let thing_data(4,1)=nloc: let thing$(3)="amorfa": let thing$(4)="antorcha": narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha.": ret
-7559 endif
-7560 if uno=17 and otro=10:narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones.": ret
-7565 if uno=17:exit not_with_that
-7570 if uno=21 and otro=10:narrate "Ante los amenazadores tajos, la serpiente huye.": let d(43,2)=44: let thing_data(21,1)=255: ret
-7575 if uno=21:exit not_with_that
-7590 narrate "Eso no es lo adecuado ahora.": ret
-
-7592 endrep not_with_that
-
-7595 narrate "Con eso no..."
-
-7596 enddef
-
-7597 defproc action_speak
-7600 sel on uno
-
-7601 =2 
-
-7602 if thing_data(2,1)=19
-
-7605 let thing_data(3,1)=0: let thing_data(17,1)=0: let thing_data(2,1)=46: speak "Hola, buen hombre.": speak "Hola, Ulfius. Mi nombre es Ambrosio.":end_of_scene: print
-7610 narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. y tras tanto acontecido, llora desconsoladamente.":wait: cls_
-7615 narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados.":wait: speak "Bien, Ambrosio, emprendamos la marcha."
-7620 narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero... ha desaparecido.":wait: narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre.":end_of_scene: ret
-7622 endif
-
-7625 if nloc=46 and sig=0
-7630 speak "La llave, Ambrosio, estaba ya en tu poder. y es obvio que conoceis un camino mas corto."
-7635 speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debeis hacer el vuestro, verlo todo con vuestros ojos.": narrate "Ulfius sacude la cabeza."
-7640 speak "No lo entiendo, la verdad."
-7641 endif
-
-7655 if nloc>=45 and nloc<=47:speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva.": let thing_data(16,1)=0: let thing_data(16,2)=0: let sig=1
-
-7660 =13:talk_to_the_man
-7665 =remainder:narrate "No tiene sentido hablar con eso."
-7666 endsel
-7667 enddef
-
-7668 defproc talk_to_the_man
-7670 if not talked_to_the_man
-7671   speak "Me llamo Ulfius y..."
-7672   narrate "El hombre asiente, impaciente."
-7674   speak "Somos refugiados de la gran guerra. Buscamos la paz."
-7674   let talked_to_the_man=1
-7675 endif
-7685 let obj=18: if is_here(obj)
-7687 let thing_data(18,1)=18: narrate "El hombre se irrita.": speak "No podemos permitiros huir con la piedra del druida.": narrate "Hace un gesto..."
-7690 speak "La piedra debe devolverse a su lugar de encierro.": narrate "Un hombre te arrebata la piedra y se la lleva.": ret
-7696 else
-7697 let obj=10: if is_here(obj):narrate "El hombre se enfurece, y alza su mano indicando al norte.": speak "Nadie portando armas puede pasar.": ret
-7698 let d(28,3)=29: narrate "El hombre, calmado, indica hacia el este y habla:": speak "Si vienes en paz, puedes ir en paz.": narrate "Todos se apartan y permiten ahora el paso al este."
-7699 endif
-7700 enddef
-
-7701 defproc action_fling
-7705 if nloc=19 and (uno=10 or uno=18) and talked_to_the_man:let thing_data(uno,1)=39: narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista.": ret
-7707 if nloc=19:narrate "No quieres perder eso.": ret
-7709 if nloc=13 or nloc=16:narrate "No hay suficiente profundidad.": ret
-7710 narrate "No tiene sentido tirar nada ahora."
-7711 enddef
-
-7715 defproc action_insert
-7720 if otro<>14:narrate "No tiene sentido meter nada en eso.": ret
-7730 if uno=18 or uno=9:let thing_data(uno,1)=255
-7735 if thing_data(18,1)=255 and thing_data(9,1)=255:let d(41,2)=42: narrate "La gran roca se desplaza y deja el paso libre.": ret
-7737 if uno<>18 and uno<>9:narrate "No encaja.": ret
-7740 narrate "Encaja: metido. Desaparece en su interior."
-7741 enddef
-
-7900 defproc action_move(direction)
-7904   rem formerly if x>0, check!!!
-7905   if d(nloc,direction)
-7906     let nloc=d(nloc,direction): look
-7907   else
-7910     narrate "No es posible."
-7912   endif
-7915 enddef
-
-7949 defproc action_inventory
-7950 loc i,t$
-7951 let t$=""
-7952 for i=1 to things
-7954   if thing_data(i,1)=0:let t$=t$&"  - "&thing$(i)&nl$
-7956 endfor i
-7958 if len(t$)
-7959   print "Inventario:"\\t$:pause
-7960 else
-7961   narrate "No llevas nada contigo."
-7962 endif
-7970 enddef
-
-
-8000 defproc parser
-
-8010 let m$="":let first=1: let last=len(t$)
-8013 let action=-1: let uno=-1: let otro=-1
-
-8015 rep find_first
-8016   if not(first<=last and t$(first)=" "):exit find_first
-8017   let first=first+1
-8020 endrep find_first
-
-8025 rep find_last
-8026   if not(last>1 and t$(last)=" "):exit find_last
-8027   let last=last-1
-8028 endrep find_last
-
-8029 rep loopx1
-8030   rem todo all this is not needed because a special input will be used!!!
-8031   if first>last:exit loopx1
-8035   let chrAsc=code(t$(first))
-8040   if chrAsc>=chrA and chrAsc<=chrZ:let chrAsc=diff+chrAsc
-8045   if chrAsc<>code(" ")
-8046     let m$=m$&chr$(chrAsc)
-8048   else
-
-8050     xxx0
-8055     if otro<>-1:ret
-8065     if t$(first)=" ":let first=first+1:ret
-8067     next loopx1:exit loopx1
-
-8068   endif
-
-8070   let first=first+1
-8075 endrep loopx1
-
-8080 xxx0
-
-8085 enddef 
-
-8090 defproc xxx0:rem rename!!!
-
-8091 if m$<>"con" and m$<>"de" and m$<>"del" and m$<>"el" and m$<>"la" and m$<>"los" and m$<>"las" and m$<>"a" and m$<>"al" and m$<>"por" and m$<>"en" and m$<>"y"
-8092 rem todo use m$ instr " word1 word2 etc " !!!
-
-8095 if action=-1
-
-8100   if m$(len(m$))="r":let m$=m$(1 to len(m$)-1)
-8101   locVerbo
-
-8104 else
-
-8105   if uno=-1
-8106     locObj:let uno=obj
-8108   else
-8110     if otro=-1:locObj:let otro=obj
-8111   endif
-
-8112 endif
-
-8115 endif
-
-8120 let m$=""
-
-8121 enddef
-
-8155 defproc locObj:rem todo must be a function!!!
-
-8157 if m$="anciano" or m$="jefe":let obj=13: ret
-8160 let n=len(m$): let obj=-1: if n=0:ret
-8162 if n>9:let n=9: let m$=m$(1 to 9)
-8165 if n>2:if m$(1 to 3)="ojo":let obj=14: ret
-8167 if n>6:if m$(1 to 7)="agujero":let obj=14: ret
-8170 let i=1: let f=things+1
-
-8174 rep xxx1
-8175   let m=int((i+f)/2)
-8180   if thing$(m,1 to n)=m$:let obj=m: ret
-8185   if m=i:ret
-8190   if thing$(m)>m$:let f=m: next xxx1
-8192   let i=m
-8194 endrep xxx1
-
-8195 enddef
-
-9940 deffn yes(question$)
-9941   loc answer$
-9942   print question$!"(S/N)"!;
-9943   rep answer
-9944     let answer$=inkey$
-9945     if answer$ instr "sn":exit answer
-9946   end rep answer
-9949   ret answer$ instr "s"
-9950 enddef
-
-9960 defproc end_of_scene:rem rename!!!
-9965   ink dark_green
-9966   print "..."\\
-9997   ink light_grey
-9968   wait
-9969 enddef
-
-9970 defproc wait
-9972   rep dont_press_key: if inkey$="":exit dont_press_key
-9974   rep press_key:if inkey$<>"":exit press_key
-9976 enddef
-
-9977 def proc look
-9978   loc message$
-9981   cls_
-9982   describe h$(nloc) 
-9983   let message$=location_plot$()
-9984   if len(message$):narrate message$
-9986   list_present_things 
-9987 enddef
-
-9990 deffn accept$
-9991   loc command$
-9992   ink yellow
-9993   rep valid_command
-9994     input \"> ";command$
-9995     if command$<>"":exit valid_command
-9996   endrep valid_command
-9997   ink light_grey
-9998   ret command$
-9999 enddef
-
-10000 defproc cls_
-10001   ink light_grey
-10002   cls
-10005 enddef
-
-11200 defproc speak(quote$)
-11201   loc last
-11202   ink yellow
-11203   let last=len(quote$)
-11204   if quote$(last)="." and quote$(last-1)<>"."
-11215     type '"'&quote$(to last-1)&'".'
-11216   else
-11217     type '"'&quote$(to last)&'"'
-11219   endif
-11225 enddef
-
-11300 defproc describe(txt$)
-11305   ink dark_cyan
-11307   type txt$
-11310 enddef
-
-11350 defproc narrate(txt$)
-11360   ink light_grey
-11370   type txt$
-11390 enddef
-
-11399 defproc type(txt$)
-11400   local text$,first,last
-11410   if len(txt$)
-11420     let text$=txt$&" "
-11430     let first=1
-11440     for last=1 to len(text$)
-11450       if text$(last)=" "
-11460         print #ow,!text$(first to last-1);
-11470         let first=last+1
-11480       endif
-11490     endfor last
-11500   endif
-11505   print\\
-11510 enddef
-
-12000 defproc init_ql
-12004   mode 8:paper 0:ink light_grey:csize 3,1:cls
-12005   rem original Blassic/CPC colors.
-12010   rem let black=0:let dark_blue=1:let dark_green=2:let dark_cyan=3:let red=4:let purple=5:let brown=6:let light_grey=7:let dark_grey=8:let light_blue=9:let light_green=10:let light_cyan=11:let light_red=12:let light_purple=13:let yellow=14:let white=15
-12012   rem QL colours in mode 8:
-12015   let black=0:let dark_blue=1:let dark_green=4:let dark_cyan=5:let red=2:let purple=3:let brown=2:let light_grey=7:let dark_grey=7:let light_blue=5:let light_green=4:let light_cyan=5:let light_red=2:let light_purple=3:let yellow=6:let white=7
-12017   let nl$=chr$(10)
-12040 enddef
-13000 defproc _debug(text$)
-13010   print "DEBUG POINT:"&text$
-13020 enddef
-
-29900 defproc credits
-29905   cls_
-29910   ink light_red:print "Asalto y castigo"
-29915   ink dark_cyan
-29916   print \"Por Baltasar el Arquero"
-29917   print "http://caad.es/baltasarq/"
-29920   print \\"Adaptada a SuperBASIC por:"
-29925   print \"Marcos Cruz (programandala.net), 2011"
-29930   ink light_grey
-29935   print\"C.A.A.D."\"http://www.caad.es/"\\\
-29940 enddef
-
-30000 defproc intro
-30010 cls_
-30012 narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja.":wait
-30014 narrate "Piensas en el encargo realizado por Uther Pendragon. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
-30020 wait: narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
-30026 end_of_scene
-30030 cls_ : speak "Sire Ulfius, la batalla ha terminado."
-30040 narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
-30048 end_of_scene
-30050 enddef
-
-31900 defproc init_vars
-31905 let nloc=15
-31910 let sig=0
-31915 let trSax=0
-31920 let talked_to_the_man=0
-31940 let cortado=0
-31945 let not_seen$="No lo veo, o no es importante."
-31950 let chrA=code("A")
-31955 let chrZ=code("Z")
-31960 let diff=abs(code("a")-chrA):rem used to change the letter case, todo improve!!!
-31965 let help$="Direcciones: n(orte), s(ur), e(ste), thing_data(este), arriba, abajo. (m)irar redescribe un lugar, (ex)aminar permite examinar un objeto, o, al no indicar nada, a ti. Se puede cortar, nadar, atacar, empujar o golpear algo, cogerlo, dejarlo, y tirarlo."
-31970 enddef
-
-31000 defproc read_data
-
-31001 loc i,j
-
-31002 restore
-
-31005 rem locs
-31010 let locations=51
-31015 dim h$(locations,255)
-31016 for i=1 to locations
-31020   read h$(i)
-31025 endfor i
-
-31136 rem directions
-31141 let directions=6
-31142 dim d(locations,directions)
-31146 for i=1 to locations
-31151   for j=1 to directions
-31156     read d(n,j)
-31161   endfor j
-31166 endfor i
-
-31287 let things=23
-31288 dim thing$(things,9)
-31292 for i=1 to things
-31297   read thing$(i)
-31302 endfor i
-
-31432 dim thing_description$(things,128)
-31437 for i=1 to things
-31442   read thing_description$(i)
-31447 endfor i
-
-31572 rem atrthings
-31577 dim thing_data(things,2)
-31582 for i=1 to things
-31587   for j=1 to 2
-31592     read thing_data(i,j)
-31597   endfor j
-31602 endfor i
-
-31603 rem actions
-31605 let actions=18
-31606 dim action$(actions,7)
-31607 dim action_type(actions)
-31610 for i=1 to actions
-31615   read action$(i),action_type(i)
-31620 endfor i
-
-31700 enddef
-
-32027 data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
-32029 data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
-32031 data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
-32033 data "Cruce de caminos. Una senda parte al oeste, a la sierra por el paso del perro, y otra hacia el norte, por un frondoso bosque que la rodea."
-32035 data "Desde la linde, al sur, hacia el oeste se extiende frondoso el bosque que rodea la sierra. La salida se abre hacia el sur."
-32037 data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raices, de un luminoso este al oeste."
-32039 data "Paso del perro. Abruptamente, del bosque se pasa a un estrecho camino entre altas rocas. El inquietante desfiladero tuerce de este a sur."
-32041 data "Entrada a la cueva. El paso entre el desfiladero sigue de norte a este. La entrada a una cueva se abre al sur en la pared de roca."
-32043 data "Derrumbe. El camino desciende hacia la agreste sierra, al oeste, desde los verdes valles al este. Pero un gran derrumbe bloquea la sierra."
-32045 data "Gruta de entrada. El estrecho paso se adentra hacia el oeste, desde la boca, al norte. "
-32047 data "Gran lago. Una gran estancia alberga un lago de profundas e iridiscentes aguas, debido a la luz exterior. No hay otra salida que el este."
-32049 data "Salida del paso secreto. Una gran estancia se abre hacia el oeste, y se estrecha hasta morir, al este, en una parte de agua."
-32051 data "Puente semipodrido. La sala se abre en semioscuridad a un puente cubierto de podredumbre sobre el lecho de un canal, de este a oeste."
-32053 data "Recodo de la cueva. La iridiscente cueva gira de este a sur."
-32055 data "Pasaje arenoso. La gruta desciende de norte a sur sobre un lecho arenoso. Al este, un agujero del que llega claridad."
-32057 data "Pasaje del agua. Como un acueducto, el agua baja con gran fuerza de norte a este, aunque la salida practicable es la del oeste."
-32059 data "Estalactitas. Muchas estalactitas se agrupan encima de tu cabeza, y se abren cual arco de entrada hacia el este y sur."
-32061 data "Puente de piedra. Un arco de piedra se eleva, cual puente sobre la oscuridad, de este a oeste. En su mitad, un altar."
-32063 data "Recodo arenoso del canal. La furiosa corriente, de norte a este, impide el paso, excepto al oeste. Al fondo, se oye un gran estruendo."
-32065 data "Un tramo de cueva estrecho te permite avanzar hacia el norte y el sur; un pasaje surge al este."
-32067 data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
-32069 data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
-32071 data "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
-32073 data "Un tramo de cueva estrecho te permite avanzar de este a norte."
-32075 data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte y al sur surgen pasajes."
-32077 data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte surge un pasaje."
-32079 data "Un tramo de cueva estrecho te permite avanzar al oeste. Al norte surge un pasaje."
-32081 data "Refugio. Una amplia estancia de norte a este, hace de albergue a refugiados: hay banderas de ambos bandos. Un hombre anciano te contempla. Los refugiados te rodean."
-32085 data "Espiral. Cual escalera de caracol gigante, desciende a las profundidades, dejando a los refugiados al oeste."
-32087 data "Inicio de la espiral. Se eleva en la penumbra. La caverna se estrecha ahora como para una sola persona, hacia el este."
-32091 data "Puerta norte. En este pasaje grandes rocas se encuentran entre las columnas de un arco de medio punto."
-32093 data "Precipicio. El camino ahora no excede de dos palmos de cornisa sobre un abismo insondable. El soporte de roca gira en 'u' de oeste a sur."
-32095 data "Pasaje de salida. El paso se va haciendo menos estrecho a medida que se avanza hacia el sur, para entonces comenzar hacia el este."
-32097 data "Pasaje de gravilla. El paso se anchea de oeste a norte, y guijarros mojados y mohosos tachonan el suelo de roca."
-32099 data "Puente sobre el acueducto. Un puente se tiende de norte a sur sobre el curso del agua. Resbaladizas escaleras descienden hacia el oeste."
-32101 data "Remanso. Estruendosa corriente baja con el pasaje elevado desde el oeste, y forma un meandro arenoso. Unas escaleras suben al este."
-32103 data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un estrecho paso elevado lateral para avanzar a este o a oeste."
-32105 data "Gran Cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
-32107 data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
-32109 data "Explanada. Una gran explanda enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
-32111 data "Idolo. El Idolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
-32113 data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
-32115 data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
-32117 data "Lago interior. Unas escaleras dan paso a un hermoso lago interior, y siguen hacia el oeste. Al norte, un oscuro y estrecho pasaje sube."
-32119 data "Cruce de pasajes. Estrechos pasos permiten ir al oeste, al este (menos oscuro), y al sur, un lugar de gran luminosidad."
-32121 data "Hogar de Ambrosio. Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
-32123 data "Salida de la cueva. Por el oeste, una puerta impide, cuando cerrada, la salida de la cueva. Se adivina la luz diurna al otro lado."
-32125 data "Bosque a la entrada. Apenas se puede reconocer la entrada de la cueva, al este. El sendero sale del bosque hacia el oeste."
-32127 data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oeste."
-32129 data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
-32131 data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
-
-32171 rem n s e w u d
-32173 data 0,2,0,0,0,0
-32175 data 1,0,0,3,0,0
-32177 data 0,0,2,4,0,0
-32179 data 5,0,3,9,0,0
-32181 data 0,4,0,6,0,0
-32183 data 0,0,5,7,0,0
-32185 data 0,8,6,0,0,0
-32187 data 7,10,0,0,0,0
-32189 data 0,0,4,0,0,0
-32191 data 8,0,0,11,0,0
-32193 data 0,0,10,0,0,0
-32195 data 0,0,0,13,0,0
-32197 data 0,0,12,14,0,0
-32199 data 0,15,13,0,0,0
-32201 data 14,17,16,0,0,0
-32203 data 0,0,0,15,0,0
-32205 data 15,20,18,0,0,0
-32207 data 0,0,19,17,0,0
-32209 data 0,0,0,18,0,0
-32211 data 17,22,25,0,0,0
-32213 data 0,27,23,20,0,0
-32215 data 0,24,27,22,0,0
-32217 data 0,25,0,21,0,0
-32219 data 22,0,26,0,0,0
-32221 data 22,28,23,21,0,0
-32223 data 26,0,20,27,0,0
-32225 data 27,0,0,25,0,0
-32227 data 26,0,0,0,0,0
-32231 data 0,0,0,28,0,30
-32233 data 0,0,31,0,29,0
-32235 data 0,0,0,30,0,0
-32237 data 0,33,0,31,0,0
-32238 data 32,0,34,0,0,0
-32239 data 35,0,0,33,0,0
-32243 data 40,34,0,36,0,36
-32245 data 0,0,35,37,35,0
-32247 data 0,0,36,38,0,0
-32249 data 0,0,37,39,0,0
-32250 data 0,0,38,0,0,0
-32251 data 0,35,41,0,0,0
-32253 data 0,0,0,40,0,0
-32255 data 41,43,0,0,0,0
-32257 data 42,0,0,0,0,0
-32259 data 43,0,0,45,0,0
-32261 data 0,47,44,46,0,0
-32263 data 0,0,45,0,0,0
-32265 data 45,0,0,0,0,0
-32267 data 0,0,47,49,0,0
-32268 data 0,0,48,50,0,0
-32269 data 0,51,49,0,0,0
-32271 data 50,0,0,0,0,0
-
-
-32312 data "altar","ambrosio","antorcha","amorfa","banderas","capa","cascada","derrumbe","esmeralda","espada","harapo","hilo","hombre","idolo","lago","llave","pedernal","piedra","puerta","rocas","serpiente","tronco","trozo"
-
-32457 data "Justo en la mitad del puente, debe sostener algo importante."
-32462 data "Ambrosio es un hombre de mediana edad, que te mira afable."
-32467 data "Apagada.","Ilumina perfectamente."
-32477 data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados.":rem respectivamente?!!!
-32482 data "Tu capa de general, de fina lana tintada de negro."
-32487 data "No ves nada por la cortina de agua. El lago es muy poco profundo."
-32492 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
-32497 data "Es preciosa."
-32502 data "Legado de tu padre, fiel herramienta en mil batallas."
-32507 data "Un trozo un poco grande de capa."
-32512 data "Un hilo se ha desprendido al cortar la capa con la espada."
-32517 data "Es el jefe de los refugiados."
-32522 data "El idolo tiene dos agujeros por ojos."
-32527 data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
-32532 data "Una llave grande, de hierro herrumboso."
-32537 data "Se trata de una dura y afilada piedra."
-32542 data "Recia y pesada, pero no muy grande, de forma piramidal."
-32547 data "Muy recia y con un gran candado."
-32552 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
-32557 data "Una serpiente bloquea el paso al sur, corriendo a su lado el agua."
-32562 data "Es un tronco recio, pero de liviano peso."
-32567 data "Es un poco de lo que antes era tu capa."
-
-32607 rem Loc Stc
-32609 data 18,1
-32611 data 19,2
-32613 data 255,0
-32615 data 255,0
-32617 data 28,1
-32619 data 0,0
-32621 data 38,1
-32623 data 9,1
-32625 data 39,0
-32627 data 0,0
-32629 data 255,0
-32631 data 255,0
-32633 data 28,1
-32635 data 41,1
-32637 data 44,1
-32639 data 46,1
-32641 data 255,0
-32643 data 18,0
-32645 data 47,1
-32647 data 31,1
-32649 data 43,1
-32650 data 15,0
-32651 data 255,0
-
-32725 data "abajo",0,"abre",1,"arriba",0,"ataca",1,"ayuda",0,"bucea",0,"coge",1,"deja",1,"este",0,"examina",0,"habla",1,"mete",2,"mira",0,"norte",0,"oeste",0,"su",0,"termina",0,"tira",1
+rem Asalto y castigo
+rem para QL, en SuperBASIC.
+rem Versión 00-20110405
+
+rem Copyright (C) 2011 Marcos Cruz (programandala.net)
+rem Licencia:
+rem http://programandala.net/licencia
+rem Página del programa:
+rem http://programandala.net/es.programa.asalto_y_castigo
+
+rem Autor de las versiones originales
+rem para ZX Spectrum, Amstrad CPC y Blassic:
+rem Baltasar el Arquero
+rem http://caad.es/baltasarq/
+ 
+rem --------------------------------------------
+rem Main
+
+ayc
+
+defproc ayc
+
+  init_ql
+  credits
+  init_vars
+  read_data
+  end_of_scene
+  intro
+  action_look
+  rep game
+    plot
+    let t$=accept$
+    parser
+    print object,complement
+    print action,obj
+    do_action
+  endrep
+
+enddef ayc
+
+rem --------------------------------------------
+rem Plot
+
+deffn location_plot$
+
+  if location=11 or location=38 or location=44:let thing_data(15,1)=location
+
+  if location=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
+  if location<10 and location_exit(8,1):ret "Tus hombres siguen tus pasos."
+  if thing_data(2,1)<>255 and thing_data(16,2)=0 and (location=46 or sig=1)
+    let thing_data(2,1)=location
+    ret "Tu benefactor te sigue, esperanzado."
+  endif
+  if location=28:let location_exit(28,3)=0:ret ""
+  if location=31
+    if location_exit(31,1)
+      ret "Las rocas yacen desmoronadas a lo largo del pasaje."
+    else
+      ret "Las rocas bloquean el camino."
+    endif
+  endif
+  ret ""
+
+enddef
+
+defproc plot
+
+  if location=8 and location_exit(8,1)
+    let location_exit(8,1)=0
+    let trSax=1
+    narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa."
+    end_of_scene
+    narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos."
+    wait
+    cls_
+    narrate "Tus oficiales te conminan a huir."
+    speak "Capturando a un general britano, ganan doblemente."
+    narrate "Sabes que es cierto, y te duele."
+    wait
+
+  else
+
+    if trSax>0 and location<12
+      let trSax=trSax+1
+      narrate "No sabes cuanto tiempo te queda..."
+    endif
+    if trSax>10 and location<12
+      narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
+      speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
+      end_of_scene
+      let action=17:do_action
+      ret
+    endif
+    if location<10 and not location_exit(8,1)
+      narrate "Tus hombres luchan con denuedo contra los sajones."
+    endif
+    let obj=4
+    if location>19 and not is_here(obj)
+      narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
+      end_of_scene
+      let location=17:action_look
+      ret
+    endif
+    if location=51
+      narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado."
+      wait
+      narrate "Pides audiencia al rey, Uther Pendragon."
+      end_of_scene
+      cls_
+      speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza."
+      wait
+      narrate "No puedes entenderlo. El rey, tu amigo."
+      wait
+      narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer."
+      end_of_scene
+      narrate "Te has ganado un buen descanso"
+      let action=17:do_action
+    endif
+  endif
+
+enddef
+
+rem --------------------------------------------
+rem Actions
+
+defproc do_action
+
+  rem Action dispatcher
+
+  if action=-1:narrate "No conozco ese verbo.":ret
+
+  if action_type(action)=1 and object=-1:_debug 7010:narrate not_seen$:ret
+  if action_type(action)=2 and (object=-1 or complement=-1):_debug 7015:narrate not_seen$:ret
+  if action_type(action)>0:let obj=object:if not is_here(obj):_debug 7020:narrate not_seen$:ret
+  if action_type(action)=2 and complement<>-1:let obj=complement:if not is_here(obj):_debug 7030:narrate not_seen$:ret
+
+  sel on action
+    =17:if yes("¿Quieres volver a intentarlo?"):run:else:cls_:stop
+    =13:action_look
+    =10 and object=-1:action_inventory
+    =10:let obj=object:if is_here(obj):narrate thing_description$(object)
+    =10:narrate not_seen$
+    =14:action_move 1
+    =16:action_move 2
+    =9:action_move 3
+    =15:action_move 4
+    =3:action_move 5
+    =1:action_move 6
+    =5:narrate help$:end_of_scene
+    =7:action_take
+    =8:action_drop
+    =6:action_swim
+    =4:action_brake
+    =11:action_speak
+    =18:action_fling
+    =2:action_open
+    =12:action_insert
+    =remainder:narrate "No puedes hacer eso."
+  endsel
+
+enddef do_action
+
+defproc action_swim
+  if location=11
+    let location=12
+    narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
+    end_of_scene
+    narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
+    end_of_scene
+    action_look
+  else
+    narrate "No tiene sentido nadar ahora."
+  endif
+enddef
+
+defproc action_open
+
+  if location=47
+    let obj=16
+    if is_here(obj)
+      narrate "El candado bloquea la puerta."
+    else
+      narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
+      wait
+      narrate "Ambrosio, alegre, se despide de ti."
+      speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
+      narrate "Se ha ido."
+      let thing_data(2,1)=255
+      let thing_data(16,1)=255
+      let thing_description$(19)="Entreabierta."
+      let location_exit(47,4)=48
+    endif
+  else
+    narrate "No hay nada que abrir ahora."
+  endif
+
+enddef
+
+defproc action_drop
+  if object=10 and location<12:narrate "No, es lo que queda de tu padre.":ret
+  if object=4:narrate "No, sin luz es imposible moverse por la caverna.":ret
+  if thing_data(object,1)=0:let thing_data(object,1)=location:narrate "Hecho.":ret
+  narrate "No llevas eso contigo."
+enddef
+
+defproc action_take
+  if thing_data(object,1)=0:narrate "Pero si ya lo tienes...":ret
+  if object=16 and thing_data(object,2)=1:narrate "Ambrosio la retiene consigo.":ret
+  if thing_data(object,2)<>0:narrate "No es algo que se pueda coger.":ret
+  let thing_data(object,1)=0:narrate "Hecho."
+enddef
+
+defproc action_brake
+
+  let n=0
+  let obj=complement
+  if complement=-1
+    let complement=10
+    let obj=10
+    let n=1
+  endif
+
+  rem temp structure!!!
+  rep not_with_that
+
+  if object=22 and complement=10 and cortado=0 and n<>1 and is_here(obj):narrate "Sabes que el resultado es la hoja de tu espada, mellada. No.":ret
+  if object=22 and complement=17 and cortado=0 and is_here(obj):let cortado=1:narrate "Con el pedernal, recortas la punta del tronco.":ret
+  if object=22 and cortado=0 then narrate "El problema es encontrar la herramienta adecuada para hacerlo.":ret
+  if object=22 and cortado=1 then narrate "La punta ya es lo suficientemente afilada.":ret
+
+  if object=6 and ((is_here(obj) and complement=10) or n=1):let thing_data(6,1)=255:let thing_data(11,1)=0:let thing_data(12,1)=0:let thing_data(23,1)=0:narrate "Rasgas la capa, como buenamente puedes.":ret
+  if object=6:exit not_with_that
+
+  if object=20 and complement=22 and is_here(obj) and n=0 and cortado=1:let thing_data(20,1)=255:let location_exit(31,1)=32:narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.":ret
+  if object=20 and complement=22 and is_here(obj) and n=0:narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas.":ret
+  if object=20 and complement=10:narrate "Tu espada no hace nada, ni, por descontado, tus manos desnudas.":ret
+  if not is_here(obj):narrate "En cualquier caso, no con las manos desnudas.":ret
+  if object=20 and complement=22:let thing_data(20,1)=255:let location_exit(31,1)=32:narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso.":ret
+  let obj=3
+  if object=17 and complement=10 and is_here(obj)
+    let thing_data(3,1)=255:let thing_data(4,1)=location:let thing$(3)="amorfa":let thing$(4)="antorcha":narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha.":ret
+  endif
+
+  if object=17 and complement=10:narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones.":ret
+  if object=17:exit not_with_that
+
+  if object=21 and complement=10:narrate "Ante los amenazadores tajos, la serpiente huye.":let location_exit(43,2)=44:let thing_data(21,1)=255:ret
+  if object=21:exit not_with_that
+
+  rem endsel
+
+  narrate "Eso no es lo adecuado ahora.":ret
+
+  endrep not_with_that
+
+  narrate "Con eso no..."
+
+enddef
+
+defproc action_speak
+
+  sel on object
+    =2:talk_to_ambrosio
+    =13:talk_to_the_man
+    =remainder:narrate "No tiene sentido hablar con eso."
+  endsel
+
+enddef
+
+defproc talk_to_ambrosio
+
+  if thing_data(2,1)=19
+
+    let thing_data(3,1)=0
+    let thing_data(17,1)=0
+    let thing_data(2,1)=46
+    speak "Hola, buen hombre."
+    speak "Hola, Ulfius. Mi nombre es Ambrosio."
+    end_of_scene
+    narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. y tras tanto acontecido, llora desconsoladamente."
+    wait
+    cls_
+    narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados."
+    wait
+    speak "Bien, Ambrosio, emprendamos la marcha."
+    narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero... ha desaparecido."
+    wait
+    narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre."
+    end_of_scene
+
+  else
+
+    sel on location
+      =46
+        if not sig
+          speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocéis un camino más corto."
+          speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debéis hacer el vuestro, verlo todo con vuestros ojos."
+          narrate "Ulfius sacude la cabeza."
+          speak "No lo entiendo, la verdad."
+        endif
+      =45,46,47
+        speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva."
+        let thing_data(16,1)=0
+        let thing_data(16,2)=0
+        let sig=1
+    endsel
+
+  endif
+
+enddef
+
+defproc talk_to_the_man
+
+  if not talked_to_the_man
+    speak "Me llamo Ulfius y..."
+    narrate "El hombre asiente, impaciente."
+    speak "Somos refugiados de la gran guerra. Buscamos la paz."
+    let talked_to_the_man=1
+  endif
+  let obj=18
+  if is_here(obj)
+    let thing_data(18,1)=18
+    narrate "El hombre se irrita."
+    speak "No podemos permitiros huir con la piedra del druida."
+    narrate "Hace un gesto..."
+    speak "La piedra debe devolverse a su lugar de encierro."
+    narrate "Un hombre te arrebata la piedra y se la lleva."
+  else
+    let obj=10
+    if is_here(obj)
+      narrate "El hombre se enfurece, y alza su mano indicando al norte."
+      speak "Nadie portando armas puede pasar."
+    else
+      let location_exit(28,3)=29
+      narrate "El hombre, calmado, indica hacia el este y habla:"
+      speak "Si vienes en paz, puedes ir en paz."
+      narrate "Todos se apartan y permiten ahora el paso al este."
+    endif
+  endif
+
+enddef
+
+defproc action_fling
+
+  sel on location
+    =19 
+      if (object=10 or object=18) and talked_to_the_man
+        let thing_data(object,1)=39
+        narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista."
+      else
+        narrate "No quieres perder eso."
+      endif
+    =13,16
+      narrate "No hay suficiente profundidad."
+    =remainder:
+      narrate "No tiene sentido tirar nada ahora."
+  endsel
+
+enddef
+
+defproc action_insert
+
+  sel on complement
+    =14
+      sel on object
+        =9,18
+          let thing_data(object,1)=255
+          narrate "Encaja. Metido. Desaparece en su interior."
+          if thing_data(18,1)=255 and thing_data(9,1)=255
+            let location_exit(41,2)=42
+            narrate "La gran roca se desplaza y deja el paso libre."
+          endif
+        =remainder
+          narrate "No encaja."
+      endsel
+    =remainder
+      narrate "No tiene sentido meter nada en eso."
+  endsel
+
+enddef
+
+defproc action_move(direction)
+
+  rem formerly if x>0, check!!!
+  if location_exit(location,direction)
+    let location=location_exit(location,direction)
+    action_look
+  else
+    narrate "No es posible."
+  endif
+
+enddef
+
+defproc action_inventory
+
+  loc i,t$
+  let t$=""
+  for i=1 to things
+    if thing_data(i,1)=0:let t$=t$&"  - "&thing$(i)&nl$
+  endfor i
+  if len(t$)
+    print "Inventario:"\\t$:pause
+  else
+    narrate "No llevas nada contigo."
+  endif
+
+enddef
+
+def proc action_look
+  loc message$
+  cls_
+  describe h$(location) 
+  let message$=location_plot$()
+  if len(message$):narrate message$
+  list_present_things 
+enddef
+
+rem --------------------------------------------
+rem Parser
+
+defproc parser
+
+  let m$="":let first=1:let last=len(t$)
+  let action=-1:let object=-1:let complement=-1
+
+  rep find_first
+    if not(first<=last and t$(first)=" "):exit find_first
+    let first=first+1
+  endrep find_first
+
+  rep find_last
+    if not(last>1 and t$(last)=" "):exit find_last
+    let last=last-1
+  endrep find_last
+
+  rep loopx1
+    rem todo all this is not needed because a special input will be used!!!
+    if first>last:exit loopx1
+    let chrAsc=code(t$(first))
+    if chrAsc>=chrA and chrAsc<=chrZ:let chrAsc=diff+chrAsc
+    if chrAsc<>code(" ")
+      let m$=m$&chr$(chrAsc)
+    else
+
+      xxx0
+      if complement<>-1:ret
+      if t$(first)=" ":let first=first+1:ret
+      next loopx1:exit loopx1
+
+    endif
+
+    let first=first+1
+  endrep loopx1
+
+  xxx0
+
+enddef 
+
+defproc xxx0:rem rename!!!
+
+  rem todo use m$ instr " word1 word2 etc " !!!
+  if m$<>"con" and m$<>"de" and m$<>"del" and m$<>"el" and m$<>"la" and m$<>"los" and m$<>"las" and m$<>"a" and m$<>"al" and m$<>"por" and m$<>"en" and m$<>"y"
+
+    if action=-1
+      if m$(len(m$))="r":let m$=m$(1 to len(m$)-1)
+      locVerbo
+    else
+      if object=-1
+        locObj:let object=obj
+      else
+        if complement=-1:locObj:let complement=obj
+      endif
+    endif
+  endif
+  let m$=""
+
+enddef
+
+defproc locVerbo
+
+  let action=-1
+  let n=len(m$)
+  if not n
+    if m$="e":let action=9:ret
+    if m$="m":let action=13:ret
+  endif
+  if n>2:if m$(1 to 3)="nad":let action=6:ret
+  if n>6:if m$(1 to 6)="recort":let action=4:ret
+  if n>4:if m$(1 to 4)="afil":let action=4:ret
+  if n>3:if m$(1 to 3)="mat":let action=4:ret
+  if m$="examinate" or m$="examinarte":let action=10:ret
+  if m$="fin":let action=17:ret
+  if n>4:if m$(1 to 4)="cort":let action=4:ret
+  if n>5:if m$(1 to 5)="empuj":let action=4:ret
+  if n>5:if m$(1 to 5)="golpe":let action=4:ret
+  if n>4:if m$(1 to 4)="romp":let action=4:ret
+  if n>7:let n=7:let m$=m$(1 to 7)
+  let i=1:let f=actions+1:let m=2
+  rep what_for:rem rename!!!
+    let m=int((i+f)/2)
+    if action$(m,1 to n)=m$
+      let action=m
+      exit what_for
+    endif
+    if i=m:exit what_for
+    if action$(m)>m$
+      let f=m
+      next what_for
+    endif
+    let i=m
+  endrep what_for
+
+enddef
+
+defproc locObj:rem todo must be a function!!!
+
+  if m$="anciano" or m$="jefe":let obj=13:ret
+  let n=len(m$):let obj=-1:if n=0:ret
+  if n>9:let n=9:let m$=m$(1 to 9)
+  if n>2:if m$(1 to 3)="ojo":let obj=14:ret
+  if n>6:if m$(1 to 7)="agujero":let obj=14:ret
+  let i=1:let f=things+1
+
+  rep xxx1
+    let m=int((i+f)/2)
+    if thing$(m,1 to n)=m$:let obj=m:ret
+    if m=i:ret
+    if thing$(m)>m$:let f=m:next xxx1
+    let i=m
+  endrep xxx1
+
+enddef
+
+deffn is_here(thing)
+  if thing=-1:ret 0:rem to prevent an error. not sur if thing could be -1, but it was!
+  ret thing_data(thing,1)=0 or thing_data(thing,1)=location
+enddef
+
+defproc list_present_things
+  loc n,t$
+  let t$="":rem objsLoc
+  for n=1 to things
+    if thing_data(n,1)=location and thing_data(n,2)=2
+      let t$=t$&"  - "&chr$(code(thing$(n,1))-diff)&thing$(n,2 to)&nl$
+      next n:exit n
+    endif
+    if thing_data(n,1)=location
+      let t$=t$&"  - "&thing$(n)&nl$
+    endif
+  endfor n
+  if len(t$):ink light_grey:print "Puedes ver:"&nl$&t$
+enddef
+
+rem --------------------------------------------
+rem Input
+
+deffn yes(question$)
+  loc answer$
+  print question$!"(S/N)"!;
+  rep answer
+    let answer$=inkey$
+    if answer$ instr "sn":exit answer
+  end rep answer
+  ret answer$ instr "s"
+enddef
+
+defproc end_of_scene:rem rename!!!
+  ink dark_green
+  print "..."\\
+  ink light_grey:rem not needed?!!!
+  wait
+enddef
+
+defproc wait:rem set maximum time!!!
+  rep dont_press_key:if inkey$="":exit dont_press_key
+  rep press_key:if inkey$<>"":exit press_key
+enddef
+
+deffn accept$
+  loc command$
+  ink yellow
+  rep valid_command
+    input \"> ";command$
+    if command$<>"":exit valid_command
+  endrep valid_command
+  ink light_grey
+  ret command$
+enddef
+
+rem --------------------------------------------
+rem Screen and text output
+
+defproc cls_
+  ink light_grey
+  cls
+enddef
+
+defproc speak(quote$)
+
+  loc last
+  ink yellow
+  if r_quote$ instr quote$
+    rem A closing "»" in the text means the actual quote is closed before the end of quote$.
+    rem This manages quotes like "«Yes», he said.".
+    type l_quote$&quote$
+  else
+    let last=len(quote$)
+    if quote$(last)="." and quote$(last-1)<>"."
+      type l_quot$&quote$(to last-1)&r_quote$&'.'
+    else
+      type l_quote$&quote$(to last)&r_quote$
+    endif
+  endif
+
+enddef
+
+defproc describe(txt$)
+  ink dark_cyan:type txt$
+enddef
+
+defproc narrate(txt$)
+  ink light_grey:type txt$
+enddef
+
+defproc type(txt$)
+
+  local text$,first,last
+
+  if len(txt$)
+    let text$=txt$&" "
+    let first=1
+    for last=1 to len(text$)
+      if text$(last)=" "
+        print #ow,!text$(first to last-1);
+        let first=last+1
+      endif
+    endfor last
+  endif
+  print\\
+
+enddef
+
+rem --------------------------------------------
+rem About
+
+defproc credits
+  cls_
+  ink light_red:print "Asalto y castigo"
+  ink dark_cyan
+  print \"Por Baltasar el Arquero"
+  print "http://caad.es/baltasarq/"
+  print \\"Adaptada a SuperBASIC por:"
+  print \"Marcos Cruz (programandala.net), 2011"
+  ink light_grey
+  print\"C.A.A.D."\"http://www.caad.es/"\\\
+enddef
+
+defproc intro
+  cls_
+  narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja."
+  wait
+  narrate "Piensas en el encargo realizado por Uther Pendragon. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
+  wait
+  narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
+  end_of_scene
+  cls_
+  speak "Sire Ulfius, la batalla ha terminado."
+  narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
+  end_of_scene
+enddef
+
+rem --------------------------------------------
+rem Init
+
+defproc init_ql
+  mode 8:paper 0:ink light_grey:csize 3,1:cls
+  rem original Blassic/CPC colors.
+  rem let black=0:let dark_blue=1:let dark_green=2:let dark_cyan=3:let red=4:let purple=5:let brown=6:let light_grey=7:let dark_grey=8:let light_blue=9:let light_green=10:let light_cyan=11:let light_red=12:let light_purple=13:let yellow=14:let white=15
+  rem QL colours in mode 8:
+  let black=0
+  let dark_blue=1
+  let dark_green=4
+  let dark_cyan=5
+  let red=2
+  let purple=3
+  let brown=2
+  let light_grey=7
+  let dark_grey=7
+  let light_blue=5
+  let light_green=4
+  let light_cyan=5
+  let light_red=2
+  let light_purple=3
+  let yellow=6
+  let white=7
+  let nl$=chr$(10)
+enddef
+
+
+defproc init_vars
+
+  rem Constants
+  let l_quote$="«":rem castilian left quote
+  let r_quote$="»":rem castilian right quote
+
+  let location=15:rem tmp!!! must be 1
+
+  rem Flags:
+  let sig=0:rem what for?!!!
+  let trSax=0
+  let talked_to_the_man=0
+  let cortado=0
+
+  let not_seen$="No lo veo, o no es importante."
+  let chrA=code("A")
+  let chrZ=code("Z")
+  let diff=abs(code("a")-chrA):rem used to change the letter case, todo improve!!!
+  let help$="Direcciones: n(orte), s(ur), e(ste), o(este), arriba, abajo."&nl$&"(m)irar redescribe un lugar."&nl$&"(ex)aminar permite examinar un objeto, o en su defecto a ti."&nl$&"Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, y tirar algo."
+
+enddef
+
+rem --------------------------------------------
+rem Data
+
+defproc read_data
+
+  loc i,j
+
+  restore
+
+  rem locs
+  let locations=51
+  dim h$(locations,255)
+  for i=1 to locations
+    read h$(i)
+  endfor i
+
+  rem directions
+  let directions=6
+  dim location_exit(locations,directions)
+  for i=1 to locations
+    for j=1 to directions
+      read location_exit(n,j)
+    endfor j
+  endfor i
+
+  let things=23
+  dim thing$(things,9)
+  for i=1 to things
+    read thing$(i)
+  endfor i
+
+  dim thing_description$(things,128)
+  for i=1 to things
+    read thing_description$(i)
+  endfor i
+
+  rem atrthings
+  dim thing_data(things,2)
+  for i=1 to things
+    for j=1 to 2
+      read thing_data(i,j)
+    endfor j
+  endfor i
+
+  rem actions
+  let actions=18
+  dim action$(actions,7)
+  dim action_type(actions)
+  for i=1 to actions
+    read action$(i),action_type(i)
+  endfor i
+
+enddef
+
+data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
+data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
+data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
+data "Cruce de caminos. Una senda parte al oeste, a la sierra por el paso del perro, y otra hacia el norte, por un frondoso bosque que la rodea."
+data "Desde la linde, al sur, hacia el oeste se extiende frondoso el bosque que rodea la sierra. La salida se abre hacia el sur."
+data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raices, de un luminoso este al oeste."
+data "Paso del perro. Abruptamente, del bosque se pasa a un estrecho camino entre altas rocas. El inquietante desfiladero tuerce de este a sur."
+data "Entrada a la cueva. El paso entre el desfiladero sigue de norte a este. La entrada a una cueva se abre al sur en la pared de roca."
+data "Derrumbe. El camino desciende hacia la agreste sierra, al oeste, desde los verdes valles al este. Pero un gran derrumbe bloquea la sierra."
+data "Gruta de entrada. El estrecho paso se adentra hacia el oeste, desde la boca, al norte. "
+data "Gran lago. Una gran estancia alberga un lago de profundas e iridiscentes aguas, debido a la luz exterior. No hay otra salida que el este."
+data "Salida del paso secreto. Una gran estancia se abre hacia el oeste, y se estrecha hasta morir, al este, en una parte de agua."
+data "Puente semipodrido. La sala se abre en semioscuridad a un puente cubierto de podredumbre sobre el lecho de un canal, de este a oeste."
+data "Recodo de la cueva. La iridiscente cueva gira de este a sur."
+data "Pasaje arenoso. La gruta desciende de norte a sur sobre un lecho arenoso. Al este, un agujero del que llega claridad."
+data "Pasaje del agua. Como un acueducto, el agua baja con gran fuerza de norte a este, aunque la salida practicable es la del oeste."
+data "Estalactitas. Muchas estalactitas se agrupan encima de tu cabeza, y se abren cual arco de entrada hacia el este y sur."
+data "Puente de piedra. Un arco de piedra se eleva, cual puente sobre la oscuridad, de este a oeste. En su mitad, un altar."
+data "Recodo arenoso del canal. La furiosa corriente, de norte a este, impide el paso, excepto al oeste. Al fondo, se oye un gran estruendo."
+data "Un tramo de cueva estrecho te permite avanzar hacia el norte y el sur; un pasaje surge al este."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
+data "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
+data "Un tramo de cueva estrecho te permite avanzar de este a norte."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte y al sur surgen pasajes."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte surge un pasaje."
+data "Un tramo de cueva estrecho te permite avanzar al oeste. Al norte surge un pasaje."
+data "Refugio. Una amplia estancia de norte a este, hace de albergue a refugiados: hay banderas de ambos bandos. Un hombre anciano te contempla. Los refugiados te rodean."
+data "Espiral. Cual escalera de caracol gigante, desciende a las profundidades, dejando a los refugiados al oeste."
+data "Inicio de la espiral. Se eleva en la penumbra. La caverna se estrecha ahora como para una sola persona, hacia el este."
+data "Puerta norte. En este pasaje grandes rocas se encuentran entre las columnas de un arco de medio punto."
+data "Precipicio. El camino ahora no excede de dos palmos de cornisa sobre un abismo insondable. El soporte de roca gira en 'u' de oeste a sur."
+data "Pasaje de salida. El paso se va haciendo menos estrecho a medida que se avanza hacia el sur, para entonces comenzar hacia el este."
+data "Pasaje de gravilla. El paso se anchea de oeste a norte, y guijarros mojados y mohosos tachonan el suelo de roca."
+data "Puente sobre el acueducto. Un puente se tiende de norte a sur sobre el curso del agua. Resbaladizas escaleras descienden hacia el oeste."
+data "Remanso. Estruendosa corriente baja con el pasaje elevado desde el oeste, y forma un meandro arenoso. Unas escaleras suben al este."
+data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un estrecho paso elevado lateral para avanzar a este o a oeste."
+data "Gran Cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
+data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
+data "Explanada. Una gran explanda enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
+data "Idolo. El Idolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
+data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
+data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
+data "Lago interior. Unas escaleras dan paso a un hermoso lago interior, y siguen hacia el oeste. Al norte, un oscuro y estrecho pasaje sube."
+data "Cruce de pasajes. Estrechos pasos permiten ir al oeste, al este (menos oscuro), y al sur, un lugar de gran luminosidad."
+data "Hogar de Ambrosio. Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
+data "Salida de la cueva. Por el oeste, una puerta impide, cuando cerrada, la salida de la cueva. Se adivina la luz diurna al otro lado."
+data "Bosque a la entrada. Apenas se puede reconocer la entrada de la cueva, al este. El sendero sale del bosque hacia el oeste."
+data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oeste."
+data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
+data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
+
+rem n s e w u d
+data 0,2,0,0,0,0
+data 1,0,0,3,0,0
+data 0,0,2,4,0,0
+data 5,0,3,9,0,0
+data 0,4,0,6,0,0
+data 0,0,5,7,0,0
+data 0,8,6,0,0,0
+data 7,10,0,0,0,0
+data 0,0,4,0,0,0
+data 8,0,0,11,0,0
+data 0,0,10,0,0,0
+data 0,0,0,13,0,0
+data 0,0,12,14,0,0
+data 0,15,13,0,0,0
+data 14,17,16,0,0,0
+data 0,0,0,15,0,0
+data 15,20,18,0,0,0
+data 0,0,19,17,0,0
+data 0,0,0,18,0,0
+data 17,22,25,0,0,0
+data 0,27,23,20,0,0
+data 0,24,27,22,0,0
+data 0,25,0,21,0,0
+data 22,0,26,0,0,0
+data 22,28,23,21,0,0
+data 26,0,20,27,0,0
+data 27,0,0,25,0,0
+data 26,0,0,0,0,0
+data 0,0,0,28,0,30
+data 0,0,31,0,29,0
+data 0,0,0,30,0,0
+data 0,33,0,31,0,0
+data 32,0,34,0,0,0
+data 35,0,0,33,0,0
+data 40,34,0,36,0,36
+data 0,0,35,37,35,0
+data 0,0,36,38,0,0
+data 0,0,37,39,0,0
+data 0,0,38,0,0,0
+data 0,35,41,0,0,0
+data 0,0,0,40,0,0
+data 41,43,0,0,0,0
+data 42,0,0,0,0,0
+data 43,0,0,45,0,0
+data 0,47,44,46,0,0
+data 0,0,45,0,0,0
+data 45,0,0,0,0,0
+data 0,0,47,49,0,0
+data 0,0,48,50,0,0
+data 0,51,49,0,0,0
+data 50,0,0,0,0,0
+
+
+data "altar","ambrosio","antorcha","amorfa"
+data "banderas","capa","cascada","derrumbe"
+data "esmeralda","espada","harapo","hilo"
+data "hombre","idolo","lago","llave"
+data "pedernal","piedra","puerta","rocas"
+data "serpiente","tronco","trozo"
+
+data "Justo en la mitad del puente, debe sostener algo importante."
+data "Ambrosio es un hombre de mediana edad, que te mira afable."
+data "Apagada.","Ilumina perfectamente."
+data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados.":rem respectivamente?!!!
+data "Tu capa de general, de fina lana tintada de negro."
+data "No ves nada por la cortina de agua. El lago es muy poco profundo."
+data "Muchas, inalcanzables rocas, apiladas una sobre otra."
+data "Es preciosa."
+data "Legado de tu padre, fiel herramienta en mil batallas."
+data "Un trozo un poco grande de capa."
+data "Un hilo se ha desprendido al cortar la capa con la espada."
+data "Es el jefe de los refugiados."
+data "El ídolo tiene dos agujeros por ojos."
+data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
+data "Una llave grande, de hierro herrumboso."
+data "Se trata de una dura y afilada piedra."
+data "Recia y pesada, pero no muy grande, de forma piramidal."
+data "Muy recia y con un gran candado."
+data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
+data "Una serpiente bloquea el paso al sur, corriendo a su lado el agua."
+data "Es un tronco recio, pero de liviano peso."
+data "Es un poco de lo que antes era tu capa."
+
+rem Loc Stc
+data 18,1
+data 19,2
+data 255,0
+data 255,0
+data 28,1
+data 0,0
+data 38,1
+data 9,1
+data 39,0
+data 0,0
+data 255,0
+data 255,0
+data 28,1
+data 41,1
+data 44,1
+data 46,1
+data 255,0
+data 18,0
+data 47,1
+data 31,1
+data 43,1
+data 15,0
+data 255,0
+
+data "abajo",0
+data "abre",1
+data "arriba",0
+data "ataca",1
+data "ayuda",0
+data "bucea",0
+data "coge",1
+data "deja",1
+data "este",0
+data "examina",0
+data "habla",1
+data "mete",2
+data "mira",0
+data "norte",0
+data "oeste",0
+data "su",0:rem not "sur", because of the strange way the parser works
+data "termina",0
+data "tira",1
+
+rem new system for the actions
+rem not used yet, unfinished!!!
+
+data 01,"abajo",0
+data 01,"baja",0
+data 01,"bajar",0
+data 01,"descender",0
+data 01,"desciende",0
+data 02,"abre",1
+data 02,"abrir",1
+data 03,"arriba",0
+data 03,"ascender",0
+data 03,"asciende",0
+data 03,"sube",0
+data 03,"subir",0
+data 04,"afila",1
+data 04,"afilar",1
+data 04,"ataca",1
+data 04,"atacar",1
+data 04,"corta",1
+data 04,"cortar",1
+data 04,"empuja",1
+data 04,"empujar",1
+data 04,"golpea",1
+data 04,"golpear",1
+data 04,"mata",1
+data 04,"matar",1
+data 04,"recorta",1
+data 04,"recortar",1
+data 04,"rompe",1
+data 04,"romper",1
+data 05,"ayuda",0
+data 05,"ayudar",0
+data 06,"bucea",0
+data 06,"bucear",0
+data 06,"nada",0
+data 06,"nadar",0
+data 07,"agarra",1
+data 07,"agarrar",1
+data 07,"coge",1
+data 07,"coger",1
+data 07,"toma",1
+data 07,"tomar",1
+data 08,"deja",1
+data 08,"dejar",1
+data 08,"soltar",1
+data 08,"suelta",1
+data 09,"e",0
+data 09,"este",0
+data 10,"ex",0
+data 10,"examina",0
+data 10,"examinar",0
+data 10,"examinarte",0
+data 10,"examínate",0
+data 10,"i",0
+data 11,"charla",1
+data 11,"charlar",1
+data 11,"conversa",1
+data 11,"conversar",1
+data 11,"habla",1
+data 11,"hablar",1
+data 12,"introduce",2
+data 12,"introducir",2
+data 12,"mete",2
+data 12,"meter",2
+data 12,"pon",2
+data 12,"poner",2
+data 13,"m",0
+data 13,"mira",0
+data 13,"mirar",0
+data 13,"ojea",0
+data 13,"ojear",0
+data 14,"n",0
+data 14,"norte",0
+data 15,"o",0
+data 15,"oeste",0
+data 16,"s",0
+data 16,"sur",0
+data 17,"acaba",0
+data 17,"acabar",0
+data 17,"fin",0
+data 17,"finaliza",0
+data 17,"finalizar",0
+data 17,"termina",0
+data 17,"terminar",0
+data 18,"arroja",1
+data 18,"arrojar",1
+data 18,"lanza",1
+data 18,"lanzar",1
+data 18,"tira",1
+data 18,"tirar",1
+
+rem --------------------------------------------
+rem Debug
+
+defproc _debug(text$)
+  print "DEBUG POINT:"&text$
+enddef
+
