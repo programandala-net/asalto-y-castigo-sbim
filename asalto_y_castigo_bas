@@ -30,6 +30,8 @@ ayc
 
 defproc ayc
 
+  rem Asalto y castigo
+
   loc understood
 
   first_time_init
@@ -220,8 +222,6 @@ defproc action_open
 
   if location(ulfius_id)=47
     if is_accessible(key_id)
-      narrate "El candado bloquea la puerta."
-    else
       narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
       short_pause
       narrate "Ambrosio, alegre, se despide de ti."
@@ -231,6 +231,8 @@ defproc action_open
       vanish key_id
       let thing_description$(19)="Entreabierta."
       let location_exit(47,4)=48
+    else
+      narrate "El candado bloquea la puerta."
     endif
   else
     narrate "No hay nada que abrir ahora."
@@ -261,19 +263,9 @@ enddef
 
 defproc action_break
 
-  loc default_tool:rem flag set if no tool was specified
-  loc tool:rem actual tool, default or not
-
-  let default_tool=false
-  if not complement
-    let complement=sword_id
-    let default_tool=true
+  if not complement and is_accessible(sword_id)
+      let complement=sword_id
   endif
-  let tool=complement
-
-  rem temp added conditions!!!
-  if not is_accessible(object):narrate not_seen$:ret
-  if not is_accessible(tool):narrate i_dont_have_it$:ret
 
   sel on object
 
@@ -282,7 +274,8 @@ defproc action_break
       if hacked_the_log
         narrate "La punta ya es lo suficientemente afilada."
       else
-        sel on tool
+        sel on complement
+          =false:narrate not_by_hand$
           =sword_id
             narrate "Sabes que el resultado es la hoja de tu espada, mellada. No."
           =flint_id
@@ -296,63 +289,55 @@ defproc action_break
 
     =cloak_id
 
-      if tool=sword_id
-        vanish cloak_id
-        let location(rags_id)=0
-        let location(thread_id)=0
-        let location(piece_id)=0
-        narrate "Rasgas la capa, como buenamente puedes."
-      else
-        narrate not_with_that$
-      endif
+      sel an complement
+        =false:narrate not_by_hand$
+        =sword_id
+          vanish cloak_id
+          let location(rags_id)=0
+          let location(thread_id)=0
+          let location(piece_id)=0
+          narrate "Rasgas la capa, como buenamente puedes."
+        =remainder
+          narrate not_with_that$
+      endsel
 
     =rocks_id
 
-      sel on tool
-        =log_id
-          rocks_and_log:ret
-        =sword_id
-          narrate "Tu espada no hace nada."
-          ret
+      sel on complement
+        =false:narrate not_by_hand$
+        =log_id:rocks_and_log
+        =sword_id:narrate "Tu espada no hace nada."
+        =remainder:narrate not_with_that$
       endsel
-
-      if not is_accessible(tool)
-        rem this condition seems out of the logic. check!!!
-        narrate "En cualquier caso, no con las manos desnudas."
-        ret
-      endif
 
     =flint_id
 
-      if complement=sword_id
-        if is_accessible(torch_id)
-          vanish torch_id
-          let torch_burns=true
-          let thing_description$(torch_id)="Ilumina perfectamente."
-          narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
-        else
-          narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones."
-        endif
-      else
-        narrate not_with_that$
-      endif
+      sel on complement
+        =false:narrate not_by_hand$
+        =sword_id
+          if is_accessible(torch_id)
+            vanish torch_id
+            let torch_burns=true
+            let thing_description$(torch_id)="Ilumina perfectamente."
+            narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
+          else
+            narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones."
+          endif
+        =remainder:narrate not_with_that$
+      endsel
 
     =snake_id
 
-      if complement=sword_id
-        narrate "Ante los amenazadores tajos, la serpiente huye."
-        let location_exit(43,2)=44
-        vanish snake_id
-        ret
-      else
-        narrate not_with_that$
-        ret
-      endif
+      sel on complement
+        =false:narrate not_by_hand$
+        =sword_id
+          narrate "Ante los amenazadores tajos, la serpiente huye."
+          vanish snake_id
+          let location_exit(43,2)=44
+        =remainder:narrate not_with_that$
+      endsel
 
-    =remainder
-
-      narrate "Eso no es lo adecuado ahora."
-      ret
+    =remainder:narrate "Eso no es lo adecuado ahora."
 
   endsel 
 
@@ -422,13 +407,13 @@ defproc talk_to_the_man
     short_pause
   endif
   if is_accessible(stone_id)
-    let location(stone_id)=18
     narrate "El hombre se irrita."
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
     speak "La piedra debe devolverse a su lugar de encierro."
     narrate "Un hombre te arrebata la piedra y se la lleva."
+    let location(stone_id)=18
   else
     if is_accessible(sword_id)
       narrate "El hombre se enfurece, y alza su mano indicando al norte."
@@ -523,7 +508,7 @@ def proc action_look
 
   loc message$
   cls_
-  describe h$(location(ulfius_id)) 
+  describe location_description$(location(ulfius_id)) 
   let message$=location_plot$
   if len(message$):narrate message$
   list_present_things 
@@ -636,10 +621,14 @@ deffn syntax_is_fine
 
   if not action:narrate "No conozco ese verbo.":ret 0
 
-  if action_syntax(action)=1 and not object:_debug "object missing":narrate not_seen$:ret 0
-  if action_syntax(action)=2 and (not object or not complement):_debug "object or complement missing":narrate not_seen$:ret 0
-  if action_syntax(action):if not is_accessible(object):_debug "object not here":narrate not_seen$:ret 0
-  if action_syntax(action)=2 and complement:if not is_accessible(complement):_debug "complement not here":narrate not_seen$:ret 0
+  sel on action_syntax(action)
+    =0:if object:narrate "***** no sense ":ret 0
+    =1:if not object:narrate not_seen$:ret 0
+    =2:if (not object or not complement):narrate not_seen$:ret 0
+  endsel
+
+  if object:if not is_accessible(object):narrate not_seen$:ret 0
+  if complement:if not is_accessible(complement):narrate not_seen$:ret 0
 
   ret 1
 
@@ -662,11 +651,11 @@ deffn is_accessible(thing)
 enddef
 
 defproc vanish(thing)
-  let location(thing)=255
+  let location(thing)=limbo
 enddef
 
 deffn vanished(thing)
-  ret location(thing)=255
+  ret location(thing)=limbo
 enddef
 
 rem --------------------------------------------
@@ -1076,6 +1065,10 @@ defproc init_vars
   let nl$=chr$(10):rem new line
   let l_quote$="«":rem castilian left quote
   let r_quote$="»":rem castilian right quote
+  let limbo=255:rem location of vanished things
+  let nothing_needed=0
+  let object_needed=1
+  let object_and_complement_needed=2
 
   rem Flags:
   let ambrosio_follows=false
@@ -1087,6 +1080,7 @@ defproc init_vars
   let not_seen$="No lo veo, o no es importante."
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
+  let not_by_hand$="En cualquier caso, no con las manos desnudas."
   let help$="Direcciones: n(orte), s(ur), e(ste), o(este), arriba, abajo."&nl$&"(m)irar redescribe un lugar."&nl$&"(ex)aminar permite examinar un objeto, o en su defecto a ti."&nl$&"Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, y tirar algo."
 
 enddef
@@ -1123,13 +1117,17 @@ defproc init_data
 
   let max_word_lenght=10
 
+  rem Note:
+  rem the first (0) element of arrays is not used,
+  rem except that of location().
+
   restore
 
   rem locs
   let locations=51
-  dim h$(locations,255)
+  dim location_description$(locations,255)
   for i=1 to locations
-    read h$(i)
+    read location_description$(i)
   endfor i
 
   rem directions
@@ -1147,15 +1145,15 @@ defproc init_data
     endfor j
   endfor i
 
-  let nouns=31
+  let nouns=30
   dim noun$(nouns,max_word_lenght)
   dim thing_id(nouns)
-  let things=22:rem 0-22 (0 is Ulfius)
+  let things=22
   init_thing_ids
   dim thing$(things,max_word_lenght)
   for i=1 to nouns
     read thing_id(i),noun$(i)
-    let thing$(thing_id(i))=noun$(i):rem el último sinónimo es el nombre principal
+    let thing$(thing_id(i))=noun$(i):rem the last synonym on the list will be the actual name
   endfor i
 
   dim thing_description$(things,128)
@@ -1180,7 +1178,6 @@ defproc init_data
     read action,verb$(i)
     let action_id(i)=action
     if action<>last_action
-      rem New action found
       read action_syntax(action)
       let last_action=action
     endif
@@ -1191,7 +1188,7 @@ enddef
 rem --------------------------------------------
 rem Data
 
-rem location(ulfius_id) descriptions
+rem Location descriptions
 
 data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
 data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
@@ -1245,9 +1242,9 @@ data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oes
 data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
 data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
 
-rem location(ulfius_id) exits
+rem Location exits
 
-rem data "north_dir","south_dir","east_dir","west_dir","up_dir","down_dir":rem ids unfinished, experimental!!!
+rem  n,s,e,w,d,u
 data 0,2,0,0,0,0
 data 1,0,0,3,0,0
 data 0,0,2,4,0,0
@@ -1300,9 +1297,9 @@ data 0,0,48,50,0,0
 data 0,51,49,0,0,0
 data 50,0,0,0,0,0
 
-rem Things and nouns
+rem Nouns
 
-rem thing_id,noun
+rem thing,noun
 data 01,"altar"
 data 02,"ambrosio"
 data 03,"antorcha"
@@ -1364,26 +1361,26 @@ rem Thing data
 rem location,stc:rem what is stc? rename!!!
 data 18,1
 data 19,2
-data 255,0
+data limbo,0
 data 28,1
-data 0,0
+data rulfius_id,0
 data 38,1
 data 9,1
 data 39,0
-data 0,0
-data 255,0
-data 255,0
+data rulfius_id,0
+data limbo,0
+data limbo,0
 data 28,1
 data 41,1
 data 44,1
 data 46,1
-data 255,0
+data limbo,0
 data 18,0
 data 47,1
 data 31,1
 data 43,1
 data 15,0
-data 255,0
+data limbo,0
 
 rem verbs and actions
 
