@@ -1,6 +1,6 @@
 rem Asalto y castigo
 rem para QL, en SuperBASIC.
-rem Versión 00-2011040604
+rem Versión 00-2011040608
 
 rem Copyright (C) 2011 Marcos Cruz (programandala.net)
 rem Licencia:
@@ -55,16 +55,16 @@ rem Plot
 
 deffn location_plot$
 
-  sel on location(ulfius_id):=11,38,44:let location(lake_id)=location(ulfius_id)
+  sel on location(ulfius):=11,38,44:let location(the_lake)=location(ulfius)
 
-  if location(ulfius_id)=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
-  if location(ulfius_id)<10 and location_exit(8,1):ret "Tus hombres siguen tus pasos."
-  if not vanished(ambrosio_id) and thing_data(key_id)=0 and (location(ulfius_id)=46 or ambrosio_follows)
-    let location(ambrosio_id)=location(ulfius_id)
+  if location(ulfius)=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
+  if location(ulfius)<10 and location_exit(8,1):ret "Tus hombres siguen tus pasos."
+  if not is_it_vanished(ambrosio) and can_be_taken(the_key) and (location(ulfius)=46 or ambrosio_follows)
+    let location(ambrosio)=location(ulfius)
     ret "Tu benefactor te sigue, esperanzado."
   endif
-  if location(ulfius_id)=28:let location_exit(28,3)=0:ret ""
-  if location(ulfius_id)=31
+  if location(ulfius)=28:let location_exit(28,3)=0:ret ""
+  if location(ulfius)=31
     if location_exit(31,1)
       ret "Las rocas yacen desmoronadas a lo largo del pasaje."
     else
@@ -77,7 +77,7 @@ enddef
 
 defproc plot
 
-  if location(ulfius_id)=8 and location_exit(8,1)
+  if location(ulfius)=8 and location_exit(8,1)
     let location_exit(8,1)=0
     let saxons_follow=1
     narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa."
@@ -91,7 +91,7 @@ defproc plot
 
   else
 
-    if saxons_follow and location(ulfius_id)<12
+    if saxons_follow and location(ulfius)<12
       let saxons_follow=saxons_follow+1
       narrate "No sabes cuánto tiempo te queda..."
       if saxons_follow>10 
@@ -104,20 +104,20 @@ defproc plot
       endif
     endif
 
-    if location(ulfius_id)<10 and not location_exit(8,1)
+    if location(ulfius)<10 and not location_exit(8,1)
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
-    if location(ulfius_id)>19 and (not is_accessible(torch_id) or not torch_burns)
+    if location(ulfius)>19 and (not is_it_accessible(the_torch) or not torch_burns)
       narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
-      end_of_scene
-      let location(ulfius_id)=17
+      short_pause
+      let location(ulfius)=17
       action_look
       ret
     endif
-    if location(ulfius_id)=51
+    if location(ulfius)=51
       narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado."
       short_pause
-      narrate "Pides audiencia al rey, Uther Pendragon."
+      narrate "Pides audiencia al rey, Uther Pendragón."
       end_of_scene
       cls_
       speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza."
@@ -141,7 +141,7 @@ defproc rocks_and_log
   rem in two different ways.
 
   if hacked_the_log
-    vanish rocks_id
+    do_vanish the_rocks
     let location_exit(31,1)=32
     narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso."
   else
@@ -185,7 +185,7 @@ enddef
 
 defproc action_examine
   if object
-    if is_accessible(object)
+    if is_it_accessible(object)
       narrate thing_description$(object)
     else
       narrate not_seen$
@@ -204,14 +204,14 @@ defproc action_end
 enddef
 
 defproc action_swim
-  if location(ulfius_id)=11
+  if location(ulfius)=11
     cls_
     narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
     end_of_scene
     cls_
     narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
-    end_of_scene
-    let location(ulfius_id)=12
+    short_pause
+    let location(ulfius)=12
     action_look
   else
     narrate "No tiene sentido nadar ahora."
@@ -220,15 +220,15 @@ enddef
 
 defproc action_open
 
-  if location(ulfius_id)=47
-    if is_accessible(key_id)
+  if location(ulfius)=47
+    if is_it_accessible(the_key)
       narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
       short_pause
       narrate "Ambrosio, alegre, se despide de ti."
       speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
       narrate "Se ha ido."
-      vanish ambrosio_id
-      vanish key_id
+      do_vanish ambrosio
+      do_vanish the_key
       let thing_description$(19)="Entreabierta."
       let location_exit(47,4)=48
     else
@@ -243,11 +243,11 @@ enddef
 defproc action_drop
 
   sel on object
-    =sword_id:if location(ulfius_id)<12:narrate "No, es lo que queda de mi padre.":ret
-    =torch_id:if torch_burns:narrate "No, sin luz es imposible moverse por la caverna.":ret
+    =the_sword:if location(ulfius)<12:narrate "No, es lo que queda de mi padre.":ret
+    =the_torch:if torch_burns:narrate "No, sin luz es imposible moverse por la caverna.":ret
   endsel
   if location(object)=0
-    let location(object)=location(ulfius_id)
+    let location(object)=location(ulfius)
     narrate "Hecho."
   else
     narrate i_dont_have_it$
@@ -255,70 +255,81 @@ defproc action_drop
 enddef
 
 defproc action_take
-  if location(object)=0:narrate "Pero si ya lo tengo...":ret
-  if object=key_id and thing_data(object)=1:narrate "Ambrosio la retiene consigo.":ret
-  if thing_data(object)<>0:narrate "No es algo que se pueda coger.":ret
-  let location(object)=0:narrate "Hecho."
+
+  if location(object)=ulfius
+    narrate "Pero si ya lo tengo..."
+  else
+    if cannot_be_taken(object)
+      if object=the_key
+        narrate "Ambrosio la retiene consigo."
+      else
+        narrate "No es algo que se pueda coger."
+      endif
+    else
+      let location(object)=ulfius:narrate "Hecho."
+    endif
+  endif
+
 enddef
 
 defproc action_break
 
-  if not complement and is_accessible(sword_id)
-      let complement=sword_id
+  if not complement and is_it_accessible(the_sword)
+      let complement=the_sword
   endif
 
   sel on object
 
-    =log_id
+    =the_log
 
       if hacked_the_log
         narrate "La punta ya es lo suficientemente afilada."
       else
         sel on complement
           =false:narrate not_by_hand$
-          =sword_id
+          =the_sword
             narrate "Sabes que el resultado es la hoja de tu espada, mellada. No."
-          =flint_id
+          =the_flint
             let hacked_the_log=true
-            let thing_description$(log_id)=thing_description$(log_id)&" Su punta está afilada."
+            let thing_description$(the_log)=thing_description$(the_log)&" Su punta está afilada."
             narrate "Con el pedernal, recortas la punta del tronco."
           =remainder
             narrate "El problema es encontrar la herramienta adecuada para hacerlo."
         endsel
       endif
 
-    =cloak_id
+    =the_cloak
 
-      sel an complement
+      sel on complement
         =false:narrate not_by_hand$
-        =sword_id
-          vanish cloak_id
-          let location(rags_id)=0
-          let location(thread_id)=0
-          let location(piece_id)=0
+        =the_sword
+          do_vanish the_cloak
+          let location(the_rags)=0
+          let location(the_thread)=0
+          let location(the_piece)=0
           narrate "Rasgas la capa, como buenamente puedes."
         =remainder
           narrate not_with_that$
       endsel
 
-    =rocks_id
+    =the_rocks
 
       sel on complement
         =false:narrate not_by_hand$
-        =log_id:rocks_and_log
-        =sword_id:narrate "Tu espada no hace nada."
+        =the_log:rocks_and_log
+        =the_sword:narrate "Tu espada no hace nada."
         =remainder:narrate not_with_that$
       endsel
 
-    =flint_id
+    =the_flint
 
       sel on complement
         =false:narrate not_by_hand$
-        =sword_id
-          if is_accessible(torch_id)
-            vanish torch_id
+        =the_sword
+          if is_it_accessible(the_torch)
+            do_vanish the_torch
             let torch_burns=true
-            let thing_description$(torch_id)="Ilumina perfectamente."
+            let thing_description$(the_torch)="Ilumina perfectamente."
             narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
           else
             narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones."
@@ -326,13 +337,13 @@ defproc action_break
         =remainder:narrate not_with_that$
       endsel
 
-    =snake_id
+    =the_snake
 
       sel on complement
         =false:narrate not_by_hand$
-        =sword_id
+        =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
-          vanish snake_id
+          do_vanish the_snake
           let location_exit(43,2)=44
         =remainder:narrate not_with_that$
       endsel
@@ -346,8 +357,8 @@ enddef
 defproc action_speak
 
   sel on object
-    =ambrosio_id:talk_to_ambrosio
-    =man_id:talk_to_the_man
+    =ambrosio:talk_to_ambrosio
+    =the_man:talk_to_the_man
     =remainder:narrate "No tiene sentido hablar con eso."
   endsel
 
@@ -355,7 +366,7 @@ enddef
 
 defproc talk_to_ambrosio
 
-  if location(ambrosio_id)=19
+  if location(ambrosio)=19
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
@@ -365,11 +376,11 @@ defproc talk_to_ambrosio
     end_of_scene
     cls_
     narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados."
-    let location(torch_id)=0
-    let location(flint_id)=0
+    let location(the_torch)=0
+    let location(the_flint)=0
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
-    let location(ambrosio_id)=46
+    let location(ambrosio)=46
     narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero... ha desaparecido."
     short_pause
     narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre."
@@ -378,7 +389,7 @@ defproc talk_to_ambrosio
 
   else
 
-    if location(ulfius_id)=46
+    if location(ulfius)=46
       if not ambrosio_follows
         speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocéis un camino más corto."
         speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debéis hacer el vuestro, verlo todo con vuestros ojos."
@@ -386,10 +397,10 @@ defproc talk_to_ambrosio
         speak "No lo entiendo, la verdad."
       endif
     endif
-    if location(ulfius_id)>=45 and location(ulfius_id)<=47
+    if location(ulfius)>=45 and location(ulfius)<=47
       speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva."
-      let location(key_id)=0
-      let thing_data(key_id)=0
+      let location(the_key)=ulfius
+      let thing_data(the_key)=0
       let ambrosio_follows=true
     endif
 
@@ -406,16 +417,16 @@ defproc talk_to_the_man
     speak "Somos refugiados de la gran guerra. Buscamos la paz."
     short_pause
   endif
-  if is_accessible(stone_id)
+  if is_it_accessible(the_stone)
     narrate "El hombre se irrita."
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
     speak "La piedra debe devolverse a su lugar de encierro."
     narrate "Un hombre te arrebata la piedra y se la lleva."
-    let location(stone_id)=18
+    let location(the_stone)=18
   else
-    if is_accessible(sword_id)
+    if is_it_accessible(the_sword)
       narrate "El hombre se enfurece, y alza su mano indicando al norte."
       speak "Nadie portando armas puede pasar."
     else
@@ -430,9 +441,9 @@ enddef
 
 defproc action_fling
 
-  sel on location(ulfius_id)
+  sel on location(ulfius)
     =19 
-      if (object=sword_id or object=stone_id) and talked_to_the_man
+      if (object=the_sword or object=the_stone) and talked_to_the_man
         let location(object)=39
         narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista."
       else
@@ -449,22 +460,22 @@ enddef
 defproc action_insert
 
   rem temp added conditions!!!
-  if not is_accessible(object):narrate i_dont_have_it$:ret
-  if not is_accessible(complement):narrate not_seen$:ret
+  if not is_it_accessible(object):narrate i_dont_have_it$:ret
+  if not is_it_accessible(complement):narrate not_seen$:ret
 
   sel on complement
-    =rocks_id
-      if object=log_id
+    =the_rocks
+      if object=the_log
         rocks_and_log
       else
         narrate "No tiene sentido meter eso ahí."
       endif
-    =idol_id
+    =the_idol
       sel on object
-        =emerald_id,stone_id
-          vanish object
+        =the_emerald,the_stone
+          do_vanish object
           narrate "Encaja. Metido. Desaparece en su interior."
-          if vanished(stone_id) and vanished(emerald_id)
+          if is_it_vanished(the_stone) and is_it_vanished(the_emerald)
             let location_exit(41,2)=42
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
@@ -480,8 +491,8 @@ enddef
 defproc action_move(direction)
 
   rem formerly if x>0, check!!!
-  if location_exit(location(ulfius_id),direction)
-    let location(ulfius_id)=location_exit(location(ulfius_id),direction)
+  if location_exit(location(ulfius),direction)
+    let location(ulfius)=location_exit(location(ulfius),direction)
     action_look
   else
     narrate "No es posible."
@@ -508,7 +519,7 @@ def proc action_look
 
   loc message$
   cls_
-  describe location_description$(location(ulfius_id)) 
+  describe location_description$(location(ulfius)) 
   let message$=location_plot$
   if len(message$):narrate message$
   list_present_things 
@@ -522,19 +533,18 @@ defproc list_present_things
 
   loc n,list$
 
-  let list$="":rem objsLoc
+  let list$=""
   for n=1 to things
-    if location(n)=location(ulfius_id) and thing_data(n)=2
-      let list$=list$&"  - "&iso_upper_1$(thing$(n))&nl$
-      next n:exit n
-    endif
-    if location(n)=location(ulfius_id)
-      let list$=list$&"  - "&thing$(n)&nl$
+    if location(n)=location(ulfius)
+      if is_it_a_person(n)
+        let list$=list$&"  - "&iso_upper_1$(thing$(n))&nl$
+      else
+        let list$=list$&"  - "&thing$(n)&nl$
+      endif
     endif
   endfor n
   if len(list$)
-    ink #tw,light_grey
-    print #tw,"Puedes ver:"&nl$&list$
+    narrate "Puedes ver:"&nl$&list$
   endif
 
 enddef
@@ -600,7 +610,7 @@ deffn parse_action(word$)
   for i=1 to verbs
     if word$=verb$(i)
       rem print #tw,word$,verb$(i)&"!":rem debug!!!
-      ret action_id(i)
+      ret the_action(i)
     endif
   endfor i
   ret 0
@@ -611,7 +621,7 @@ deffn parse_noun(word$)
   for i=1 to nouns
     if word$=noun$(i)
       rem print #tw,word$,noun$(i)&"!":pause:rem debug!!!
-      ret thing_id(i)
+      ret the_thing(i)
     endif
   endfor i
   ret 0
@@ -627,8 +637,8 @@ deffn syntax_is_fine
     =2:if (not object or not complement):narrate not_seen$:ret 0
   endsel
 
-  if object:if not is_accessible(object):narrate not_seen$:ret 0
-  if complement:if not is_accessible(complement):narrate not_seen$:ret 0
+  if object:if not is_it_accessible(object):narrate not_seen$:ret 0
+  if complement:if not is_it_accessible(complement):narrate not_seen$:ret 0
 
   ret 1
 
@@ -637,24 +647,44 @@ enddef
 rem --------------------------------------------
 rem Data interface
 
-deffn is_here(thing)
-  ret location(thing)=location(ulfius_id)
+deffn is_it_a_person(thing)
+  ret thing_data(thing)=2
 enddef
 
-deffn have(thing)
-  ret not location(thing)
+defproc do_takeable(thing)
+  let thing_data(thing)=false
 enddef
 
-deffn is_accessible(thing)
-  rem if thing=-1:ret 0:rem to prevent an error. not sure if thing could be -1, but it was! tmp!!!
-  ret have(thing) or is_here(thing)
+defproc do_not_takeable(thing)
+  let thing_data(thing)=true
 enddef
 
-defproc vanish(thing)
+deffn can_be_taken(thing)
+  ret not thing_data(thing)
+enddef
+
+deffn cannot_be_taken(thing)
+  ret thing_data(thing)
+enddef
+
+deffn is_it_here(thing)
+  ret location(thing)=location(ulfius)
+enddef
+
+deffn is_it_hold(thing)
+  ret location(thing)=ulfius
+enddef
+
+deffn is_it_accessible(thing)
+  if thing<1:narrate "is_it_accessible("&thing&")!":stop:rem debug!!! tmp!!!
+  ret is_it_hold(thing) or is_it_here(thing)
+enddef
+
+defproc do_vanish(thing)
   let location(thing)=limbo
 enddef
 
-deffn vanished(thing)
+deffn is_it_vanished(thing)
   ret location(thing)=limbo
 enddef
 
@@ -915,7 +945,7 @@ defproc credits
   cls_
   ink #tw,light_red:print #tw,"Asalto y castigo"
   ink #tw,dark_cyan
-  print #tw,\"Por Baltasar el Arquero"
+  print #tw,\"Por Baltasar el Arquero, 2009"
   print #tw,"http://caad.es/baltasarq/"
   print #tw,\"Reescrita en SuperBASIC para QL por"
   print #tw,"Marcos Cruz (programandala.net), 2011"
@@ -935,6 +965,7 @@ defproc intro
   speak "Sire Ulfius, la batalla ha terminado."
   narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
   end_of_scene
+  cls_
 enddef
 
 rem --------------------------------------------
@@ -1055,7 +1086,7 @@ defproc game_init
   init_vars
   init_data
 
-  let location(ulfius_id)=1:rem change it for debugging!!! must be 1
+  let location(ulfius)=1:rem change it for debugging!!! must be 1
 
 enddef
 
@@ -1086,29 +1117,29 @@ defproc init_vars
 enddef
 
 defproc init_thing_ids
-  let ulfius_id=0
-  let altar_id=1
-  let ambrosio_id=2
-  let torch_id=3
-  let flags_id=4
-  let cloak_id=5
-  let waterfall_id=6
-  let fallen_away_id=7
-  let emerald_id=8
-  let sword_id=9
-  let rags_id=10
-  let thread_id=11
-  let man_id=12
-  let idol_id=13
-  let lake_id=14
-  let key_id=15
-  let flint_id=16
-  let stone_id=17
-  let door_id=18
-  let rocks_id=19
-  let snake_id=20
-  let log_id=21
-  let piece_id=22
+  let ulfius=0
+  let the_altar=1
+  let ambrosio=2
+  let the_torch=3
+  let the_flags=4
+  let the_cloak=5
+  let the_waterfall=6
+  let the_fallen_away=7
+  let the_emerald=8
+  let the_sword=9
+  let the_rags=10
+  let the_thread=11
+  let the_man=12
+  let the_idol=13
+  let the_lake=14
+  let the_key=15
+  let the_flint=16
+  let the_stone=17
+  let the_door=18
+  let the_rocks=19
+  let the_snake=20
+  let the_log=21
+  let the_piece=22
 enddef
 
 defproc init_data
@@ -1147,13 +1178,13 @@ defproc init_data
 
   let nouns=30
   dim noun$(nouns,max_word_lenght)
-  dim thing_id(nouns)
+  dim the_thing(nouns)
   let things=22
   init_thing_ids
   dim thing$(things,max_word_lenght)
   for i=1 to nouns
-    read thing_id(i),noun$(i)
-    let thing$(thing_id(i))=noun$(i):rem the last synonym on the list will be the actual name
+    read the_thing(i),noun$(i)
+    let thing$(the_thing(i))=noun$(i):rem the last synonym on the list will be the actual name
   endfor i
 
   dim thing_description$(things,128)
@@ -1170,13 +1201,13 @@ defproc init_data
   let verbs=117
   let actions=18
   dim verb$(verbs,max_word_lenght)
-  dim action_id(verbs)
+  dim the_action(verbs)
   dim action_syntax(actions)
   let action=1
   let last_action=0
   for i=1 to verbs
     read action,verb$(i)
-    let action_id(i)=action
+    let the_action(i)=action
     if action<>last_action
       read action_syntax(action)
       let last_action=action
@@ -1363,11 +1394,11 @@ data 18,1
 data 19,2
 data limbo,0
 data 28,1
-data rulfius_id,0
+data ulfius,0
 data 38,1
 data 9,1
 data 39,0
-data rulfius_id,0
+data ulfius,0
 data limbo,0
 data limbo,0
 data 28,1
