@@ -107,7 +107,7 @@ defproc plot
     if location(ulfius)<10 and not location_exit(8,1)
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
-    if location(ulfius)>19 and (not is_it_accessible(the_torch) or not torch_burns)
+    if location(ulfius)>19 and (not is_it_accessible(the_torch) or not lit_the_torch)
       narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
       short_pause
       let location(ulfius)=17
@@ -229,7 +229,8 @@ defproc action_open
       narrate "Se ha ido."
       do_vanish ambrosio
       do_vanish the_key
-      let thing_description$(19)="Entreabierta."
+      let thing_description$(the_door)="Entreabierta."
+      let thing_description$(the_lock)="Abierto."
       let location_exit(47,4)=48
     else
       narrate "El candado bloquea la puerta."
@@ -244,7 +245,7 @@ defproc action_drop
 
   sel on object
     =the_sword:if location(ulfius)<12:narrate "No, es lo que queda de mi padre.":ret
-    =the_torch:if torch_burns:narrate "No, sin luz es imposible moverse por la caverna.":ret
+    =the_torch:if lit_the_torch:narrate "No, sin luz es imposible moverse por la caverna.":ret
   endsel
   if location(object)=0
     let location(object)=location(ulfius)
@@ -328,7 +329,7 @@ defproc action_break
         =the_sword
           if is_it_accessible(the_torch)
             do_vanish the_torch
-            let torch_burns=true
+            let lit_the_torch=true
             let thing_description$(the_torch)="Ilumina perfectamente."
             narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
           else
@@ -400,7 +401,7 @@ defproc talk_to_ambrosio
     if location(ulfius)>=45 and location(ulfius)<=47
       speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva."
       let location(the_key)=ulfius
-      let thing_data(the_key)=0
+      let thing_type(the_key)=0
       let ambrosio_follows=true
     endif
 
@@ -632,7 +633,6 @@ deffn syntax_is_fine
   if not action:narrate "No conozco ese verbo.":ret 0
 
   sel on action_syntax(action)
-    =0:if object:narrate "***** no sense ":ret 0
     =1:if not object:narrate not_seen$:ret 0
     =2:if (not object or not complement):narrate not_seen$:ret 0
   endsel
@@ -648,23 +648,23 @@ rem --------------------------------------------
 rem Data interface
 
 deffn is_it_a_person(thing)
-  ret thing_data(thing)=2
+  ret thing_type(thing)=2
 enddef
 
 defproc do_takeable(thing)
-  let thing_data(thing)=false
+  let thing_type(thing)=false
 enddef
 
 defproc do_not_takeable(thing)
-  let thing_data(thing)=true
+  let thing_type(thing)=true
 enddef
 
 deffn can_be_taken(thing)
-  ret not thing_data(thing)
+  ret not thing_type(thing)
 enddef
 
 deffn cannot_be_taken(thing)
-  ret thing_data(thing)
+  ret thing_type(thing)
 enddef
 
 deffn is_it_here(thing)
@@ -695,29 +695,28 @@ deffn iso_input$(prompt$)
 
   loc output$,key$,key,max_chars
   loc cursor_col
-  rem loc cursor_x0,cursor_y0:rem cursor origin coords
   loc cursor_x,cursor_y:rem cursor coords
 
   let output$=""
-  rem let cursor_col=1
-  print #tw,prompt$;
+  let cursor_pos=len(output$)+1
   let max_chars=char_x(#tw)-len(prompt$)-2
-  rem let cursor_x0=pos_x(#tw)
-  rem let cursor_x=cursor_x0
-  let cursor_x=pos_x(#tw)
-  rem let cursor_y0=pos_y(#tw)
-  rem let cursor_y=cursor_y0
-  let cursor_y=pos_y(#tw)
+  print #tw,prompt$;
+  let cursor_x0=pos_x(#tw)
+  let cursor_y0=pos_y(#tw)
   cursen #tw
   rep typing
-    let key$=inkey$(#tw)
+    rem print "POS="!cursor_pos!"<";output$;">"!"LEN="!len(output$):rem debug!!!
+    let key$=inkey$(#tw,-1)
     let key=code(key$)
+    rem at 0,0:print key:rem debug!!!
     sel on key
       =10:rem enter
         if len(output$):exit typing
       =32
         if len(output$)
           if output$(len(output$))<>" ":type key$
+        else
+          input_bell
         endif
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
@@ -728,22 +727,18 @@ deffn iso_input$(prompt$)
       =147:type chr$(237) : rem i with acute
       =150:type chr$(243) : rem o with acute
       =153:type chr$(250) : rem u with acute
-      =192:rem cursor left
-        rem unfinished!!! experimental!!!
-        if 0 and cursor_x>cursor_x0
-          beep 1000,0
-          curdis #tw
-          let cursor_x=cursor_x-char_w(#tw)
-          rem let cursor_col=cursor_col-1
-          cursor #tw,cursor_x,cursor_y
-          print #tw;
-          cursen #tw
-        endif
-      =194
-        if len(output$):untype:rem back space
-      =200:rem cursor rigth
-      =202
-        if len(output$):untype:rem delete
+      =192:cursor_left
+      =193:rem start of line
+        let cursor_pos=1
+        set_cursor cursor_pos
+      =194:backspace_char
+      =196:previous_word
+      =200:cursor_right
+      =201:rem end of line
+        let cursor_pos=len(output$)+1
+        set_cursor cursor_pos
+      =202:delete_char
+      =204:next_word
     endsel 
   endrep typing
   curdis #tw
@@ -753,24 +748,133 @@ enddef
 
 defproc type(char$)
   if len(output$)<max_chars
-    let output$=output$&char$
-    print #tw,char$;
-    let cursor_x=cursor_x+char_w(#tw)
-    cursor #tw,cursor_x,cursor_y
+    sel on cursor_pos
+    =len(output$)+1:rem print "=len+1!"
+      let output$=output$&char$
+      let cursor_pos=cursor_pos+1
+      show_input
+    =remainder
+      let output$=output$(1 to cursor_pos-1)&char$&output$(cursor_pos to)
+      show_input
+    endsel
+  else
+    input_bell
   endif
 enddef
 
-defproc untype
-  loc lenght
-  let lenght=len(output$)
-  if lenght
-    let output$=output$(1 to lenght-1)
-    let cursor_x=cursor_x-char_w(#tw)
-    cursor #tw,cursor_x,cursor_y
-    print #tw," ";
-    cursor #tw,cursor_x,cursor_y
+defproc input_bell
+  beep 1000,0
+enddef
+
+defproc backspace_char
+  if len(output$)
+    sel on cursor_pos
+      =1
+        input_bell
+      =2
+        let output$=output$(cursor_pos to)
+        let cursor_pos=cursor_pos-1
+        show_input
+      =remainder
+        let output$=output$(1 to cursor_pos-2)&output$(cursor_pos to)
+        let cursor_pos=cursor_pos-1
+        show_input
+    endsel
   endif
 enddef
+
+defproc delete_char
+  if len(output$)
+    sel on cursor_pos
+      =len(output$)+1
+        input_bell
+      =remainder
+        let output$=output$(1 to cursor_pos-1)&output$(cursor_pos+1 to)
+        show_input
+    endsel
+  endif
+enddef
+
+defproc cursor_left
+
+  if cursor_pos>1
+    curdis #tw
+    let cursor_pos=cursor_pos-1
+    set_cursor cursor_pos
+    cursen #tw
+  else
+    input_bell
+  endif
+
+enddef
+
+defproc cursor_right
+
+  if cursor_pos<len(output$)+1
+    curdis #tw
+    let cursor_pos=cursor_pos+1
+    set_cursor cursor_pos
+    cursen #tw
+  else
+    input_bell
+  endif
+
+enddef
+
+defproc previous_word
+
+  loc temp
+  loc from_char,to_char
+
+  if cursor_pos=1:ret
+
+  let temp=0
+  let to_char=code(output$(cursor_pos-(cursor_pos>len(output$))))
+  let from_char=to_char
+
+  rep search
+    if not ((cursor_pos>1) and not(from_char<>space and to_char=space and temp>1)):exit search
+      let from_char=to_char
+      let cursor_pos=cursor_pos-1
+      let temp=temp+1
+      let to_char=code(output$(cursor_pos))
+    endrep search
+    let cursor_pos=cursor_pos+(cursor_pos<>1)
+    set_cursor cursor_pos
+    show_input
+enddef
+
+defproc next_word
+
+  loc from_char,to_char
+
+  if cursor_pos>len(output$):ret
+
+  let to_char=code(output$(cursor_pos))
+  let from_char=to_char
+
+  rep search
+  if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
+    let from_char=to_char
+    let cursor_pos=cursor_pos+1
+    let to_char=code(output$(cursor_pos))
+  endrep search
+  let cursor_pos=cursor_pos+(cursor_pos=len(output$))
+  set_cursor cursor_pos
+  show_input
+
+enddef
+
+defproc show_input
+  set_cursor 1
+  print #tw,output$;fill$(" ",max_chars-len(output$))
+  set_cursor cursor_pos
+enddef
+
+defproc set_cursor(column)
+  cursor #tw,cursor_x0+(column-1)*char_w(#tw),cursor_y0
+enddef
+
 
 deffn yes(question$)
   loc answer$
@@ -827,7 +931,7 @@ rem Strings
 
 deffn iso_upper(char)
   loc c:rem needed by QDOS and Minerva: SELect cannot use the parameter
-  let c=chag
+  let c=char
   sel on c
     =97 to 122:ret c-32
     =remainder:ret c
@@ -1093,6 +1197,7 @@ enddef
 defproc init_vars
 
   rem Constants
+  let space=32:rem char code
   let nl$=chr$(10):rem new line
   let l_quote$="«":rem castilian left quote
   let r_quote$="»":rem castilian right quote
@@ -1106,6 +1211,7 @@ defproc init_vars
   let saxons_follow=false
   let talked_to_the_man=false
   let hacked_the_log=false
+  let lit_the_torch=true
 
   rem Messages
   let not_seen$="No lo veo, o no es importante."
@@ -1116,7 +1222,8 @@ defproc init_vars
 
 enddef
 
-defproc init_thing_ids
+defproc init_ids
+
   let ulfius=0
   let the_altar=1
   let ambrosio=2
@@ -1140,65 +1247,66 @@ defproc init_thing_ids
   let the_snake=20
   let the_log=21
   let the_piece=22
+  let the_lock=23
+
+  let north=0
+  let south=1
+  let east=2
+  let west=3
+  let up=4
+  let down=5
+  let first_direction=norch
+  let last_direction=down
+
 enddef
 
 defproc init_data
 
   loc i,j,id$,max_word_lenght,action,last_action
 
-  let max_word_lenght=10
+  let max_word_lenght=11
 
   rem Note:
   rem the first (0) element of arrays is not used,
-  rem except that of location().
+  rem except that of location(), used to keep
+  rem the Ulfius' location.
 
+  init_ids
   restore
 
-  rem locs
   let locations=51
   dim location_description$(locations,255)
   for i=1 to locations
     read location_description$(i)
   endfor i
 
-  rem directions
-  let directions=6
-  if false
-    rem unfinished, experimental!!!
-    for j=1 to directions
-      read id$:keyin "let "&id$&"="&j
-    endfor j
-  endif
-  dim location_exit(locations,directions)
+  dim location_exit(locations,last_direction)
   for i=1 to locations
-    for j=1 to directions
+    for j=first_direction to last_direction
       read location_exit(i,j)
     endfor j
   endfor i
 
-  let nouns=30
+  let nouns=45
   dim noun$(nouns,max_word_lenght)
   dim the_thing(nouns)
-  let things=22
-  init_thing_ids
+  let things=23
   dim thing$(things,max_word_lenght)
   for i=1 to nouns
     read the_thing(i),noun$(i)
     let thing$(the_thing(i))=noun$(i):rem the last synonym on the list will be the actual name
   endfor i
 
+  dim location(things)
+  dim thing_type(things)
   dim thing_description$(things,128)
   for i=1 to things
-    read thing_description$(i)
+    read thing
+    read location(thing),thing_type(thing)
+    read thing_description$(thing)
   endfor i
 
-  dim location(things)
-  dim thing_data(things)
-  for i=1 to things
-    read location(i),thing_data(i)
-  endfor i
-
-  let verbs=117
+  let verbs=124
   let actions=18
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
@@ -1330,88 +1438,103 @@ data 50,0,0,0,0,0
 
 rem Nouns
 
-rem thing,noun
-data 01,"altar"
-data 02,"ambrosio"
-data 03,"antorcha"
-data 04,"banderas"
-data 05,"capa"
-data 06,"cascada"
-data 07,"derrumbe"
-data 08,"esmeralda"
-data 08,"joya"
-data 09,"espada"
-data 10,"harapo"
-data 11,"hilo"
-data 12,"anciano"
-data 12,"jefe"
-data 12,"hombre"
-data 13,"ojo"
-data 13,"agujero"
-data 13,"ídolo"
-data 14,"agua"
-data 14,"laguna"
-data 14,"lago"
-data 15,"llave"
-data 16,"pedernal"
-data 17,"piedra"
-data 18,"puerta"
-data 19,"rocas"
-data 20,"serpiente"
-data 21,"tronco"
-data 22,"trozo"
-data 22,"pedazo"
+rem thing id,noun
+rem (for every thing id, the last noun listed will be the main one) 
+data the_altar,"altar"
+data ambrosio,"ambrosio"
+data torch,"antorcha"
+data flags,"pendones"
+data flags,"enseñas"
+data flags,"banderas"
+data the_cloak,"capa"
+data the_waterfall,"catarata"
+data the_waterfall,"cascada"
+data the_fallen_away,"derrumbe"
+data the_emerald,"joya"
+data the_emerald,"esmeralda"
+data the_sword,"arma"
+data the_sword,"tizona"
+data the_sword,"espada"
+data the_rags,"harapo"
+data the_thread,"hebra"
+data the_thread,"hilo"
+data the_man,"viejo"
+data the_man,"anciano"
+data the_man,"jefe"
+data the_man,"hombre"
+data the_idol,"ojo"
+data the_idol,"agujero"
+data the_idol,"ídolo"
+data the_lake,"agua"
+data the_lake,"laguna"
+data the_lake,"lago"
+data the_key,"llave"
+data the_lift,"pedernal"
+data the_stone,"piedra"
+data the_door,"puerta"
+data the_rocks,"rocas"
+data the_snake,"ofidio"
+data the_snake,"culebra"
+data the_snake,"reptil"
+data the_snake,"serpiente"
+data the_log,"leño"
+data the_log,"madero"
+data the_log,"tronco"
+data the_piece,"trozo"
+data the_piece,"pedazo"
+data the_lock,"cierre"
+data the_lock,"cerrojo"
+data the_lock,"candado"
 
-rem Thing descriptions
+rem Things
 
+rem id,location,type,description
+data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
+data ambrosio,19,2
 data "Ambrosio es un hombre de mediana edad, que te mira afable."
+data the_torch,limbo,0
 data "Está apagada."
+data the_flags,28,1
 data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados.":rem respectivamente?!!!
+data the_cloak,ulfius,0
 data "Tu capa de general, de fina lana tintada de negro."
+data the_waterfall,38,1
 data "No ves nada por la cortina de agua. El lago es muy poco profundo."
+data the_fallen_away,9,1
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
+data the_emerald,39,0
 data "Es preciosa."
+data the_sword,ulfius,0
 data "Legado de tu padre, fiel herramienta en mil batallas."
+data the_rags,limbo,0
 data "Un trozo un poco grande de capa."
+data the_thread,limbo,0
 data "Un hilo se ha desprendido al cortar la capa con la espada."
+data the_man,28,1
 data "Es el jefe de los refugiados."
+data the_idol,41,1
 data "El ídolo tiene dos agujeros por ojos."
+data the_lake,44,1
 data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
+data the_key,46,1
 data "Una llave grande, de hierro herrumboso."
+data the_flint,limbo,0
 data "Se trata de una dura y afilada piedra."
+data the_stone,18,0
 data "Recia y pesada, pero no muy grande, de forma piramidal."
+data the_door,47,1
 data "Muy recia y con un gran candado."
+data the_rocks,31,1
 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
+data the_snake,43,1
 data "Una serpiente bloquea el paso al sur, corriendo a su lado el agua."
+data the_log,15,0
 data "Es un tronco recio, pero de liviano peso."
+data the_piece,limbo,0
 data "Es un poco de lo que antes era tu capa."
-
-rem Thing data
-
-rem location,stc:rem what is stc? rename!!!
-data 18,1
-data 19,2
-data limbo,0
-data 28,1
-data ulfius,0
-data 38,1
-data 9,1
-data 39,0
-data ulfius,0
-data limbo,0
-data limbo,0
-data 28,1
-data 41,1
-data 44,1
-data 46,1
-data limbo,0
-data 18,0
-data 47,1
-data 31,1
-data 43,1
-data 15,0
-data limbo,0
+data the_lock,47,1
+data "Está cerrado. Es muy grande y parece resistente."
 
 rem verbs and actions
 
@@ -1450,6 +1573,11 @@ data 06,"bucea",0
 data 06,"bucear"
 data 06,"nada"
 data 06,"nadar"
+data 06,"zambullirse"
+data 06,"zambúllete"
+data 06,"báñar"
+data 06,"báñate"
+data 06,"báñarse"
 data 07,"agarra",1
 data 07,"agarrar"
 data 07,"coge"
@@ -1460,6 +1588,8 @@ data 08,"deja",1
 data 08,"dejar"
 data 08,"soltar"
 data 08,"suelta"
+data 08,"desprenderse"
+data 08,"despréndete"
 data 09,"e",0
 data 09,"este"
 data 10,"ex",0
