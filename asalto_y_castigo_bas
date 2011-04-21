@@ -1,16 +1,12 @@
 rem Asalto y castigo
-rem para QL, en SuperBASIC.
-rem Versión 00-2011040608
+rem Para QL, en SuperBASIC
+let version$="00-20110420"
 
 rem Copyright (C) 2011 Marcos Cruz (programandala.net)
-rem Licencia:
-rem http://programandala.net/licencia
-rem Página del programa:
-rem http://programandala.net/es.programa.asalto_y_castigo
+rem Licencia: http://programandala.net/licencia
 
-rem Autor de las versiones originales
-rem para ZX Spectrum, Amstrad CPC y Blassic:
-rem Baltasar el Arquero
+rem Versión original para ZX Spectrum, CPC y Blassic:
+rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
 
 rem --------------------------------------------
@@ -19,20 +15,20 @@ rem Notas:
 rem Este fichero usa codificación estándar ISO 8859-1,
 rem **no el juego de caracteres propio de QL**.
 
-rem Este programa utiliza algunos comandos y funciones
-rem de las siguientes extensiones:
-rem MegaToolkit
+rem Este programa utiliza varios comandos y funciones
+rem de dos extensiones de SuperBASIC:
+
+rem De "MegaToolkit", (C) 1992 Michael A. Crowe:
+rem   true, false, here, char_w, char_x, pos_x, pos_y
+rem De "DIY Toolkit", (C) Simon N. Goodwin:
+rem   minimum, inarray%
 
 rem --------------------------------------------
 rem Main
 
-ayc
+main
 
-defproc ayc
-
-  rem Asalto y castigo
-
-  loc understood
+defproc main
 
   first_time_init
   rep game
@@ -41,149 +37,283 @@ defproc ayc
     end_of_scene
     intro
     action_look
-    rep command
+    rep your_turn
       plot
-      let understood=parser(accept$)
-      if understood:do_action action
-    endrep command
+      command
+      if start_over:exit your_turn
+    endrep your_turn
   endrep game
-
-enddef ayc
-
-rem --------------------------------------------
-rem Plot
-
-deffn location_plot$
-
-  sel on location(ulfius):=11,38,44:let location(the_lake)=location(ulfius)
-
-  if location(ulfius)=16:ret "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
-  if location(ulfius)<10 and location_exit(8,1):ret "Tus hombres siguen tus pasos."
-  if not is_it_vanished(ambrosio) and can_be_taken(the_key) and (location(ulfius)=46 or ambrosio_follows)
-    let location(ambrosio)=location(ulfius)
-    ret "Tu benefactor te sigue, esperanzado."
-  endif
-  if location(ulfius)=28:let location_exit(28,3)=0:ret ""
-  if location(ulfius)=31
-    if location_exit(31,1)
-      ret "Las rocas yacen desmoronadas a lo largo del pasaje."
-    else
-      ret "Las rocas bloquean el camino."
-    endif
-  endif
-  ret ""
 
 enddef
 
+rem --------------------------------------------
+rem Argumento
+rem Plot
+
 defproc plot
 
-  if location(ulfius)=8 and location_exit(8,1)
-    let location_exit(8,1)=0
+  rem Comprueba las condiciones de la trama
+  rem y actúa en consecuencia.
+
+  if current_location=8 and location_exit(8,north)
+
+    let location_exit(8,north)=false
     let saxons_follow=1
     narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa."
     short_pause
     narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos.":rem "efectivos"?!!!
     end_of_scene 
-    cls_
+    clear_screen
     narrate "Tus oficiales te conminan a huir."
     speak "Capturando a un general britano, ganan doblemente."
     narrate "Sabes que es cierto, y te duele."
 
-  else
+    ret
 
-    if saxons_follow and location(ulfius)<12
-      let saxons_follow=saxons_follow+1
-      narrate "No sabes cuánto tiempo te queda..."
-      if saxons_follow>10 
-        narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
-        speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
-        end_of_scene
-        cls_
-        action_end
-        ret
-      endif
-    endif
+  endif
 
-    if location(ulfius)<10 and not location_exit(8,1)
-      narrate "Tus hombres luchan con denuedo contra los sajones."
-    endif
-    if location(ulfius)>19 and (not is_it_accessible(the_torch) or not lit_the_torch)
-      narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
-      short_pause
-      let location(ulfius)=17
-      action_look
-      ret
-    endif
-    if location(ulfius)=51
-      narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado."
-      short_pause
-      narrate "Pides audiencia al rey, Uther Pendragón."
+  if saxons_follow and current_location<12
+    let saxons_follow=saxons_follow+1
+    narrate "No sabes cuánto tiempo te queda..."
+    if saxons_follow>10 
+      narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
+      speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
       end_of_scene
-      cls_
-      speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza."
-      short_pause
-      narrate "No puedes entenderlo. El rey, tu amigo."
-      short_pause
-      narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer."
-      short_pause
-      narrate "Te has ganado un buen descanso."
-      end_of_scene
-      cls_
+      clear_screen
       action_end
     endif
+    ret
+  endif
+
+  if current_location<10 and not location_exit(8,north)
+    narrate "Tus hombres luchan con denuedo contra los sajones."
+    ret
+  endif
+
+  if current_location>19 and (not is_it_accessible(the_torch) or not lit_the_torch):rem por qué >19?!!!
+    narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
+    short_pause
+    let current_location=17
+    action_look
+    ret
+  endif
+
+  if current_location=51
+    narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado."
+    short_pause
+    narrate "Pides audiencia al rey, Uther Pendragón."
+    end_of_scene
+    clear_screen
+    speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza."
+    short_pause
+    narrate "No puedes entenderlo. El rey, tu amigo."
+    short_pause
+    narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer."
+    short_pause
+    narrate "Te has ganado un buen descanso."
+    end_of_scene
+    clear_screen
+    action_end
+  endif
+
+enddef
+
+defproc location_plot
+
+  rem Comprueba las condiciones de la trama
+  rem relacionadas con el escenario actual
+  rem y actúa en consecuencia.
+
+  sel on current_location
+    =11,38,44
+      let location(the_lake)=current_location
+    =1 to 9
+      if location_exit(8,north):narrate "Tus hombres siguen tus pasos."
+    =16
+      narrate "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
+    =31
+      if location_exit(31,north)
+        narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
+      else
+        narrate "Las rocas bloquean el camino."
+      endif
+    =28
+      let location_exit(28,east)=false
+  endsel
+
+  if not is_it_vanished(ambrosio) and can_be_taken(the_key) and (current_location=46 or ambrosio_follows)
+    let location(ambrosio)=current_location
+    narrate "Tu benefactor te sigue, esperanzado."
   endif
 
 enddef
 
 defproc rocks_and_log
 
-  rem Called when using the log with the rocks
-  rem in two different ways.
+  rem Acción de usar el tronco con las rocas,
+  rem de dos maneras diferentes.
 
   if hacked_the_log
-    do_vanish the_rocks
-    let location_exit(31,1)=32
     narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso."
+    do_vanish the_rocks
+    let location_exit(31,north)=32
   else
     narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas."
   endif
 
 enddef
 
+defproc open_the_door
+
+  rem Acción de abrir la puerta,
+  rem de varias maneras diferentes.
+
+  narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
+  short_pause
+  narrate "Ambrosio, alegre, se despide de ti."
+  speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
+  narrate "Se ha ido."
+  do_vanish ambrosio
+  do_vanish the_key
+  let thing_description$(the_door)="Entreabierta."
+  let thing_description$(the_lock)="Abierto."
+  let location_exit(47,west)=48
+
+enddef
+
 rem --------------------------------------------
+rem Analizador
+rem Parser
+
+defproc command
+
+  rem Acepta un comando, lo analiza y lo ejecuta.
+
+  loc next_space,command$
+
+  let action=false
+  let object=false
+  let complement=false
+  let command$=accept$
+
+  rep find_word
+    let next_space=" " instr command$
+    parse_word command$(1 to next_space-1)
+    if next_space=len(command$):exit find_word
+    let command$=command$(next_space+1 to)
+  endrep find_word
+
+  if fine_command:do_action action
+
+enddef
+
+defproc parse_word(word$)
+
+  rem Analiza la palabra dada.
+
+  if not action
+    let action=parse_action(word$)
+  else
+    if not object
+      let object=parse_noun(word$)
+    else
+      if not complement:complement=parse_noun(word$)
+    endif
+  endif
+
+enddef
+
+deffn parse_action(word$)
+
+  rem Analiza la palabra dada,
+  rem tras suponer que es un verbo.
+
+  loc found
+  let found=inarray%(verb$,0,word$)
+  if found<0:ret 0
+  ret the_action(found)
+
+enddef
+
+deffn parse_noun(word$)
+
+  rem Analiza la palabra dada,
+  rem tras suponer que es un sustantivo.
+
+  loc found
+  let found=inarray%(noun$,0,word$)
+  if found<0:ret 0
+  ret the_thing(found)
+
+enddef
+
+deffn fine_command
+
+  rem Comprueba si el comando es correcto,
+  rem tanto por las partes que lo componen
+  rem como por la accesibilidad de los objetos.
+  rem Devuelve 1 si es correcto y 0 en caso contrario.
+
+  loc syntax
+  let syntax=action_syntax(action)
+
+  if not action:narrate "No conozco ese verbo.":ret 0
+
+  sel on syntax
+    =1:if not object:narrate not_seen$:ret 0
+    =2:if (not object or not complement):narrate not_seen$:ret 0
+  endsel
+
+  if object:if not is_it_accessible(object):narrate not_seen$:ret 0
+  if complement:if not is_it_accessible(complement):narrate not_seen$:ret 0
+
+  ret 1
+
+enddef
+
+rem --------------------------------------------
+rem Acciones
 rem Actions
 
 defproc do_action(action)
 
+  rem Ejecuta la acción dada.
+
   sel on action
-    =01:action_move 6
+    =01:action_move down
     =02:action_open
-    =03:action_move 5
+    =03:action_move up
     =04:action_break
     =05:action_help
     =06:action_swim
     =07:action_take
     =08:action_drop
-    =09:action_move 3
+    =09:action_move east
     =10:action_examine
     =11:action_speak
     =12:action_insert
     =13:action_look
-    =14:action_move 1
-    =15:action_move 4
-    =16:action_move 2
+    =14:action_move north
+    =15:action_move west
+    =16:action_move south
     =17:action_end
     =18:action_fling
     =remainder:narrate "No puedes hacer eso."
   endsel
 
-enddef 
+enddef
 
 defproc action_help
-  narrate help$
+  narrate "Direcciones: n[orte], s[ur], e[ste], o[este], arriba y abajo."
+  narrate "m[irar] redescribe un lugar, ex[aminar] permite examinar un objeto, o en su defecto a ti."
+  narrate "Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, tirar..."
+  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinónimos tanto de verbos como de nombres."
+  narrate "El atajo de teclado Ctrl+B (des)activa el bip de error de tecleo."
+
 enddef
 
 defproc action_examine
+
   if object
     if is_it_accessible(object)
       narrate thing_description$(object)
@@ -193,47 +323,46 @@ defproc action_examine
   else
     action_inventory
   endif
+
 enddef
 
 defproc action_end
+
   if yes("¿Quieres volver a intentarlo?")
-    run
+    let start_over=true
   else
-    cls_:stop
+    clear_screen:stop
   endif
+
 enddef
 
 defproc action_swim
-  if location(ulfius)=11
-    cls_
+
+  if current_location=11
+    clear_screen
     narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
-    end_of_scene
-    cls_
-    narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
     short_pause
-    let location(ulfius)=12
+    narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
+    end_of_scene
+    let current_location=12
     action_look
   else
     narrate "No tiene sentido nadar ahora."
   endif
+
 enddef
 
 defproc action_open
 
-  if location(ulfius)=47
-    if is_it_accessible(the_key)
-      narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
-      short_pause
-      narrate "Ambrosio, alegre, se despide de ti."
-      speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
-      narrate "Se ha ido."
-      do_vanish ambrosio
-      do_vanish the_key
-      let thing_description$(the_door)="Entreabierta."
-      let thing_description$(the_lock)="Abierto."
-      let location_exit(47,4)=48
+  if current_location=47
+    if object=the_door or object=the_lock
+      if is_it_accessible(the_key)
+        open_the_door
+      else
+        narrate "El candado bloquea la puerta."
+      endif
     else
-      narrate "El candado bloquea la puerta."
+      narrate "No tiene sentido abrir eso."
     endif
   else
     narrate "No hay nada que abrir ahora."
@@ -244,11 +373,11 @@ enddef
 defproc action_drop
 
   sel on object
-    =the_sword:if location(ulfius)<12:narrate "No, es lo que queda de mi padre.":ret
+    =the_sword:if current_location<12:narrate "No, es lo que queda de mi padre.":ret
     =the_torch:if lit_the_torch:narrate "No, sin luz es imposible moverse por la caverna.":ret
   endsel
-  if location(object)=0
-    let location(object)=location(ulfius)
+  if location(object)=ulfius
+    let location(object)=current_location
     narrate "Hecho."
   else
     narrate i_dont_have_it$
@@ -305,9 +434,9 @@ defproc action_break
         =false:narrate not_by_hand$
         =the_sword
           do_vanish the_cloak
-          let location(the_rags)=0
-          let location(the_thread)=0
-          let location(the_piece)=0
+          let location(the_rags)=ulfius
+          let location(the_thread)=ulfius
+          let location(the_piece)=ulfius
           narrate "Rasgas la capa, como buenamente puedes."
         =remainder
           narrate not_with_that$
@@ -328,7 +457,6 @@ defproc action_break
         =false:narrate not_by_hand$
         =the_sword
           if is_it_accessible(the_torch)
-            do_vanish the_torch
             let lit_the_torch=true
             let thing_description$(the_torch)="Ilumina perfectamente."
             narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
@@ -345,7 +473,7 @@ defproc action_break
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
           do_vanish the_snake
-          let location_exit(43,2)=44
+          let location_exit(43,south)=44
         =remainder:narrate not_with_that$
       endsel
 
@@ -372,13 +500,13 @@ defproc talk_to_ambrosio
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
     end_of_scene
-    cls_
+    clear_screen
     narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. y tras tanto acontecido, llora desconsoladamente."
     end_of_scene
-    cls_
+    clear_screen
     narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados."
-    let location(the_torch)=0
-    let location(the_flint)=0
+    let location(the_torch)=ulfius
+    let location(the_flint)=ulfius
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
     let location(ambrosio)=46
@@ -386,11 +514,11 @@ defproc talk_to_ambrosio
     short_pause
     narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre."
     end_of_scene
-    cls_
+    clear_screen
 
   else
 
-    if location(ulfius)=46
+    if current_location=46
       if not ambrosio_follows
         speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocéis un camino más corto."
         speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debéis hacer el vuestro, verlo todo con vuestros ojos."
@@ -398,7 +526,7 @@ defproc talk_to_ambrosio
         speak "No lo entiendo, la verdad."
       endif
     endif
-    if location(ulfius)>=45 and location(ulfius)<=47
+    if current_location>=45 and current_location<=47
       speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva."
       let location(the_key)=ulfius
       let thing_type(the_key)=0
@@ -431,7 +559,7 @@ defproc talk_to_the_man
       narrate "El hombre se enfurece, y alza su mano indicando al norte."
       speak "Nadie portando armas puede pasar."
     else
-      let location_exit(28,3)=29
+      let location_exit(28,east)=29
       narrate "El hombre, calmado, indica hacia el este y habla:"
       speak "Si vienes en paz, puedes ir en paz."
       narrate "Todos se apartan y permiten ahora el paso al este."
@@ -442,16 +570,16 @@ enddef
 
 defproc action_fling
 
-  sel on location(ulfius)
+  sel on current_location
+    =13,16
+      narrate "No hay suficiente profundidad."
     =19 
       if (object=the_sword or object=the_stone) and talked_to_the_man
         let location(object)=39
         narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista."
       else
-        narrate "No quieres perder eso."
+        narrate "No quieres perder eso.":rem add name!!!
       endif
-    =13,16
-      narrate "No hay suficiente profundidad."
     =remainder:
       narrate "No tiene sentido tirar nada ahora."
   endsel
@@ -459,10 +587,6 @@ defproc action_fling
 enddef
 
 defproc action_insert
-
-  rem temp added conditions!!!
-  if not is_it_accessible(object):narrate i_dont_have_it$:ret
-  if not is_it_accessible(complement):narrate not_seen$:ret
 
   sel on complement
     =the_rocks
@@ -477,12 +601,20 @@ defproc action_insert
           do_vanish object
           narrate "Encaja. Metido. Desaparece en su interior."
           if is_it_vanished(the_stone) and is_it_vanished(the_emerald)
-            let location_exit(41,2)=42
+            let location_exit(41,south)=42
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
           narrate "No encaja."
       endsel
+    =the_lock
+      if object=the_key
+        narrate "La llave gira fácilmente dentro del candado."
+        short_pause
+        open_the_door
+      else
+        narrate "No tiene sentido meter eso ahí."
+      endif
     =remainder
       narrate "No tiene sentido meter nada en eso."
   endsel
@@ -491,9 +623,8 @@ enddef
 
 defproc action_move(direction)
 
-  rem formerly if x>0, check!!!
-  if location_exit(location(ulfius),direction)
-    let location(ulfius)=location_exit(location(ulfius),direction)
+  if location_exit(current_location,direction)
+    let current_location=location_exit(current_location,direction)
     action_look
   else
     narrate "No es posible."
@@ -505,8 +636,9 @@ defproc action_inventory
 
   loc i,list$
   let list$=""
+
   for i=1 to things
-    if location(i)=0:let list$=list$&"  - "&thing$(i)&nl$
+    if location(i)=ulfius:let list$=list$&"  - "&thing$(i)&nl$
   endfor i
   if len(list$)
     narrate "Llevo conmigo:"&nl$&list$
@@ -516,19 +648,14 @@ defproc action_inventory
 
 enddef
 
-def proc action_look
+defproc action_look
 
-  loc message$
-  cls_
-  describe location_description$(location(ulfius)) 
-  let message$=location_plot$
-  if len(message$):narrate message$
+  clear_screen
+  describe location_description$(current_location)
+  location_plot
   list_present_things 
 
 enddef
-
-rem --------------------------------------------
-rem Actions library
 
 defproc list_present_things
 
@@ -536,7 +663,7 @@ defproc list_present_things
 
   let list$=""
   for n=1 to things
-    if location(n)=location(ulfius)
+    if location(n)=current_location
       if is_it_a_person(n)
         let list$=list$&"  - "&iso_upper_1$(thing$(n))&nl$
       else
@@ -551,173 +678,108 @@ defproc list_present_things
 enddef
 
 rem --------------------------------------------
-rem Parser
-
-deffn parser(command$)
-
-  loc first_letter,last_letter,command_len
-
-  let first_letter=1
-  let last_letter=1
-  let command$=command$&" "
-  let command_len=len(command$)
-
-  let action=false
-  let object=false
-  let complement=false
-
-  rep find_word
-
-    if first_letter>=command_len:exit find_word
-    rep find_first_letter
-      if command$(first_letter)<>" "
-        exit find_first_letter
-      endif
-      let first_letter=first_letter+1
-    endrep find_first_letter
-    let last_letter=first_letter
-    rep find_last_letter
-      if command$(last_letter+1)=" "
-        exit find_last_letter
-      endif
-      let last_letter=last_letter+1
-    endrep find_last_letter
-
-    parse_word command$(first_letter to last_letter)
-    let first_letter=last_letter+2
-
-  endrep find_word
-
-  ret syntax_is_fine
-
-enddef 
-
-defproc parse_word(word$)
-
-  if not action
-    let action=parse_action(word$)
-  else
-    if not object
-      let object=parse_noun(word$)
-    else
-      if not complement:complement=parse_noun(word$)
-    endif
-  endif
-
-enddef
-
-deffn parse_action(word$)
-  loc i
-  for i=1 to verbs
-    if word$=verb$(i)
-      rem print #tw,word$,verb$(i)&"!":rem debug!!!
-      ret the_action(i)
-    endif
-  endfor i
-  ret 0
-enddef
-
-deffn parse_noun(word$)
-  loc i
-  for i=1 to nouns
-    if word$=noun$(i)
-      rem print #tw,word$,noun$(i)&"!":pause:rem debug!!!
-      ret the_thing(i)
-    endif
-  endfor i
-  ret 0
-enddef
-
-deffn syntax_is_fine
-
-  if not action:narrate "No conozco ese verbo.":ret 0
-
-  sel on action_syntax(action)
-    =1:if not object:narrate not_seen$:ret 0
-    =2:if (not object or not complement):narrate not_seen$:ret 0
-  endsel
-
-  if object:if not is_it_accessible(object):narrate not_seen$:ret 0
-  if complement:if not is_it_accessible(complement):narrate not_seen$:ret 0
-
-  ret 1
-
-enddef
-
-rem --------------------------------------------
+rem Intefaz de datos
 rem Data interface
 
 deffn is_it_a_person(thing)
+
   ret thing_type(thing)=2
+
 enddef
 
 defproc do_takeable(thing)
+
   let thing_type(thing)=false
+
 enddef
 
 defproc do_not_takeable(thing)
+
   let thing_type(thing)=true
+
 enddef
 
 deffn can_be_taken(thing)
+
   ret not thing_type(thing)
+
 enddef
 
 deffn cannot_be_taken(thing)
+
   ret thing_type(thing)
+
 enddef
 
 deffn is_it_here(thing)
-  ret location(thing)=location(ulfius)
+
+  ret location(thing)=current_location
+
 enddef
 
 deffn is_it_hold(thing)
+
   ret location(thing)=ulfius
+
 enddef
 
 deffn is_it_accessible(thing)
+
   if thing<1:narrate "is_it_accessible("&thing&")!":stop:rem debug!!! tmp!!!
   ret is_it_hold(thing) or is_it_here(thing)
+
 enddef
 
 defproc do_vanish(thing)
+
   let location(thing)=limbo
+
 enddef
 
 deffn is_it_vanished(thing)
+
   ret location(thing)=limbo
+
 enddef
 
 rem --------------------------------------------
+rem Entrada
 rem Input
 
-deffn iso_input$(prompt$)
+deffn iso_input$(channel,max_chars)
 
-  loc output$,key$,key,max_chars
-  loc cursor_col
-  loc cursor_x,cursor_y:rem cursor coords
+  rem Devuelve un texto introducido por el teclado.
+
+  rem channel =
+  rem Canal de la ventana en que se recibirá y mostrará el texto, a partir de la posición actual del cursor.
+  rem max_chars =
+  rem Longitud máxima del texto; si es cero, será la máxima posible a partir de la posición actual del cursor en la en la ventana, calculada con el tamaño actual de letra.
+
+  rem Los caracteres castellanos son convertidos
+  rem al estándar ISO 8859-1; todas las letras
+  rem son convertidas a minúsculas;
+  rem no permite teclear espacios iniciales,
+  rem dobles espacios, dígitos o signos de puntuación.
+
+  loc output$,key$,key,cursor_pos,cursor_x0,cursor_y0
 
   let output$=""
-  let cursor_pos=len(output$)+1
-  let max_chars=char_x(#tw)-len(prompt$)-2
-  print #tw,prompt$;
-  let cursor_x0=pos_x(#tw)
-  let cursor_y0=pos_y(#tw)
-  cursen #tw
+  let cursor_pos=1
+  let cursor_x0=pos_x(#channel)
+  let cursor_y0=pos_y(#channel)
+  if max_chars=0
+    let max_chars=char_x(#channel)-cursor_x0/char_w(#channel)-2
+  endif
+  cursen #channel
   rep typing
     rem print "POS="!cursor_pos!"<";output$;">"!"LEN="!len(output$):rem debug!!!
-    let key$=inkey$(#tw,-1)
+    let key$=inkey$(#channel,-1)
     let key=code(key$)
     rem at 0,0:print key:rem debug!!!
     sel on key
-      =10:rem enter
-        if len(output$):exit typing
-      =32
-        if len(output$)
-          if output$(len(output$))<>" ":type key$
-        else
-          input_bell
-        endif
+      =2:let mistype_bell_active=not mistype_bell_active:rem Ctrl+B
+      =enter:exit typing
+      =space:type_space
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
       =131,163:type chr$(233) : rem e/E with acute
@@ -741,12 +803,17 @@ deffn iso_input$(prompt$)
       =204:next_word
     endsel 
   endrep typing
-  curdis #tw
-  print #tw\\
+  curdis #channel
+  print #channel\\\
   ret output$
+
 enddef
 
 defproc type(char$)
+
+  rem Si hay espacio,
+  rem añade al texto el caracter indicado y lo imprime.
+
   if len(output$)<max_chars
     sel on cursor_pos
     =len(output$)+1:rem print "=len+1!"
@@ -758,145 +825,236 @@ defproc type(char$)
       show_input
     endsel
   else
-    input_bell
+    mistype_bell
   endif
+
 enddef
 
-defproc input_bell
-  beep 1000,0
+defproc type_space
+
+  if cursor_pos=1
+    mistype_bell
+  else
+    if cursor_pos>len(output$)
+      if output$(cursor_pos-1)=" "
+        mistype_bell
+      else
+        type " "
+      endif
+    else
+      if output$(cursor_pos)=" " or output$(cursor_pos-1)=" "
+        mistype_bell
+      else
+        type " "
+      endif
+    endif
+  endif
+
+enddef
+
+defproc mistype_bell
+
+  if mistype_bell_active:beep 1000,0
+
 enddef
 
 defproc backspace_char
+
+  rem Si corresponde, borra el carácter a la izquierda del cursor
+
+  loc original$
+
   if len(output$)
-    sel on cursor_pos
-      =1
-        input_bell
-      =2
-        let output$=output$(cursor_pos to)
-        let cursor_pos=cursor_pos-1
-        show_input
-      =remainder
-        let output$=output$(1 to cursor_pos-2)&output$(cursor_pos to)
-        let cursor_pos=cursor_pos-1
-        show_input
-    endsel
+    if cursor_pos=1
+        mistype_bell
+    else
+      let original$=output$
+      let output$=original$(1 to cursor_pos-2)
+      if cursor_pos<=len(original$)
+        let output$=output$&original$(cursor_pos to)
+      endif
+      let cursor_pos=cursor_pos-1
+      show_input
+    endif
+  else
+    mistype_bell
   endif
+
 enddef
 
 defproc delete_char
+
+  rem Si es posible, borra el carácter bajo el cursor.
+
+  loc original$
+
   if len(output$)
-    sel on cursor_pos
-      =len(output$)+1
-        input_bell
-      =remainder
-        let output$=output$(1 to cursor_pos-1)&output$(cursor_pos+1 to)
-        show_input
-    endsel
+    if cursor_pos=len(output$)+1
+      mistype_bell
+    else
+      let original$=output$
+      let output$=original$(1 to cursor_pos-1)
+      if cursor_pos<len(original$)
+        let output$=output$&original$(cursor_pos+1 to)
+      endif
+     show_input
+    endif
+  else
+    mistype_bell
   endif
+
 enddef
 
 defproc cursor_left
 
+  rem Si es posible, desplaza el cursor un carácter a la izquierda.
+
   if cursor_pos>1
-    curdis #tw
+    curdis #channel
     let cursor_pos=cursor_pos-1
     set_cursor cursor_pos
-    cursen #tw
+    cursen #channel
   else
-    input_bell
+    mistype_bell
   endif
 
 enddef
 
 defproc cursor_right
 
+  rem Si es posible, desplaza el cursor un carácter a la derecha.
+
   if cursor_pos<len(output$)+1
-    curdis #tw
+    curdis #channel
     let cursor_pos=cursor_pos+1
     set_cursor cursor_pos
-    cursen #tw
+    cursen #channel
   else
-    input_bell
+    mistype_bell
   endif
 
 enddef
 
 defproc previous_word
 
+  rem Si es posible, desplaza el cursor al inicio de la palabra anterior.
+
   loc temp
   loc from_char,to_char
 
-  if cursor_pos=1:ret
+  if cursor_pos=1
 
-  let temp=0
-  let to_char=code(output$(cursor_pos-(cursor_pos>len(output$))))
-  let from_char=to_char
+    mistype_bell
 
-  rep search
-    if not ((cursor_pos>1) and not(from_char<>space and to_char=space and temp>1)):exit search
-      let from_char=to_char
-      let cursor_pos=cursor_pos-1
-      let temp=temp+1
-      let to_char=code(output$(cursor_pos))
+  else
+
+    let temp=0
+    let to_char=code(output$(cursor_pos-(cursor_pos>len(output$))))
+    let from_char=to_char
+
+    rep search
+      if not ((cursor_pos>1) and not(from_char<>space and to_char=space and temp>1)):exit search
+        let from_char=to_char
+        let cursor_pos=cursor_pos-1
+        let temp=temp+1
+        let to_char=code(output$(cursor_pos))
     endrep search
     let cursor_pos=cursor_pos+(cursor_pos<>1)
     set_cursor cursor_pos
     show_input
+
+  endif
+
 enddef
 
 defproc next_word
 
+  rem Si es posible, desplaza el cursor al inicio de la palabra siguiente (o al final de la última palabra).
+
   loc from_char,to_char
 
-  if cursor_pos>len(output$):ret
-
-  let to_char=code(output$(cursor_pos))
-  let from_char=to_char
-
-  rep search
-  if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
-    let from_char=to_char
-    let cursor_pos=cursor_pos+1
+  if cursor_pos>len(output$)
+    mistype_bell
+  else
     let to_char=code(output$(cursor_pos))
-  endrep search
-  let cursor_pos=cursor_pos+(cursor_pos=len(output$))
-  set_cursor cursor_pos
-  show_input
+    let from_char=to_char
+    rep search
+    if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
+      let from_char=to_char
+      let cursor_pos=cursor_pos+1
+      let to_char=code(output$(cursor_pos))
+    endrep search
+    let cursor_pos=cursor_pos+(cursor_pos=len(output$))
+    set_cursor cursor_pos
+    show_input
+  endif
 
 enddef
 
 defproc show_input
+
+  rem Muestra el texto que está siendo introducido
+
+  curdis #channel
   set_cursor 1
-  print #tw,output$;fill$(" ",max_chars-len(output$))
+  print #channel,output$;
+  cls #channel,4
+  rem print #channel,output$;fill$(" ",max_chars-len(output$))
   set_cursor cursor_pos
+  cursen #channel
+
 enddef
 
 defproc set_cursor(column)
-  cursor #tw,cursor_x0+(column-1)*char_w(#tw),cursor_y0
+
+  rem Sitúa el cursor de texto en la posición
+  rem de pixeles correspondiente a la columna indicada
+  rem (que es relativa al texto que se está escribiendo).
+
+  cursor #channel,cursor_x0+(column-1)*char_w(#channel),cursor_y0
+
 enddef
 
-
 deffn yes(question$)
+
+  rem Muestra la pregunta indicada
+  rem y espera la pulsación de las teclas S o N
+  rem (sin distinguir minúsculas de mayúsculas).
+  rem Devuelve 1 si se pulsó S; 0 si se pulsó N.
+
   loc answer$
+
   print #tw,question$!"(S/N)"!;
   rep answer
     let answer$=inkey$(#tw)
     if answer$ instr "sn":exit answer
-  end rep answer
+  endrep answer
   ret answer$ instr "s"
+
 enddef
 
 defproc end_of_scene:rem rename?!!!
+
+  rem Muestra un presto para que se pulse una tecla y hace una pausa larga.
+  rem Se usa para terminar escenas, generalmente seguidas de un borrado de pantalla.
+
   ink #tw,dark_green
   print #tw,"..."\\
   wait_for_key_press(16)
+
 enddef
 
 defproc short_pause
-  wait_for_key_press(4)
+
+  rem Hace una corta pausa entre ciertos párrafos de la narración.
+
+  wait_for_key_press(2)
+
 enddef
 
 defproc wait_for_key_press(seconds)
+
+  rem Espera los segundos indicados, o hasta que se pulse una tecla.
 
   loc start_time
   let start_time=date
@@ -905,7 +1063,7 @@ defproc wait_for_key_press(seconds)
     if inkey$(#tw)="" or date>start_time+seconds
       exit dont_press_a_key
     endif
-  end rep dont_press_a_key
+  endrep dont_press_a_key
   rep press_a_key
     if inkey$(#tw)<>"" or date>start_time+seconds
       exit press_a_key
@@ -917,84 +1075,107 @@ enddef
 deffn accept$
   loc command$
   ink #tw,yellow
-  rep valid_command
-    rem input #tw,\"> ";command$
-    let command$=iso_input$("> ")
-    if command$<>"":exit valid_command
-  endrep valid_command
+  rep waiting_for_command
+    print #tw,"> ";
+    let command$=iso_input$(#tw,0)
+    if len(command$):exit waiting_for_command
+  endrep waiting_for_command
+  if command$(len(command$))<>" ":let command$=command$&" "
   ink #tw,light_grey
   ret command$
 enddef
 
 rem --------------------------------------------
+rem Cadenas
 rem Strings
 
 deffn iso_upper(char)
-  loc c:rem needed by QDOS and Minerva: SELect cannot use the parameter
+
+  loc c:rem QDOS y Minerva necesitan esto, pues no pueden usar el parámetro como selector en SELect
   let c=char
   sel on c
     =97 to 122:ret c-32
     =remainder:ret c
   endsel
+
 enddef
 
 deffn iso_upper$(text$)
+
   loc i,upper_text$
   let upper_text$=text$
   for i=1 to len(upper_text$)
     let upper_text$(i)=chr$(iso_upper(code(text$(i))))
   endfor i
   ret upper_text$
+
 enddef
 
 deffn iso_upper_1$(text$)
+
   ret iso_upper$(text$(1))&text$(2 to)
+
 enddef
 
 rem --------------------------------------------
+rem Pantalla
 rem Screen
 
-defproc cls_
+defproc clear_screen
+
   ink #tw,light_grey
   cls #tw
+
 enddef
 
 defproc full_screen(channel)
+
   rem tmp!!!
-  rem From the Display toolkit, by Dylwin Jones.
+  rem From the Display toolkit, by Dilwyn Jones.
   loc sw,sh,sx,sy
   let sw=flim_w(#channel)
   let sh=flim_h(#channel)
   let sx=flim_x(#channel)
   let sy=flim_y(#channel)
   window #channel,sw,sh,sx,sy
+
 enddef
 
 rem --------------------------------------------
+rem Tipos 
 rem Fonts
 
 defproc fonts(font_address)
+
   char_use#tw,font_address,0 
+
 enddef
 
 defproc iso_font
+
   fonts font_address
+
 enddef
 
 defproc ql_font
+
   fonts 0
+
 enddef
 
-defproc init_font
+defproc init_the_font
+
   loc font_size
   let font$=dev$&"iso_8859-1_font"
   font_size=flen(\font$)
   font_address=alchp(font_size)
   lbytes font$,font_address
   iso_font
+
 enddef
 
 rem --------------------------------------------
+rem Salida de textos
 rem Text output
 
 defproc speak(quote$)
@@ -1002,8 +1183,6 @@ defproc speak(quote$)
   loc last
   ink #tw,yellow
   if r_quote$ instr quote$
-    rem A closing "»" in the text means the actual quote is closed before the end of quote$.
-    rem This manages quotes like "«Yes», he said.".
     tell l_quote$&quote$
   else
     let last=len(quote$)
@@ -1017,16 +1196,20 @@ defproc speak(quote$)
 enddef
 
 defproc describe(txt$)
+
   ink #tw,dark_cyan:tell txt$
+
 enddef
 
 defproc narrate(txt$)
+
   ink #tw,light_grey:tell txt$
+
 enddef
 
 defproc tell(txt$)
 
-  local text$,first,last
+  loc text$,first,last
 
   if len(txt$)
     let text$=txt$&" "
@@ -1043,39 +1226,47 @@ defproc tell(txt$)
 enddef
 
 rem --------------------------------------------
+rem Acerca de
 rem About
 
 defproc credits
-  cls_
+
+  clear_screen
   ink #tw,light_red:print #tw,"Asalto y castigo"
   ink #tw,dark_cyan
   print #tw,\"Por Baltasar el Arquero, 2009"
   print #tw,"http://caad.es/baltasarq/"
   print #tw,\"Reescrita en SuperBASIC para QL por"
   print #tw,"Marcos Cruz (programandala.net), 2011"
+  print #tw,"Versión"!version$&""
   ink #tw,light_grey
   print #tw,\"C.A.A.D."\"http://www.caad.es/"\\\
+
 enddef
 
 defproc intro
-  cls_
+
+  clear_screen
   narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja."
   short_pause
-  narrate "Piensas en el encargo realizado por Uther Pendragon. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
+  narrate "Piensas en el encargo realizado por Uther Pendragón. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
   short_pause
   narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
   end_of_scene
-  cls_
+  clear_screen
   speak "Sire Ulfius, la batalla ha terminado."
   narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
   end_of_scene
-  cls_
+  clear_screen
+
 enddef
 
 rem --------------------------------------------
+rem Inicialización
 rem Init
 
-defproc init_ql
+defproc init_the_system
+
   rem unfinished!!!
   tk2_ext
   if ver$="HBA"
@@ -1090,9 +1281,10 @@ defproc init_ql
   if not here("maximum")
     lrespr dev$&"ext_minmax_code"
   endif
+
 enddef
 
-defproc init_screen
+defproc init_the_screen
 
   rem unfinished!!!
 
@@ -1108,18 +1300,19 @@ defproc init_screen
   let yellow=6
   let white=7
   rem Original Blassic/CPC colours:
-  let dark_blue=1
-  let dark_green=4
-  let dark_cyan=5
-  let brown=2
-  let light_grey=7
-  let dark_grey=7
-  let light_blue=5
-  let light_green=4
-  let light_cyan=5
-  let light_red=2
-  let light_purple=3
+  let dark_blue=blue
+  let dark_green=green
+  let dark_cyan=cyan
+  let brown=red
+  let light_grey=white
+  let dark_grey=white
+  let light_blue=cyan
+  let light_green=green
+  let light_cyan=cyan
+  let light_red=red
+  let light_purple=purple
 
+  rem check uQLx too!!!
   if here("scr_xlim")
     let scr_w=scr_xlim
     let scr_h=scr_ylim
@@ -1130,7 +1323,7 @@ defproc init_screen
 
 enddef
 
-defproc init_windows
+defproc init_the_windows
 
   let csize_w=3-(scr_w=512)
   let csize_h=scr_w>512
@@ -1175,55 +1368,62 @@ defproc init_windows
   ink #tw,light_grey
   cls #tw
 
-  init_font
+  init_the_font
 
 enddef
 
 defproc first_time_init
-  init_ql
-  init_screen
-  init_windows
+
+  init_the_system
+  init_the_screen
+  init_the_windows
+  init_the_constants
+  init_the_preferences
+
 enddef
 
 defproc game_init
 
-  init_vars
-  init_data
-
-  let location(ulfius)=1:rem change it for debugging!!! must be 1
+  init_the_flags
+  init_the_data
+  let current_location=1
 
 enddef
 
-defproc init_vars
+defproc init_the_preferences
 
-  rem Constants
+  let mistype_bell_active=true
+
+enddef
+
+defproc init_the_constants
+
+  rem Varios
+  rem Misc
   let space=32:rem char code
-  let nl$=chr$(10):rem new line
+  let enter=10:rem char code
+  let nl$=chr$(enter):rem new line
   let l_quote$="«":rem castilian left quote
   let r_quote$="»":rem castilian right quote
   let limbo=255:rem location of vanished things
+
+  rem Action type flags
+  rem Indicadores de tipo de acción
+  rem not used yet!!!
   let nothing_needed=0
   let object_needed=1
   let object_and_complement_needed=2
 
-  rem Flags:
-  let ambrosio_follows=false
-  let saxons_follow=false
-  let talked_to_the_man=false
-  let hacked_the_log=false
-  let lit_the_torch=true
-
-  rem Messages
+  rem Mensajes de error
+  rem Error messages 
+  rem tmp!!!
   let not_seen$="No lo veo, o no es importante."
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
   let not_by_hand$="En cualquier caso, no con las manos desnudas."
-  let help$="Direcciones: n(orte), s(ur), e(ste), o(este), arriba, abajo."&nl$&"(m)irar redescribe un lugar."&nl$&"(ex)aminar permite examinar un objeto, o en su defecto a ti."&nl$&"Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, y tirar algo."
 
-enddef
-
-defproc init_ids
-
+  rem Identificadores de cosas
+  rem Thing ids
   let ulfius=0
   let the_altar=1
   let ambrosio=2
@@ -1249,18 +1449,30 @@ defproc init_ids
   let the_piece=22
   let the_lock=23
 
+  rem Direction ids
   let north=0
   let south=1
   let east=2
   let west=3
   let up=4
   let down=5
-  let first_direction=norch
+  let first_direction=north
   let last_direction=down
 
 enddef
 
-defproc init_data
+defproc init_the_flags
+
+  let ambrosio_follows=false
+  let saxons_follow=false
+  let talked_to_the_man=false
+  let hacked_the_log=false
+  let lit_the_torch=true
+  let start_over=false
+
+enddef
+
+defproc init_the_data
 
   loc i,j,id$,max_word_lenght,action,last_action
 
@@ -1271,10 +1483,9 @@ defproc init_data
   rem except that of location(), used to keep
   rem the Ulfius' location.
 
-  init_ids
   restore
 
-  let locations=51
+  let locations=lines_between("label_location_descriptions_start","label_location_descriptions_end")
   dim location_description$(locations,255)
   for i=1 to locations
     read location_description$(i)
@@ -1287,10 +1498,10 @@ defproc init_data
     endfor j
   endfor i
 
-  let nouns=45
+  let nouns=lines_between("label_nouns_start","label_nouns_end")
   dim noun$(nouns,max_word_lenght)
   dim the_thing(nouns)
-  let things=23
+  let things=lines_between("label_things_start","label_things_end")/2
   dim thing$(things,max_word_lenght)
   for i=1 to nouns
     read the_thing(i),noun$(i)
@@ -1306,7 +1517,7 @@ defproc init_data
     read thing_description$(thing)
   endfor i
 
-  let verbs=124
+  let verbs=lines_between("label_verbs_start","label_verbs_end")
   let actions=18
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
@@ -1325,10 +1536,12 @@ defproc init_data
 enddef
 
 rem --------------------------------------------
+rem Datos
 rem Data
 
 rem Location descriptions
 
+defproc label_location_descriptions_start:enddef
 data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
 data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
 data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
@@ -1380,9 +1593,12 @@ data "Bosque a la entrada. Apenas se puede reconocer la entrada de la cueva, al 
 data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oeste."
 data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
 data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
+defproc label_location_descriptions_end:enddef
 
+rem Salidas de los escenarios
 rem Location exits
 
+rem  n,s,e,o,ar,ab
 rem  n,s,e,w,d,u
 data 0,2,0,0,0,0
 data 1,0,0,3,0,0
@@ -1436,16 +1652,20 @@ data 0,0,48,50,0,0
 data 0,51,49,0,0,0
 data 50,0,0,0,0,0
 
+rem Nombres
 rem Nouns
 
-rem thing id,noun
+rem identificador de cosa, nombre
+rem (para cada identificador de cosa, el último nombre listado será el principal)
+rem thing id, noun
 rem (for every thing id, the last noun listed will be the main one) 
+defproc label_nouns_start:enddef
 data the_altar,"altar"
 data ambrosio,"ambrosio"
-data torch,"antorcha"
-data flags,"pendones"
-data flags,"enseñas"
-data flags,"banderas"
+data the_torch,"antorcha"
+data the_flags,"pendones"
+data the_flags,"enseñas"
+data the_flags,"banderas"
 data the_cloak,"capa"
 data the_waterfall,"catarata"
 data the_waterfall,"cascada"
@@ -1469,7 +1689,7 @@ data the_lake,"agua"
 data the_lake,"laguna"
 data the_lake,"lago"
 data the_key,"llave"
-data the_lift,"pedernal"
+data the_flint,"pedernal"
 data the_stone,"piedra"
 data the_door,"puerta"
 data the_rocks,"rocas"
@@ -1485,10 +1705,14 @@ data the_piece,"pedazo"
 data the_lock,"cierre"
 data the_lock,"cerrojo"
 data the_lock,"candado"
+defproc label_nouns_end:enddef
 
+rem Cosas
 rem Things
 
+rem identificador,escenario,tipo,descripción
 rem id,location,type,description
+defproc label_things_start:enddef
 data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,19,2
@@ -1496,7 +1720,7 @@ data "Ambrosio es un hombre de mediana edad, que te mira afable."
 data the_torch,limbo,0
 data "Está apagada."
 data the_flags,28,1
-data "Son las banderas britana y sajona, respectivamente. Dos dragones rampantes, rojo y blanco, enfrentados.":rem respectivamente?!!!
+data "Son las banderas britana y sajona. Dos dragones rampantes, rojo y blanco, enfrentados."
 data the_cloak,ulfius,0
 data "Tu capa de general, de fina lana tintada de negro."
 data the_waterfall,38,1
@@ -1535,10 +1759,14 @@ data the_piece,limbo,0
 data "Es un poco de lo que antes era tu capa."
 data the_lock,47,1
 data "Está cerrado. Es muy grande y parece resistente."
+defproc label_things_end:enddef
 
-rem verbs and actions
+rem Verbos y acciones
+rem Verbs and actions
 
+rem identificador de acción, verbo o sinónimo, sintaxis de la acción (solo para el primer sinónimo)
 rem action id,verb or synonym,action syntax (only for the first synonym)
+defproc label_verbs_start:enddef
 data 01,"abajo",0
 data 01,"baja"
 data 01,"bajar"
@@ -1575,7 +1803,7 @@ data 06,"nada"
 data 06,"nadar"
 data 06,"zambullirse"
 data 06,"zambúllete"
-data 06,"báñar"
+data 06,"bañar"
 data 06,"báñate"
 data 06,"báñarse"
 data 07,"agarra",1
@@ -1663,17 +1891,36 @@ data 18,"lanza"
 data 18,"lanzar"
 data 18,"tira"
 data 18,"tirar"
+defproc label_verbs_end:enddef
 
 rem --------------------------------------------
-rem Debug
+rem Meta
+
+deffn lines_between(procedure_1$,procedure_2$)
+
+  loc line_step
+  let line_step=10
+  ret (lnum(procedure_2$)-lnum(procedure_1$))/line_step-1
+
+enddef
+
+defproc s
+
+  save_o "ayc_rendered_bas"
+
+enddef
 
 defproc fatal_error(message$)
+
   ink #tw,red
   print #tw,"Fatal error:"!message$
   stop
+
 enddef
 
 defproc _debug(text$)
+
   print #tw,"DEBUG POINT:"&text$
+
 enddef
 
