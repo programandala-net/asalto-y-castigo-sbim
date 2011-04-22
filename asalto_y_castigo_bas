@@ -1,6 +1,6 @@
 rem Asalto y castigo
 rem Para QL, en SuperBASIC
-let version$="00-20110420"
+let version$="00-20110422"
 
 rem Copyright (C) 2011 Marcos Cruz (programandala.net)
 rem Licencia: http://programandala.net/licencia
@@ -19,9 +19,11 @@ rem Este programa utiliza varios comandos y funciones
 rem de dos extensiones de SuperBASIC:
 
 rem De "MegaToolkit", (C) 1992 Michael A. Crowe:
-rem   true, false, here, char_w, char_x, pos_x, pos_y
+rem   true,false,here,char_w,char_x,pos_x,pos_y,lnum
 rem De "DIY Toolkit", (C) Simon N. Goodwin:
-rem   minimum, inarray%
+rem   minimum,inarray%
+rem De "Display toolkit", (C) Dilwyn Jones:
+rem   flim_w,flim_h,flim_x,flim_y,dmode
 
 rem --------------------------------------------
 rem Main
@@ -90,7 +92,8 @@ defproc plot
     ret
   endif
 
-  if current_location>19 and (not is_it_accessible(the_torch) or not lit_the_torch):rem por qué >19?!!!
+  if current_location>19 and (not is_it_accessible(the_torch) or not lit_the_torch)
+    rem por qué >19?!!!
     narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
     short_pause
     let current_location=17
@@ -121,7 +124,7 @@ enddef
 defproc location_plot
 
   rem Comprueba las condiciones de la trama
-  rem relacionadas con el escenario actual
+  rem relacionadas con el nuevo escenario
   rem y actúa en consecuencia.
 
   sel on current_location
@@ -150,8 +153,7 @@ enddef
 
 defproc rocks_and_log
 
-  rem Acción de usar el tronco con las rocas,
-  rem de dos maneras diferentes.
+  rem Acción de usar el tronco con las rocas.
 
   if hacked_the_log
     narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso."
@@ -165,8 +167,7 @@ enddef
 
 defproc open_the_door
 
-  rem Acción de abrir la puerta,
-  rem de varias maneras diferentes.
+  rem Acción de abrir la puerta.
 
   narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
   short_pause
@@ -251,7 +252,7 @@ deffn fine_command
 
   rem Comprueba si el comando es correcto,
   rem tanto por las partes que lo componen
-  rem como por la accesibilidad de los objetos.
+  rem como por la accesibilidad de objeto y complemento.
   rem Devuelve 1 si es correcto y 0 en caso contrario.
 
   loc syntax
@@ -260,8 +261,8 @@ deffn fine_command
   if not action:narrate "No conozco ese verbo.":ret 0
 
   sel on syntax
-    =1:if not object:narrate not_seen$:ret 0
-    =2:if (not object or not complement):narrate not_seen$:ret 0
+    =object_needed:if not object:narrate not_seen$:ret 0
+    =object_and_complement_needed:if (not object or not complement):narrate not_seen$:ret 0
   endsel
 
   if object:if not is_it_accessible(object):narrate not_seen$:ret 0
@@ -280,24 +281,24 @@ defproc do_action(action)
   rem Ejecuta la acción dada.
 
   sel on action
-    =01:action_move down
-    =02:action_open
-    =03:action_move up
-    =04:action_break
-    =05:action_help
-    =06:action_swim
-    =07:action_take
-    =08:action_drop
-    =09:action_move east
-    =10:action_examine
-    =11:action_speak
-    =12:action_insert
-    =13:action_look
-    =14:action_move north
-    =15:action_move west
-    =16:action_move south
-    =17:action_end
-    =18:action_fling
+    =to_break:action_break
+    =to_drop:action_drop
+    =to_examine:action_examine
+    =to_finish:action_end
+    =to_fling:action_fling
+    =to_go_down:action_move down
+    =to_go_east:action_move east
+    =to_go_north:action_move north
+    =to_go_south:action_move south
+    =to_go_up:action_move up
+    =to_go_west:action_move west
+    =to_help:action_help
+    =to_insert:action_insert
+    =to_look:action_look
+    =to_open:action_open
+    =to_speak:action_speak
+    =to_swim:action_swim
+    =to_take:action_take
     =remainder:narrate "No puedes hacer eso."
   endsel
 
@@ -501,7 +502,7 @@ defproc talk_to_ambrosio
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
     end_of_scene
     clear_screen
-    narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. y tras tanto acontecido, llora desconsoladamente."
+    narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. Y tras tanto acontecido, llora desconsoladamente."
     end_of_scene
     clear_screen
     narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados."
@@ -1238,9 +1239,11 @@ defproc credits
   print #tw,"http://caad.es/baltasarq/"
   print #tw,\"Reescrita en SuperBASIC para QL por"
   print #tw,"Marcos Cruz (programandala.net), 2011"
-  print #tw,"Versión"!version$&""
+  print #tw,"http://programandala.net/"
+  print #tw,"Versión"!version$
   ink #tw,light_grey
-  print #tw,\"C.A.A.D."\"http://www.caad.es/"\\\
+  print #tw,\\"http://www.caad.es/"
+  print #tw,"http://www.sinclairql.es/"\\\
 
 enddef
 
@@ -1284,42 +1287,76 @@ defproc init_the_system
 
 enddef
 
+defproc init_256_colours
+
+    rem QL colours in mode 16 (8 bits, 256 colours):
+    let black=0:rem used!!!
+    let blue=4
+    let red=2:rem used!!!
+    let purple=20
+    let green=3
+    let cyan=7
+    let yellow=6:rem used!!!
+    let white=1
+    rem Original Blassic/CPC colours:
+    let dark_blue=19
+    let dark_green=17:rem used!!!
+    let dark_cyan=cyan:rem used!!! 008B8B
+    let brown=46
+    let light_grey=12:rem used!!!
+    let dark_grey=10
+    let light_blue=29
+    let light_green=15
+    let light_cyan=0:rem E0FFFF
+    let light_red=red:rem used!!! unfinished!!!
+    let light_purple=purple:rum unfinished!!!
+
+enddef
+
+defproc init_8_colours
+
+    rem QL colours in mode 8 (4 bits, 8 colours):
+    let black=0:rem used!!!
+    let blue=1
+    let red=2:rem used!!!
+    let purple=3
+    let green=4
+    let cyan=5
+    let yellow=6:rem yellow!!!
+    let white=7
+    rem Original Blassic/CPC colours:
+    let dark_blue=blue
+    let dark_green=green:rem used!!!
+    let dark_cyan=cyan:rem used!!!
+    let brown=red
+    let light_grey=white:rem used!!!
+    let dark_grey=white
+    let light_blue=cyan
+    let light_green=green
+    let light_cyan=cyan
+    let light_red=red:rem used!!!
+    let light_purple=purple
+
+enddef
+
 defproc init_the_screen
 
   rem unfinished!!!
 
-  mode 8
-
-  rem QL colours in mode 8:
-  let black=0
-  let blue=1
-  let red=2
-  let purple=3
-  let green=4
-  let cyan=5
-  let yellow=6
-  let white=7
-  rem Original Blassic/CPC colours:
-  let dark_blue=blue
-  let dark_green=green
-  let dark_cyan=cyan
-  let brown=red
-  let light_grey=white
-  let dark_grey=white
-  let light_blue=cyan
-  let light_green=green
-  let light_cyan=cyan
-  let light_red=red
-  let light_purple=purple
-
-  rem check uQLx too!!!
-  if here("scr_xlim")
-    let scr_w=scr_xlim
-    let scr_h=scr_ylim
+  if gd2(#0)
+    sel on disp_type
+      =0:mode 8:init_8_colours
+      =8:init_8_colours
+      =16:init_256_colours
+      =32:colour_pal:init_256_colours
+    endsel
   else
-    let scr_w=512
-    let scr_h=256
+    if not dmode:mode 8
+    init_8_colours
   endif
+
+  let scr_w=flim_w(#0)
+  let scr_h=flim_h(#0)
 
 enddef
 
@@ -1342,6 +1379,7 @@ defproc init_the_windows
   let border_gap=8:rem pixels between the background border and the main window
 
   rem Main window (mw)
+  rem unfinished!!!
   let mw=fopen("scr_")
   let mw_w=minimum(800,scr_w)
   let mw_h=minimum(600,scr_h)
@@ -1351,9 +1389,7 @@ defproc init_the_windows
   if 0
   window #mw,mw_w,mw_h,mw_x,mw_y
   paper #mw,black
-  ink #mw,black
   cls #mw
-  border #mw,mw_border,green,white
   endif
 
   rem Text window (tw)
@@ -1384,9 +1420,14 @@ enddef
 
 defproc game_init
 
+  loc y
+  let y=pos_y(#tw)
+  print #tw,"Preparando los datos..."
   init_the_flags
   init_the_data
   let current_location=1
+  cls #tw,3
+  cursor #tw,0,y
 
 enddef
 
@@ -1407,10 +1448,9 @@ defproc init_the_constants
   let r_quote$="»":rem castilian right quote
   let limbo=255:rem location of vanished things
 
-  rem Action type flags
-  rem Indicadores de tipo de acción
-  rem not used yet!!!
-  let nothing_needed=0
+  rem Action syntax flags
+  rem Indicadores de sintaxis de las acciones
+  let no_object_needed=0
   let object_needed=1
   let object_and_complement_needed=2
 
@@ -1421,6 +1461,28 @@ defproc init_the_constants
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
   let not_by_hand$="En cualquier caso, no con las manos desnudas."
+
+  rem Identificadores de acciones
+  rem Action ids
+
+  let to_go_down = 1
+  let to_open =2
+  let to_go_up = 3
+  let to_break =4
+  let to_help = 5
+  let to_swim = 6
+  let to_take = 7
+  let to_drop = 8
+  let to_go_east = 9
+  let to_examine = 10
+  let to_talk = 11
+  let to_insert = 12
+  let to_look = 13
+  let to_go_north = 14
+  let to_go_west = 15
+  let to_go_south = 16
+  let to_finish = 17
+  let to_fling = 18
 
   rem Identificadores de cosas
   rem Thing ids
@@ -1474,14 +1536,12 @@ enddef
 
 defproc init_the_data
 
-  loc i,j,id$,max_word_lenght,action,last_action
+  loc i,j,max_word_lenght,action
 
   let max_word_lenght=11
 
-  rem Note:
-  rem the first (0) element of arrays is not used,
-  rem except that of location(), used to keep
-  rem the Ulfius' location.
+  rem Note!!!:
+  rem the first (0) element of arrays is not used.
 
   restore
 
@@ -1503,6 +1563,7 @@ defproc init_the_data
   dim the_thing(nouns)
   let things=lines_between("label_things_start","label_things_end")/2
   dim thing$(things,max_word_lenght)
+
   for i=1 to nouns
     read the_thing(i),noun$(i)
     let thing$(the_thing(i))=noun$(i):rem the last synonym on the list will be the actual name
@@ -1517,20 +1578,20 @@ defproc init_the_data
     read thing_description$(thing)
   endfor i
 
+  let actions=lines_between("label_actions_start","label_actions_end")
+  dim action_syntax(actions)
+  for i=1 to actions
+    read action
+    read action_syntax(action)
+  endfor i
+
   let verbs=lines_between("label_verbs_start","label_verbs_end")
-  let actions=18
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
-  dim action_syntax(actions)
   let action=1
   let last_action=0
   for i=1 to verbs
-    read action,verb$(i)
-    let the_action(i)=action
-    if action<>last_action
-      read action_syntax(action)
-      let last_action=action
-    endif
+    read the_action(i),verb$(i)
   endfor i
 
 enddef
@@ -1655,63 +1716,63 @@ data 50,0,0,0,0,0
 rem Nombres
 rem Nouns
 
-rem identificador de cosa, nombre
+rem datos: identificador de cosa, nombre
 rem (para cada identificador de cosa, el último nombre listado será el principal)
-rem thing id, noun
+rem data: thing id, noun
 rem (for every thing id, the last noun listed will be the main one) 
 defproc label_nouns_start:enddef
-data the_altar,"altar"
 data ambrosio,"ambrosio"
-data the_torch,"antorcha"
-data the_flags,"pendones"
-data the_flags,"enseñas"
-data the_flags,"banderas"
+data the_altar,"altar"
 data the_cloak,"capa"
-data the_waterfall,"catarata"
-data the_waterfall,"cascada"
-data the_fallen_away,"derrumbe"
+data the_door,"puerta"
 data the_emerald,"joya"
 data the_emerald,"esmeralda"
-data the_sword,"arma"
-data the_sword,"tizona"
-data the_sword,"espada"
-data the_rags,"harapo"
-data the_thread,"hebra"
-data the_thread,"hilo"
-data the_man,"viejo"
-data the_man,"anciano"
-data the_man,"jefe"
-data the_man,"hombre"
-data the_idol,"ojo"
+data the_fallen_away,"derrumbe"
+data the_flags,"enseñas"
+data the_flags,"pendones"
+data the_flags,"banderas"
+data the_flint,"pedernal"
 data the_idol,"agujero"
+data the_idol,"ojo"
 data the_idol,"ídolo"
+data the_key,"llave"
 data the_lake,"agua"
 data the_lake,"laguna"
 data the_lake,"lago"
-data the_key,"llave"
-data the_flint,"pedernal"
-data the_stone,"piedra"
-data the_door,"puerta"
-data the_rocks,"rocas"
-data the_snake,"ofidio"
-data the_snake,"culebra"
-data the_snake,"reptil"
-data the_snake,"serpiente"
+data the_lock,"cerrojo"
+data the_lock,"cierre"
+data the_lock,"candado"
 data the_log,"leño"
 data the_log,"madero"
 data the_log,"tronco"
-data the_piece,"trozo"
+data the_man,"anciano"
+data the_man,"jefe"
+data the_man,"viejo"
+data the_man,"hombre"
 data the_piece,"pedazo"
-data the_lock,"cierre"
-data the_lock,"cerrojo"
-data the_lock,"candado"
+data the_piece,"trozo"
+data the_rags,"harapo"
+data the_rocks,"rocas"
+data the_snake,"culebra"
+data the_snake,"ofidio"
+data the_snake,"reptil"
+data the_snake,"serpiente"
+data the_stone,"piedra"
+data the_sword,"arma"
+data the_sword,"tizona"
+data the_sword,"espada"
+data the_thread,"hebra"
+data the_thread,"hilo"
+data the_torch,"antorcha"
+data the_waterfall,"catarata"
+data the_waterfall,"cascada"
 defproc label_nouns_end:enddef
 
 rem Cosas
 rem Things
 
-rem identificador,escenario,tipo,descripción
-rem id,location,type,description
+rem datos: identificador,escenario,tipo,descripción
+rem data: id,location,type,description
 defproc label_things_start:enddef
 data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
@@ -1761,136 +1822,169 @@ data the_lock,47,1
 data "Está cerrado. Es muy grande y parece resistente."
 defproc label_things_end:enddef
 
-rem Verbos y acciones
-rem Verbs and actions
+rem Acciones
+rem Actions
 
-rem identificador de acción, verbo o sinónimo, sintaxis de la acción (solo para el primer sinónimo)
-rem action id,verb or synonym,action syntax (only for the first synonym)
+rem datos: identificador de acción, sintaxis de la acción 
+rem data: action id,action syntax 
+defproc label_actions_start:enddef
+data to_break,object_needed
+data to_drop,object_needed
+data to_examine,no_object_needed
+data to_finish,no_object_needed
+data to_fling,object_needed
+data to_go_down,no_object_needed
+data to_go_east,no_object_needed
+data to_go_north,no_object_needed
+data to_go_south,no_object_needed
+data to_go_up,no_object_needed
+data to_go_west,no_object_needed
+data to_help,no_object_needed
+data to_insert,object_and_complement_needed
+data to_look,no_object_needed
+data to_open,object_needed
+data to_swim,no_object_needed
+data to_take,object_needed
+data to_talk,object_needed
+defproc label_actions_end:enddef
+
+rem Verbos 
+rem Verbs 
+
+rem datos: identificador de acción, verbo o sinónimo, sintaxis de la acción (solo para el primer sinónimo)
+rem data: action id,verb or synonym,action syntax (only for the first synonym)
 defproc label_verbs_start:enddef
-data 01,"abajo",0
-data 01,"baja"
-data 01,"bajar"
-data 01,"descender"
-data 01,"desciende"
-data 02,"abre",1
-data 02,"abrir"
-data 03,"arriba",0
-data 03,"ascender"
-data 03,"asciende"
-data 03,"sube"
-data 03,"subir"
-data 04,"afila",1
-data 04,"afilar"
-data 04,"ataca"
-data 04,"atacar"
-data 04,"corta"
-data 04,"cortar"
-data 04,"empuja"
-data 04,"empujar"
-data 04,"golpea"
-data 04,"golpear"
-data 04,"mata"
-data 04,"matar"
-data 04,"recorta"
-data 04,"recortar"
-data 04,"rompe"
-data 04,"romper"
-data 05,"ayuda",0
-data 05,"ayudar"
-data 06,"bucea",0
-data 06,"bucear"
-data 06,"nada"
-data 06,"nadar"
-data 06,"zambullirse"
-data 06,"zambúllete"
-data 06,"bañar"
-data 06,"báñate"
-data 06,"báñarse"
-data 07,"agarra",1
-data 07,"agarrar"
-data 07,"coge"
-data 07,"coger"
-data 07,"toma"
-data 07,"tomar"
-data 08,"deja",1
-data 08,"dejar"
-data 08,"soltar"
-data 08,"suelta"
-data 08,"desprenderse"
-data 08,"despréndete"
-data 09,"e",0
-data 09,"este"
-data 10,"ex",0
-data 10,"examina"
-data 10,"examinar"
-data 10,"examinarte"
-data 10,"examínate"
-data 10,"i"
-data 11,"charla",1
-data 11,"charlar"
-data 11,"conversa"
-data 11,"conversar"
-data 11,"habla"
-data 11,"hablar"
-data 11,"hablarle"
-data 11,"platica"
-data 11,"platícalo"
-data 11,"platícale"
-data 11,"platicar"
-data 11,"platicarlo"
-data 11,"platicarle"
-data 11,"comentar"
-data 11,"comentarle"
-data 11,"comenta"
-data 11,"coméntale"
-data 11,"coméntalo"
-data 11,"coméntaselo"
-data 11,"di"
-data 11,"decir"
-data 11,"decirle"
-data 11,"díselo"
-data 11,"dile"
-data 11,"dilo"
-data 11,"pregunta"
-data 11,"pregúntale"
-data 11,"preguntar"
-data 11,"preguntarle"
-data 11,"preguntarlo"
-data 11,"preguntárselo"
-data 12,"introduce",2
-data 12,"introducir"
-data 12,"mete"
-data 12,"meter"
-data 12,"pon"
-data 12,"poner"
-data 12,"coloca"
-data 12,"colocar"
-data 12,"sitúa"
-data 12,"situar"
-data 13,"m",0
-data 13,"mira"
-data 13,"mirar"
-data 13,"ojea"
-data 13,"ojear"
-data 14,"n",0
-data 14,"norte"
-data 15,"o",0
-data 15,"oeste"
-data 16,"s",0
-data 16,"sur"
-data 17,"acaba",0
-data 17,"acabar"
-data 17,"fin"
-data 17,"finaliza"
-data 17,"finalizar"
-data 17,"termina"
-data 17,"terminar"
-data 18,"arroja",1
-data 18,"arrojar"
-data 18,"lanza"
-data 18,"lanzar"
-data 18,"tira"
-data 18,"tirar"
+data to_break,"afila"
+data to_break,"afilar"
+data to_break,"ataca"
+data to_break,"atacar"
+data to_break,"corta"
+data to_break,"cortar"
+data to_break,"destroza"
+data to_break,"destrozar"
+data to_break,"empuja"
+data to_break,"empujar"
+data to_break,"golpea"
+data to_break,"golpear"
+data to_break,"mata"
+data to_break,"matar"
+data to_break,"recorta"
+data to_break,"recortar"
+data to_break,"rompe"
+data to_break,"romper"
+data to_break,"sacude"
+data to_break,"sacudir"
+data to_drop,"deja"
+data to_drop,"dejar"
+data to_drop,"desprenderse"
+data to_drop,"despréndete"
+data to_drop,"soltar"
+data to_drop,"suelta"
+data to_examine,"ex"
+data to_examine,"examina"
+data to_examine,"examinar"
+data to_examine,"examinarte"
+data to_examine,"examínate"
+data to_examine,"i"
+data to_finish,"acaba"
+data to_finish,"acabar"
+data to_finish,"fin"
+data to_finish,"finaliza"
+data to_finish,"finalizar"
+data to_finish,"termina"
+data to_finish,"terminar"
+data to_fling,"arroja"
+data to_fling,"arrojar"
+data to_fling,"lanza"
+data to_fling,"lanzar"
+data to_fling,"tira"
+data to_fling,"tirar"
+data to_go_down,"abajo"
+data to_go_down,"baja"
+data to_go_down,"bajar"
+data to_go_down,"descender"
+data to_go_down,"desciende"
+data to_go_east,"e"
+data to_go_east,"este"
+data to_go_north,"n"
+data to_go_north,"norte"
+data to_go_south,"s"
+data to_go_south,"sur"
+data to_go_up,"arriba"
+data to_go_up,"ascender"
+data to_go_up,"asciende"
+data to_go_up,"sube"
+data to_go_up,"subir"
+data to_go_west,"o"
+data to_go_west,"oeste"
+data to_help,"auxilio"
+data to_help,"ayuda"
+data to_help,"ayudar"
+data to_help,"ayúdame"
+data to_help,"socorro"
+data to_insert,"coloca"
+data to_insert,"colocar"
+data to_insert,"introduce"
+data to_insert,"introducir"
+data to_insert,"mete"
+data to_insert,"meter"
+data to_insert,"pon"
+data to_insert,"poner"
+data to_insert,"situar"
+data to_insert,"sitúa"
+data to_look,"m"
+data to_look,"mira"
+data to_look,"mirar"
+data to_look,"ojea"
+data to_look,"ojear"
+data to_open,"abre"
+data to_open,"abrir"
+data to_swim,"bañar"
+data to_swim,"bucea"
+data to_swim,"bucear"
+data to_swim,"báñarse"
+data to_swim,"báñate"
+data to_swim,"nada"
+data to_swim,"nadar"
+data to_swim,"zambullirse"
+data to_swim,"zambúllete"
+data to_take,"agarra"
+data to_take,"agarrar"
+data to_take,"coge"
+data to_take,"coger"
+data to_take,"toma"
+data to_take,"tomar"
+data to_talk,"charla"
+data to_talk,"charlar"
+data to_talk,"comenta"
+data to_talk,"comentar"
+data to_talk,"comentarle"
+data to_talk,"coméntale"
+data to_talk,"coméntalo"
+data to_talk,"coméntaselo"
+data to_talk,"conversa"
+data to_talk,"conversar"
+data to_talk,"decir"
+data to_talk,"decirle"
+data to_talk,"di"
+data to_talk,"dile"
+data to_talk,"dilo"
+data to_talk,"díselo"
+data to_talk,"habla"
+data to_talk,"hablar"
+data to_talk,"hablarle"
+data to_talk,"platica"
+data to_talk,"platicar"
+data to_talk,"platicarle"
+data to_talk,"platicarlo"
+data to_talk,"platícale"
+data to_talk,"platícalo"
+data to_talk,"pregunta"
+data to_talk,"preguntar"
+data to_talk,"preguntarle"
+data to_talk,"preguntarlo"
+data to_talk,"preguntárselo"
+data to_talk,"pregúntale"
 defproc label_verbs_end:enddef
 
 rem --------------------------------------------
