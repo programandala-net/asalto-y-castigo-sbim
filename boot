@@ -1,163 +1,189 @@
-30000 rem Cargador para "Asalto y castigo"
-30010 rem Boot for "Asalto y castigo"
+rem Cargador para "Asalto y castigo"
+rem Boot for "Asalto y castigo"
 
-30020 rem Este programa utiliza varios comandos y funciones de las siguientes extensiones de SuperBASIC:
-30030 rem This program uses several commands and functions from the following SuperBASIC extensions:
+rem Este programa usa varios procedimientos y funciones de las siguientes extensiones de SuperBASIC:
+rem This program uses several procedures and functions from the following SuperBASIC extensions:
 
-30040 rem De/From "DIY Toolkit", (C) Simon N. Goodwin:
-30050 rem   minimum
-30060 rem De/From "Display toolkit", (C) Dilwyn Jones:
-30070 rem   flim_w,flim_h,flim_x,flim_y,dmode
+rem De/From "DIY Toolkit", (C) Simon N. Goodwin:
+rem   minimum
+rem De/From "Display toolkit", (C) Dilwyn Jones:
+rem   flim_w,flim_h,flim_x,flim_y,dmode
 
-30080 tk2_ext
+tk2_ext
 
-30090 let dev$=device$("ayc_bas")
-30100 lrespr dev$&"ext_display_code":print #0,"Display Toolkit"
-30110 lrespr dev$&"ext_megatk_code"
-30120 lrespr dev$&"ext_minmax_code":print #0,"DIY Toolkit - minmax"
-30130 lrespr dev$&"ext_inarray_code":print #0,"DIY Toolkit - inarray"
+let dev$=device$("ayc_bas")
+lrespr dev$&"ext_display_code":print #0,"Display Toolkit"
+lrespr dev$&"ext_megatk_code"
+lrespr dev$&"ext_minmax_code":print #0,"DIY Toolkit - minmax"
+let a=respr(flen(\dev$&"ext_inarray_code"))
+lbytes dev$&"ext_inarray_code",a
+poke a+301,0:rem forzar comparaciones exactas / force strict comparations
+call a:print #0,"DIY Toolkit - inarray"
 
-30140 init_the_keyboard
-30150 init_the_screen
-30160 init_the_window
-30170 splash_screen
-30180 mrun dev$&"ayc_bas"
-30190 wipe_the_window
-30200 go to 100
+init_the_keyboard
+init_the_screen
+init_the_window
+splash_screen
+mrun dev$&"ayc_bas"
+wipe_the_window
+go to 100
 
-30210 deffn device$(file$)
+deffn device$(file$)
 
-30220   loc dev_offset,number,devs$,dev$
-30230   let dev$=""
-30240   let devs$="windosflpmdv"
+  rem Devuelve el primer dispositivo en que se encuentra el fichero dado.
+  rem Return the first device the given file is found in.
 
-30250   if ftest(file$)
-30260     for dev_offset=1 to len(devs$) step 3
-30270       for number=1 to 8
-30280         let dev$=devs$(dev_offset to dev_offset+2)&number&"_"
-30290         if not ftest(dev$&file$):exit dev_offset
-30300       endfor number
-30310     next dev_offset
-30320       let dev$=""
-30330     endfor dev_offset
-30340   endif
+  loc dev_offset,number,devs$,dev$
+  let dev$=""
+  let devs$="windosflpmdv":rem WIN, DOS, FLP, MDV
 
-30350   ret dev$
+  if ftest(file$)
+    for dev_offset=1 to len(devs$) step 3
+      for number=1 to 8
+        let dev$=devs$(dev_offset to dev_offset+2)&number&"_"
+        if not ftest(dev$&file$):exit dev_offset
+      endfor number
+    next dev_offset
+      let dev$=""
+    endfor dev_offset
+  endif
 
-30360 enddef
+  ret dev$
 
-30370 defproc init_the_keyboard
-30380   if ver$="HBA"
-30390     if language<>34
-30400       lrespr dev$&"qxl-es_kbt"
-30410       kbd_table 34
-30420       lang_use 34
-30430     endif
-30440   endif
-30450 enddef
+enddef
 
-30460 defproc init_the_screen
+defproc init_the_keyboard
 
-30470   loc screen_mode
-30480   let screen_mode=dmode
-30490   sel on screen_mode
-30500     =0:mode 8:init_ql_colours
-30510     =8:init_ql_colours
-30520     =remainder:init_pal_colours
-30530   endsel
-30540   let scr_w=flim_w(#0)
-30550   let scr_h=flim_h(#0)
+  rem Carga la tabla de teclado española para SMSQ si es necesario.
+  rem If needed, load the Spanish SMSQ keybard table.
 
-30560 enddef
+  loc Spanish
+  let Spanish=34
 
-30570 defproc init_pal_colours
+  if ver$="HBA"
+    if language<>Spanish
+      lrespr dev$&"qxl-es_kbt"
+      kbd_table Spanish
+      lang_use Spanish
+    endif
+  endif
 
-30580   colour_pal
-30590   let black=0
-30600   let dark_cyan=7:palette_8 dark_cyan,rgb(0,139,139)
-30610   let dark_green=17
-30620   let light_grey=12
-30630   let light_red=1:palette_8 light_red,rgb(255,51,51)
-30640   let yellow=6
+enddef
 
-30650 enddef
+defproc init_the_screen
 
-30660 defproc init_ql_colours
+  rem Inicializa la pantalla, cambiando el modo y la modalidad de color si es necesario.
+  rem Init the screen. If needed, change its mode and colour scheme.
 
-30670   let black=0
-30680   let dark_cyan=5
-30690   let dark_green=4
-30700   let light_grey=7
-30710   let light_red=2
-30720   let yellow=6
+  loc screen_mode
+  let screen_mode=dmode
+  sel on screen_mode
+    =0:mode 8:init_ql_colours
+    =8:init_ql_colours
+    =remainder:init_pal_colours
+  endsel
+  let scr_w=flim_w(#0)
+  let scr_h=flim_h(#0)
 
-30730 enddef
+enddef
 
-30740 deffn rgb(red,green,blue)
+defproc init_pal_colours
 
-30750   ret red*65535+green*256+blue
+  rem Fija el modo de color PAL y los colores a usar.
+  rem Set the PAL colour mode and the needed colours.
 
-30760 enddef
+  colour_pal
+  let black=0
+  let dark_cyan=7:palette_8 dark_cyan,rgb(0,139,139)
+  let dark_green=17
+  let light_grey=12
+  let light_red=1:palette_8 light_red,rgb(255,51,51)
+  let yellow=6
 
-30770 defproc init_the_window
+enddef
 
-30780   let csize_w=3-(scr_w=512)
-30790   let csize_h=scr_w>512
-30800   let tw=fopen("con_")
-30810   csize #tw,csize_w,csize_h
-30820   let tw_w=minimum(800,scr_w)
-30830   let tw_h=minimum(600,scr_h)
-30840   let tw_x=(scr_w-tw_w)/2
-30850   let tw_y=(scr_h-tw_h)/2
-30860   window #tw,tw_w,tw_h,tw_x,tw_y
-30870   paper #tw,black
-30880   ink #tw,light_grey
-30890   wipe_the_window
-30900   init_the_font
+defproc init_ql_colours
 
-30910 enddef
+  rem Fija los colores usados en el modo de color de QL.
+  rem Set colours used in QL colour mode.
 
-30920 defproc wipe_the_window
+  let black=0
+  let dark_cyan=5
+  let dark_green=4
+  let light_grey=7
+  let light_red=2
+  let yellow=6
 
-30930   border #tw,0
-30940   cls #tw
-30950   border #tw,8
+enddef
 
-30960 enddef
+deffn rgb(red,green,blue)
 
-30970 defproc splash_screen
+  ret red*65535+green*256+blue
 
-30980   if flim_w(#0)=512 and flim_h(#0)=256 
-30990     lbytes dev$&"img_ayc8_scr",address(#0)
-31000   endif
+enddef
 
-31010 enddef
+defproc init_the_window
 
-31020 defproc init_the_font
+  rem Crea la ventana, hasta un máximo de 800x600.
+  rem Init the window, maximum size 800x600.
 
-31030   loc font_size
-31040   let font$=dev$&"iso8859-1_font"
-31050   font_size=flen(\font$)
-31060   font_address=alchp(font_size)
-31070   lbytes font$,font_address
-31080   iso_font
+  let csize_w=3-(scr_w=512)
+  let csize_h=scr_w>512
+  let tw=fopen("con_")
+  csize #tw,csize_w,csize_h
+  let tw_w=minimum(800,scr_w)
+  let tw_h=minimum(600,scr_h)
+  let tw_x=(scr_w-tw_w)/2
+  let tw_y=(scr_h-tw_h)/2
+  window #tw,tw_w,tw_h,tw_x,tw_y
+  paper #tw,black
+  ink #tw,light_grey
+  wipe_the_window
+  init_the_font
 
-31090 enddef
+enddef
 
-31100 defproc iso_font
+defproc wipe_the_window
 
-31110   fonts font_address
+  border #tw,0
+  cls #tw
+  border #tw,8
 
-31120 enddef
+enddef
 
-31130 defproc ql_font
+defproc splash_screen
 
-31140   fonts 0
+  if flim_w(#0)=512 and flim_h(#0)=256 
+    lbytes dev$&"img_ayc8_scr",address(#0)
+  endif
 
-31150 enddef
+enddef
 
-31160 defproc fonts(font_address)
+defproc init_the_font
 
-31170   char_use #tw,font_address,0 
+  loc font_size
+  let font$=dev$&"iso8859-1_font"
+  font_size=flen(\font$)
+  font_address=alchp(font_size)
+  lbytes font$,font_address
+  iso_font
 
-31180 enddef
+enddef
+
+defproc iso_font
+
+  fonts font_address
+
+enddef
+
+defproc ql_font
+
+  fonts 0
+
+enddef
+
+defproc fonts(font_address)
+
+  char_use #tw,font_address,0 
+
+enddef

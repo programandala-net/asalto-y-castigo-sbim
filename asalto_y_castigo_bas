@@ -1,12 +1,12 @@
 rem Asalto y castigo
 rem para QL, en SuperBASIC / for QL, in SuperBASIC
-let version$="A-20110513"
+let version$="B-20110711"
 
 rem Copyright (C) 2011 Marcos Cruz (programandala.net)
 rem Licencia/License: http://programandala.net/licencia
 
-rem Programa original para / Original program for
-rem ZX Spectrum, Amstrad CPC, Blassic:
+rem Programa original en / Original program in
+rem Sinclar BASIC (Sinclair ZX Spectrum), Locomotive BASIC (Amstrad CPC) y/and Blassic:
 rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
 
@@ -17,8 +17,8 @@ rem Notes
 rem Este fichero no usa el juego de caracteres de QL sino la codificación estándar ISO 8859-1.
 rem This file doesn't use the QL charset but a standard ISO 8859-1 encoding.
 
-rem Este programa utiliza varios comandos y funciones de las siguientes extensiones de SuperBASIC:
-rem This program uses several commands and functions from the following SuperBASIC extensions:
+rem Este programa usa varios procedimientos y funciones de las siguientes extensiones de SuperBASIC:
+rem This program uses several procedures and functions from the following SuperBASIC extensions:
 
 rem De/From "MegaToolkit", (C) 1992 Michael A. Crowe:
 rem   true,false,char_w,char_x,pos_x,pos_y,lnum
@@ -104,7 +104,7 @@ defproc plot
     short_pause
     narrate "Pides audiencia al rey, Uther Pendragon."
     end_of_scene:clear_screen
-    speak "El rey, te indica el valido, ha ordenado que no se le moleste, pues sufre una amarga tristeza."
+    speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&"ha ordenado que no se le moleste, pues sufre una amarga tristeza."
     short_pause
     narrate "No puedes entenderlo. El rey, tu amigo."
     short_pause
@@ -301,7 +301,7 @@ enddef
 
 defproc action_help
 
-  narrate "Direcciones: n[orte], s[ur], e[ste], o[este], arriba y abajo."
+  narrate "Direcciones: n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
   narrate "m[irar] redescribe un lugar, ex[aminar] permite examinar un objeto, o en su defecto a ti."
   narrate "Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, tirar..."
   narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinónimos tanto de verbos como de nombres."
@@ -788,6 +788,7 @@ deffn iso_input$(channel,max_chars)
     let key=code(key$)
     sel on key
       =2:let mistype_bell_active=not mistype_bell_active:rem Ctrl+B
+      =9:tab 8:rem Tab
       =enter:if len(output$):exit typing:else mistype_bell
       =space:type_space
       =65 to 90:type chr$(key+32)
@@ -809,6 +810,7 @@ deffn iso_input$(channel,max_chars)
       =202:delete_char:rem Ctrl+Right
       =203:delete_line_right:rem Ctrl+Alt+Right
       =204:next_word:rem Shift+Right
+      =253:tab -8:rem Shift+Tab
     endsel 
   endrep typing
   curdis #channel
@@ -839,6 +841,9 @@ enddef
 
 defproc type_space
 
+  rem Si es posible, añade al texto un espacio y lo imprime.
+  rem If possible, add a space and type it.
+
   if cursor_pos=1
     mistype_bell
   else
@@ -859,7 +864,26 @@ defproc type_space
 
 enddef
 
+defproc tab(offset)
+
+  rem Si es posible, suma a la posición del cursor el desplazamiento indicado.
+  rem If possible, add the given offset to the cursor position.
+
+  if (offset<1 and cursor_pos=1) or (offset>0 and cursor_pos=len(output$)+1)
+    mistype_bell
+  else
+    let cursor_pos=cursor_pos+offset
+    let cursor_pos=maximum(cursor_pos,1)
+    let cursor_pos=minimum(cursor_pos,len(output$)+1)
+    set_cursor cursor_pos
+  endif
+
+enddef
+
 defproc start_of_line
+
+  rem Sitúa el cursor al inicio de la línea.
+  rem Put the cursor at the start of the line.
 
   let cursor_pos=1
   set_cursor cursor_pos
@@ -867,6 +891,9 @@ defproc start_of_line
 enddef
 
 defproc end_of_line
+
+  rem Sitúa el cursor al final de la línea.
+  rem Put the cursor at the end of the line.
 
   let cursor_pos=len(output$)+1
   set_cursor cursor_pos
@@ -996,8 +1023,7 @@ defproc previous_word
   rem Si es posible, desplaza el cursor al inicio de la palabra anterior.
   rem If possible, move the cursor to the start of the previous word.
 
-  loc temp
-  loc from_char,to_char
+  loc temp,from_char,to_char
 
   if cursor_pos=1
 
@@ -1037,7 +1063,7 @@ defproc next_word
     let to_char=code(output$(cursor_pos))
     let from_char=to_char
     rep search
-    if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
+      if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
       let from_char=to_char
       let cursor_pos=cursor_pos+1
       let to_char=code(output$(cursor_pos))
@@ -1073,6 +1099,9 @@ defproc set_cursor(column)
 enddef
 
 defproc mistype_bell
+
+  rem Sonido de error de tecleo.
+  rem Mistype sound.
 
   if mistype_bell_active:beep 1000,0
 
@@ -1196,7 +1225,8 @@ rem Screen
 
 defproc clear_screen
 
-  ink #tw,light_grey:cls #tw
+  ink #tw,light_grey
+  cls #tw
 
 enddef
 
@@ -1235,7 +1265,8 @@ enddef
 
 defproc narrate(txt$)
 
-  rem !!!
+  rem Imprime texto de la narración.
+  rem Print a narrative text.
 
   ink #tw,light_grey:tell txt$
 
@@ -1268,6 +1299,9 @@ rem About
 
 defproc about
 
+  rem Muestra los créditos.
+  rem Show the credits.
+
   clear_screen
   ink #tw,light_red:print #tw,"Asalto y castigo"
   ink #tw,dark_cyan
@@ -1284,6 +1318,9 @@ defproc about
 enddef
 
 defproc intro
+
+  rem Introducción al juego.
+  rem Game intro.
 
   clear_screen
   narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja."
@@ -1331,11 +1368,17 @@ enddef
 
 defproc init_the_preferences
 
+  rem Inicializa las preferencias de juego.
+  rem Init the game preferences.
+
   let mistype_bell_active=true
 
 enddef
 
 defproc init_the_constants
+
+  rem Inicializa todas las constantes.
+  rem Init all the constants.
 
   rem Varios
   rem Misc
@@ -1425,12 +1468,12 @@ defproc init_the_flags
   rem Inicializa los indicadores del juego.
   rem Init the game flags.
 
-  let ambrosio_follows=false:rem Ambrosio nos sigue?
-  let saxons_follow=false:rem Los sajones nos siguen?
-  let talked_to_the_man=false:rem Hemos hablado con el hombre?
-  let hacked_the_log=false:rem Hemos afilado el tronco?
-  let lit_the_torch=true:rem Está la antorcha encendida?
-  let start_over=false:rem Empezar una nueva partida?
+  let ambrosio_follows=false:rem ¿Ambrosio nos sigue? / Does Ambrosio follow me?
+  let saxons_follow=false:rem ¿Los sajones nos siguen? / Do the saxons follow me?
+  let talked_to_the_man=false:rem ¿Hemos hablado con el hombre? / Have I talked to the man?
+  let hacked_the_log=false:rem ¿Hemos afilado el tronco? / Did I hacked the log?
+  let lit_the_torch=false:rem ¿Está la antorcha encendida? / Is the torch lit?
+  let start_over=false:rem ¿Empezar una nueva partida? / Do I start a new game?
 
 enddef
 
@@ -1464,9 +1507,8 @@ defproc init_the_data
   let things=lines_between("label_things_start","label_things_end")/2
   dim thing$(things,max_word_lenght)
 
-  rem Nota/Note:
-  rem El último sinónimo listado será el nombre principal de cada cosa.
-  rem Lhe last synonym on the list will be the actual thing name.
+  rem Nota: El último sinónimo listado será el nombre principal de cada cosa.
+  rem Note: The last synonym on the list will be the actual thing name.
   for i=1 to nouns
     read the_thing(i),noun$(i)
     let thing$(the_thing(i))=noun$(i)
@@ -1546,7 +1588,7 @@ data "Remanso. Estruendosa corriente baja con el pasaje elevado desde el oeste, 
 data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un estrecho paso elevado lateral para avanzar a este o a oeste."
 data "Gran cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
 data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
-data "Explanada. Una gran explanda enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
+data "Explanada. Una gran explanada enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
 data "Ídolo. El ídolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
 data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
 data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
@@ -1662,6 +1704,7 @@ data the_snake,"ofidio"
 data the_snake,"reptil"
 data the_snake,"serpiente"
 data the_stone,"piedra"
+data the_stone,"pedrusco"
 data the_sword,"arma"
 data the_sword,"tizona"
 data the_sword,"espada"
@@ -1807,6 +1850,7 @@ data to_fling,"lanzar"
 data to_fling,"tira"
 data to_fling,"tirar"
 data to_go_down,"abajo"
+data to_go_down,"b"
 data to_go_down,"baja"
 data to_go_down,"bajar"
 data to_go_down,"descender"
@@ -1818,6 +1862,7 @@ data to_go_north,"norte"
 data to_go_south,"s"
 data to_go_south,"sur"
 data to_go_up,"arriba"
+data to_go_up,"a"
 data to_go_up,"ascender"
 data to_go_up,"asciende"
 data to_go_up,"sube"
@@ -1830,14 +1875,27 @@ data to_help,"ayudar"
 data to_help,"ayúdame"
 data to_help,"socorro"
 data to_insert,"coloca"
+data to_insert,"colócale"
 data to_insert,"colocar"
+data to_insert,"colocarle"
 data to_insert,"introduce"
+data to_insert,"introdúcele"
 data to_insert,"introducir"
+data to_insert,"introducirle"
+data to_insert,"inserta"
+data to_insert,"insértale"
+data to_insert,"insertar"
+data to_insert,"insertarle"
 data to_insert,"mete"
+data to_insert,"métele"
 data to_insert,"meter"
+data to_insert,"meterle"
 data to_insert,"pon"
+data to_insert,"ponle"
 data to_insert,"poner"
+data to_insert,"ponerle"
 data to_insert,"situar"
+data to_insert,"situarle"
 data to_insert,"sitúa"
 data to_look,"m"
 data to_look,"mira"
@@ -1875,9 +1933,11 @@ data to_speak,"comunicarlo"
 data to_speak,"comunicárselo"
 data to_speak,"comunícale"
 data to_speak,"comunícalo"
+data to_speak,"comunícate"
 data to_speak,"coméntale"
 data to_speak,"coméntalo"
 data to_speak,"coméntaselo"
+data to_speak,"comentárselo"
 data to_speak,"conversa"
 data to_speak,"conversar"
 data to_speak,"decir"
@@ -1932,14 +1992,14 @@ enddef
 defproc fatal_error(message$)
 
   ink #tw,red
-  print #tw,"Fatal error:"!message$
+  print #tw,"Error fatal:"!message$
   stop
 
 enddef
 
 defproc _debug(text$)
 
-  print #tw,"DEBUG POINT:"&text$
+  print #tw,"Punto de depuración:"!text$
 
 enddef
 
