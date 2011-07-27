@@ -1,0 +1,135 @@
+  100 rem ayc2media_bas
+
+  110 rem Este programa crea los ficheros WIN e IMG del juego "Asalto y castigo".
+  120 rem This program creates the WIN and IMG files of the game "Asalto y castigo".
+
+  130 rem Copyright (C) 2011 Marcos Cruz (programandala.net)
+
+  140 rem Nota/Note:
+  150 rem Este fichero no usa el juego de caracteres de QL sino la codificación estándar ISO 8859-1.
+  160 rem This file doesn't use the QL charset but a standard ISO 8859-1 encoding.
+
+  170 rem Historial:
+  180 rem 2011-04-24 Primera versión, solo para QPC2 y ficheros WIN.
+  190 rem 2011-04-27 Primer borrador de versión dual para QPC2 y Q-emuLator.
+  200 rem 2011-04-29 Primera versión dual funcional.
+  210 rem 2011-05-02 Nuevo fichero "qxl-es_kbt"; fichero "iso8859-1_font" renombrado; cambios en los textos; control de errores para detectar nombres de fichero demasiado largos; ventana propia.
+  220 rem 2011-05-08 Nuevo procedimiento win_label para modificar la etiqueta interna de un fichero WIN (que no es posible cambiar al formatear y que QPC2 crea con el nombre del dispositivo).
+  230 rem 2011-07-17 Ahora resulta que win_label borra el contenido del fichero win (!?). Parece que no ocurre si la operación se hace manualmente tras haber montado el fichero en otra sesión del emulador.
+
+  240 tk2_ext
+  250 init_the_window
+  260 print #win,"ayc2media"\\
+  270 create_the_media
+  280 print #win,"Tarea terminada."
+  290 close #win
+  300 stop
+
+  310 defproc init_the_window
+
+  320   let win=fopen("con_512x256a0x0")
+  330   paper #win,0
+  340   ink #win,7
+  350   csize #win,2,0
+  360   cls #win,0
+  370   border #win,8
+
+  380 enddef
+
+  390 defproc create_the_media
+
+  400   if ver$="HBA"
+  410     qpc2_media
+  420   else
+  430     qemulator_media
+  440   endif
+
+  450 enddef
+
+  460 defproc qpc2_media
+
+  470   loc dev1$
+  480   print #win,"Se va a crear un nuevo fichero ayc.win."
+  490   prompt
+  500   win_drive 8,"q:\sb\ayc\media\ayc.win"
+  510   win_format 8,1
+  520   format win8_1
+  530   print #win,"Se ha creado y formateado el fichero ayc.win."
+  540   dev_use 1,"dos1_sb_ayc_media_c_"
+  550   copy_ayc "dev1_","win8_"
+  560   dev_use 1,dev1$
+  570   win_drive 8,"noone":rem fichero inexistente, para liberar el actual / unexistant file, just to free the current one
+  580   win_label "dos1_sb_ayc_media_ayc.win","ayc"
+
+  590 enddef
+
+  600 defproc win_label(win_file$,label$)
+
+  610   loc channel
+  620   let label$=label$(to 20)
+  630   let channel=fopen(win_file$):ert channel
+  640   wput #channel\4,len(label$)
+  650   bput #channel\6:print #channel,label$
+  660   close #channel
+
+  670 enddef
+
+  680 defproc qemulator_media
+
+  690   loc data_dir$
+  700   print #win,"Inserta el siguiente directorio:"
+  710   print #win,"- Q:\ (~/ql/) en la ranura 2."
+  720   print #win,"Inserta los siguientes ficheros:"
+  730   print #win,"- ayc.win en la ranura 7."
+  740   print #win,"- ayc.flp en la ranura 8."
+  750   prompt
+  760   format flp8_ayc
+  770   print #win,"Se ha formateado el fichero ayc.img."
+  780   let data_dir$=datad$
+  790   data_use "mdv2_sb_ayc_"
+  800   copy_ayc "media_c_","win7_"
+  810   copy_ayc "media_c_","flp8_"
+  820   data_use data_dir$
+
+  830 enddef
+
+  840 defproc prompt
+
+  850   print #win,\"Pulsa una tecla para continuar."
+  860   pause
+
+  870 enddef
+
+  880 defproc copy_ayc(from_dev$,to_dev$)
+
+  890   loc file$
+  900   print #win,\"Copiando de "&from_dev$&" a "&to_dev$&"..."
+
+  910   rem when err
+  920     rem ert ernum
+  930   rem endwhen
+
+  940   restore
+  950   rep copying
+  960     read file$
+  970     print #win,file$
+  980     if not len(file$):exit copying
+  990     copy_o from_dev$&file$,to_dev$&file$
+ 1000   endrep copying
+
+ 1010   when err
+ 1020   endwhen
+
+ 1030 enddef
+
+ 1040 data "boot"
+ 1050 data "ayc_bas"
+ 1060 data "ext_display_code"
+ 1070 data "ext_inarray_code"
+ 1080 data "ext_megatk_code"
+ 1090 data "ext_minmax_code"
+ 1100 data "img_ayc8_scr"
+ 1110 data "iso8859-1_font"
+ 1120 data "qxl-es_kbt"
+ 1130 data "":rem fin de datos / end of data
+
