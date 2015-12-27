@@ -1,6 +1,6 @@
 programandala.net License (version 1, 2009-06-19)
 
-Copyright (C) Marcos Cruz (http://programandala.net), 2011
+Copyright (C) Marcos Cruz (http://programandala.net), 2011, 2015
 
 License:
 
