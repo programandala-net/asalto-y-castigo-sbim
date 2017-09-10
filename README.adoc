@@ -6,12 +6,15 @@ In <<en,English>> below.
 
 == [[es]]Español
 
+=== Descripción
+
 _Asalto y castigo_ es una versión para
 http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
 QL] de la http://www.caad.es/baltasarq/if/asaltoDicen.html[aventura de
 texto homónima original] (2009), en español.
 
-_Asalto y castigo_ está escrito en SuperBASIC.
+_Asalto y castigo_ está escrito en SuperBASIC con el preprocesador
+http://programandala.net/es.programa.sbim.html[SBim].
 
 Sede del proyecto:
 http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
@@ -19,7 +22,30 @@ http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 Otras versiones en desarrollo:
 http://programandala.net/es.programa.asalto_y_castigo.html
 
+=== Herramientas de desarrollo
+
+- Editor http://www.vim.org[Vim]
+- Preprocesador de S*BASIC
+  http://programandala.net/es.programa.sbim.html[SBim]
+- Emulador http://simcoupe.org[SIMCoupe]
+- http://terdina.net/ql/q-emulator.html[Q-emuLator] emulator, running
+  on GNU/Linux with https://www.winehq.org/[Wine]
+- http://www.kilgus.net/qpc/[QPC2] emulator, running on GNU/Linux with
+  Wine
+- http://www.wlenerz.com/SMSQmulator/[SMSQmulator] emulator
+
+=== Historia y estado actual
+
+El proyecto fue desarrollado entre 2011-04 y 2011-07, con algunos
+retoques en 2015-12.
+
+En 2017-09-10 se creó un repositorio de Git a partir de las copias de
+respaldo, con el fin de preservar la evolución del código y trabajar
+en una nueva versión mejorada.
+
 == [[en]]English
+
+=== Description
 
 _Asalto y castigo_ (Assault and Punishment) is a
 http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
@@ -27,7 +53,8 @@ QL].  port of the Spanish
 http://www.caad.es/baltasarq/if/asaltoDicen.html[original homonymous
 text adventure] (2009).
 
-_Asalto y castigo_ is written in SuperBASIC.
+_Asalto y castigo_ is written in SuperBASIC with the
+http://programandala.net/es.programa.sbim.html[SBim] preprocessor.
 
 Project homepage:
 http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
@@ -35,3 +62,22 @@ http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 Other versions under development:
 http://programandala.net/es.programa.asalto_y_castigo.html
 
+=== Development tools
+
+- http://www.vim.org[Vim] editor
+- http://programandala.net/es.programa.sbim.html[SBim] S*BASIC
+  preprocessor
+- http://terdina.net/ql/q-emulator.html[Q-emuLator] emulator, running
+  on GNU/Linux with https://www.winehq.org/[Wine]
+- http://www.kilgus.net/qpc/[QPC2] emulator, running on GNU/Linux with
+  Wine
+- http://www.wlenerz.com/SMSQmulator/[SMSQmulator] emulator
+
+=== History and current status
+
+The project was developed from 2011-04 to 2011-07, with some
+additions in 2015-12.
+
+On 2017-09-10 a Git repository was created from the development
+backups in order to preserve the evolution of the project and to work
+on an improved version.
