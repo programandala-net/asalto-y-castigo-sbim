@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-10
+:revdate: 2017-09-11
 
 In <<en,English>> below.
 
@@ -27,12 +27,7 @@ http://programandala.net/es.programa.asalto_y_castigo.html
 - Editor http://www.vim.org[Vim]
 - Preprocesador de S*BASIC
   http://programandala.net/es.programa.sbim.html[SBim]
-- Emulador http://simcoupe.org[SIMCoupe]
-- http://terdina.net/ql/q-emulator.html[Q-emuLator] emulator, running
-  on GNU/Linux with https://www.winehq.org/[Wine]
-- http://www.kilgus.net/qpc/[QPC2] emulator, running on GNU/Linux with
-  Wine
-- http://www.wlenerz.com/SMSQmulator/[SMSQmulator] emulator
+- Emulador http://www.wlenerz.com/SMSQmulator/[SMSQmulator]
 
 === Historia y estado actual
 
@@ -67,10 +62,6 @@ http://programandala.net/es.programa.asalto_y_castigo.html
 - http://www.vim.org[Vim] editor
 - http://programandala.net/es.programa.sbim.html[SBim] S*BASIC
   preprocessor
-- http://terdina.net/ql/q-emulator.html[Q-emuLator] emulator, running
-  on GNU/Linux with https://www.winehq.org/[Wine]
-- http://www.kilgus.net/qpc/[QPC2] emulator, running on GNU/Linux with
-  Wine
 - http://www.wlenerz.com/SMSQmulator/[SMSQmulator] emulator
 
 === History and current status
