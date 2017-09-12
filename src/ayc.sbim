@@ -1,7 +1,7 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 
-let version$="0.2.0-dev.2+201709122304":rem After http://semver.org
+let version$="0.2.0-dev.3+201709122313":rem After http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -77,7 +77,6 @@ defproc plot
     endif
     ret
   endif
-
 
   if current_location=20 and (not is_it_accessible(the_torch) or not lit_the_torch)
     rem XXX TODO -- Why `>19` in the original? I put `=20`, which is the exit from 17
@@ -1549,7 +1548,7 @@ defproc init_the_data
 
   restore
 
-  let locations=lines_between("label_location_descriptions_start","label_location_descriptions_end")
+  let locations=@location_descriptions_end-@location_descriptions_start
   dim location_description$(locations,255)
   for i=1 to locations
     read location_description$(i)
@@ -1562,10 +1561,10 @@ defproc init_the_data
     endfor j
   endfor i
 
-  let nouns=lines_between("label_nouns_start","label_nouns_end")
+  let nouns=@nouns_end-@nouns_start
   dim noun$(nouns,max_word_lenght)
   dim the_thing(nouns)
-  let things=lines_between("label_things_start","label_things_end")/2
+  let things=(@things_end-@things_start)/2
   dim thing$(things,max_word_lenght)
 
   rem Note: The last synonym on the list will be the actual thing name.
@@ -1583,14 +1582,14 @@ defproc init_the_data
     read thing_description$(thing)
   endfor i
 
-  let actions=lines_between("label_actions_start","label_actions_end")
+  let actions=@actions_end-@actions_start
   dim action_syntax(actions)
   for i=1 to actions
     read action
     read action_syntax(action)
   endfor i
 
-  let verbs=lines_between("label_verbs_start","label_verbs_end")
+  let verbs=@verbs_end-@verbs_start
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
   let action=1
@@ -1606,7 +1605,7 @@ rem Data
 
 rem Location descriptions
 
-defproc label_location_descriptions_start:enddef
+label @location_descriptions_start
 data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
 data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
 data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
@@ -1658,7 +1657,7 @@ data "Bosque a la entrada. Apenas se puede reconocer la entrada de la cueva, al 
 data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oeste."
 data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
 data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
-defproc label_location_descriptions_end:enddef
+label @location_descriptions_end
 
 rem Location exits
 
@@ -1719,7 +1718,7 @@ rem Nouns
 
 rem data: thing id, noun
 rem (for every thing id, the last noun listed will be the main one) 
-defproc label_nouns_start:enddef
+label @nouns_start
 data ambrosio,"ambrosio"
 data the_altar,"altar"
 data the_cloak,"lana"
@@ -1767,12 +1766,12 @@ data the_thread,"hilo"
 data the_torch,"antorcha"
 data the_waterfall,"catarata"
 data the_waterfall,"cascada"
-defproc label_nouns_end:enddef
+label @nouns_end
 
 rem Things
 
 rem data: id,location,type,description
-defproc label_things_start:enddef
+label @things_start
 data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,19,2
@@ -1819,12 +1818,12 @@ data the_piece,limbo,0
 data "Es un poco de lo que antes era tu capa."
 data the_lock,47,1
 data "Está cerrado. Es muy grande y parece resistente."
-defproc label_things_end:enddef
+label @things_end
 
 rem Actions
 
 rem data: action id,action syntax 
-defproc label_actions_start:enddef
+label @actions_start
 data to_break,object_needed
 data to_drop,object_needed
 data to_examine,no_object_needed
@@ -1843,12 +1842,12 @@ data to_open,object_needed
 data to_swim,no_object_needed
 data to_take,object_needed
 data to_speak,object_needed
-defproc label_actions_end:enddef
+label @actions_end
 
 rem Verbs 
 
 rem data: action id,verb or synonym
-defproc label_verbs_start:enddef
+label @verbs_start
 data to_break,"afila"
 data to_break,"afilar"
 data to_break,"ataca"
@@ -2017,20 +2016,10 @@ data to_speak,"preguntarlo"
 data to_speak,"preguntárselo"
 data to_speak,"pregúntale"
 data to_speak,"pregúntalo"
-defproc label_verbs_end:enddef
+label @verbs_end
 
 rem --------------------------------------------
 rem Meta
-
-deffn lines_between(procedure_1$,procedure_2$)
-
-  rem Return the number of program lines between two procedure or functions.
-
-  loc line_step
-  let line_step=1
-  ret (lnum(procedure_2$)-lnum(procedure_1$))/line_step-1
-
-enddef
 
 defproc s
 
