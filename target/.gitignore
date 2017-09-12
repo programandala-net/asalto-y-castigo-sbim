@@ -1,0 +1,17 @@
+# Iginore the emulator SMSQmulator:
+SMSQ*
+lib/
+
+# Ignore the sources:
+boot
+*_bas
+
+# Ignore the images, extensions and fonts:
+#img/
+#ext/
+#*_font
+
+# Do not ignore this file, just in case the directory is empty:
+!.gitignore
+
+# vim: filetype=config
