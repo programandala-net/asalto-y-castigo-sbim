@@ -1,15 +1,19 @@
 rem Boot for "Asalto y castigo"
 
-rem This program uses several procedures and functions from the following SuperBASIC extensions:
+// Last modified 201709122115
+
+rem ============================================================
+rem Requriments
 
 rem From "DIY Toolkit", (C) Simon N. Goodwin:
 rem   minimum
+
 rem From "Display toolkit", (C) Dilwyn Jones:
 rem   flim_w,flim_h,flim_x,flim_y,dmode
 
 tk2_ext
 
-let dev$=device$("ayc_bas")
+let dev$=device$("ayc_bas","mdvflpwinsubdevdosnfasfafdk")
 lrespr dev$&"ext_display_code":print #0,"Display Toolkit"
 lrespr dev$&"ext_megatk_code"
 lrespr dev$&"ext_minmax_code":print #0,"DIY Toolkit - minmax"
@@ -18,36 +22,19 @@ lbytes dev$&"ext_inarray_code",a
 poke a+301,0:rem force strict comparisons
 call a:print #0,"DIY Toolkit - inarray"
 
+rem ============================================================
+rem Main
+
 init_the_keyboard
 init_the_screen
 init_the_window
 splash_screen
-mrun dev$&"ayc_bas"
-wipe_the_window
-go to 100
+lrun dev$&"ayc_bas"
 
-deffn device$(file$)
+rem ============================================================
+rem Procedures
 
-  rem Return the first device the given file is found in.
-
-  loc dev_offset,number,devs$,dev$
-  let dev$=""
-  let devs$="windosflpmdv":rem WIN, DOS, FLP, MDV
-
-  if ftest(file$)
-    for dev_offset=1 to len(devs$) step 3
-      for number=1 to 8
-        let dev$=devs$(dev_offset to dev_offset+2)&number&"_"
-        if not ftest(dev$&file$):exit dev_offset
-      endfor number
-    next dev_offset
-      let dev$=""
-    endfor dev_offset
-  endif
-
-  ret dev$
-
-enddef
+#include device.sbim
 
 defproc init_the_keyboard
 

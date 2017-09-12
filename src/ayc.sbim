@@ -1,7 +1,7 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 
-let version$="0.2.0+201709122053":rem After http://semver.org
+let version$="0.2.0-dev.0+201709122112":rem After http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -12,14 +12,11 @@ rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
 
 rem --------------------------------------------
-rem Notes
-
-rem This file doesn't use the QL charset but a standard ISO 8859-1 encoding.
-
-rem This program uses several procedures and functions from the following SuperBASIC extensions:
+rem Requirements
 
 rem From "MegaToolkit", (C) 1992 Michael A. Crowe:
 rem   true,false,char_w,char_x,pos_x,pos_y,lnum
+
 rem From "DIY Toolkit", (C) Simon N. Goodwin:
 rem   inarray%
 
