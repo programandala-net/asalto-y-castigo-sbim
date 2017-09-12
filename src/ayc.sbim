@@ -68,7 +68,7 @@ defproc plot
 
   if saxons_follow and current_location<12
     let saxons_follow=saxons_follow+1
-    narrate "No sabes cuánto tiempo te queda..."
+    narrate "No sabes cuÃ¡nto tiempo te queda..."
     if saxons_follow>10 
       narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
       speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
@@ -286,7 +286,7 @@ defproc action_help
   narrate "Direcciones: n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
   narrate "m[irar] redescribe un lugar, ex[aminar] permite examinar un objeto, o en su defecto a ti."
   narrate "Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, tirar..."
-  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinónimos tanto de verbos como de nombres."
+  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinÃ³nimos tanto de verbos como de nombres."
   narrate "El atajo de teclado Ctrl+B (des)activa el bip de error de tecleo."
 
 enddef
@@ -307,7 +307,7 @@ enddef
 
 defproc action_end
 
-  if yes("¿Quieres volver a intentarlo?")
+  if yes("Â¿Quieres volver a intentarlo?")
     let start_over=true
   else
     clear_screen:stop
@@ -400,7 +400,7 @@ defproc action_break
             narrate "Sabes que el resultado es la hoja de tu espada, mellada. No."
           =the_flint
             let hacked_the_log=true
-            let thing_description$(the_log)=thing_description$(the_log)&" Su punta está afilada."
+            let thing_description$(the_log)=thing_description$(the_log)&" Su punta estÃ¡ afilada."
             narrate "Con el pedernal, recortas la punta del tronco."
           =remainder
             narrate "El problema es encontrar la herramienta adecuada para hacerlo."
@@ -496,8 +496,8 @@ defproc talk_to_ambrosio
 
     if current_location=46
       if not ambrosio_follows
-        speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocéis un camino más corto."
-        speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debéis hacer el vuestro, verlo todo con vuestros ojos."
+        speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocÃ©is un camino mÃ¡s corto."
+        speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debÃ©is hacer el vuestro, verlo todo con vuestros ojos."
         narrate "Ulfius sacude la cabeza."
         speak "No lo entiendo, la verdad."
       endif
@@ -569,7 +569,7 @@ defproc action_insert
       if object=the_log
         rocks_and_log
       else
-        narrate "No tiene sentido meter eso ahí."
+        narrate "No tiene sentido meter eso ahÃ­."
       endif
     =the_idol
       sel on object
@@ -585,11 +585,11 @@ defproc action_insert
       endsel
     =the_lock
       if object=the_key
-        narrate "La llave gira fácilmente dentro del candado."
+        narrate "La llave gira fÃ¡cilmente dentro del candado."
         short_pause
         open_the_door
       else
-        narrate "No tiene sentido meter eso ahí."
+        narrate "No tiene sentido meter eso ahÃ­."
       endif
     =remainder
       narrate "No tiene sentido meter nada en eso."
@@ -766,13 +766,13 @@ deffn iso_input$(channel,max_chars)
       =space:type_space
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
-      =131,163:type chr$(233):rem é/É 
-      =135,167:type chr$(252):rem ü/Ü 
-      =137,169:type chr$(241):rem ñ/Ñ 
-      =140:type chr$(225):rem á 
-      =147:type chr$(237):rem í 
-      =150:type chr$(243):rem ó 
-      =153:type chr$(250):rem ú 
+      =131,163:type chr$(233):rem Ã©/Ã‰ 
+      =135,167:type chr$(252):rem Ã¼/Ãœ 
+      =137,169:type chr$(241):rem Ã±/Ã‘ 
+      =140:type chr$(225):rem Ã¡ 
+      =147:type chr$(237):rem Ã­ 
+      =150:type chr$(243):rem Ã³ 
+      =153:type chr$(250):rem Ãº 
       =192:cursor_left
       =193:start_of_line:rem Alt+Left
       =194:backspace_char:rem Ctrl+Left
@@ -1250,7 +1250,7 @@ defproc about
   print #tw,\"Reescrita en SuperBASIC para QL por"
   print #tw,"Marcos Cruz (programandala.net), 2011"
   print #tw,"http://programandala.net/"
-  print #tw,"Versión"!version$
+  print #tw,"VersiÃ³n"!version$
   ink #tw,light_grey
   print #tw,\\"http://www.caad.es/"
   print #tw,"http://www.sinclairql.es/"\\\
@@ -1318,8 +1318,8 @@ defproc init_the_constants
   let space=32:rem char code
   let enter=10:rem char code
   let nl$=chr$(enter):rem new line
-  let l_quote$="«":rem castilian left quote
-  let r_quote$="»":rem castilian right quote
+  let l_quote$="Â«":rem castilian left quote
+  let r_quote$="Â»":rem castilian right quote
   let limbo=255:rem location of vanished things
 
   rem Action syntax flags
@@ -1477,7 +1477,7 @@ data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte
 data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
 data "Cruce de caminos. Una senda parte al oeste, a la sierra por el paso del Perro, y otra hacia el norte, por un frondoso bosque que la rodea."
 data "Desde la linde, al sur, hacia el oeste se extiende frondoso el bosque que rodea la sierra. La salida se abre hacia el sur."
-data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raíces, de un luminoso este al oeste."
+data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raÃ­ces, de un luminoso este al oeste."
 data "Paso del Perro. Abruptamente, del bosque se pasa a un estrecho camino entre altas rocas. El inquietante desfiladero tuerce de este a sur."
 data "Entrada a la cueva. El paso entre el desfiladero sigue de norte a este. La entrada a una cueva se abre al sur en la pared de roca."
 data "Derrumbe. El camino desciende hacia la agreste sierra, al oeste, desde los verdes valles al este. Pero un gran derrumbe bloquea la sierra."
@@ -1512,7 +1512,7 @@ data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un es
 data "Gran cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
 data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
 data "Explanada. Una gran explanada enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
-data "Ídolo. El ídolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
+data "Ãdolo. El Ã­dolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
 data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
 data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
 data "Lago interior. Unas escaleras dan paso a un hermoso lago interior, y siguen hacia el oeste. Al norte, un oscuro y estrecho pasaje sube."
@@ -1593,13 +1593,13 @@ data the_door,"puerta"
 data the_emerald,"joya"
 data the_emerald,"esmeralda"
 data the_fallen_away,"derrumbe"
-data the_flags,"enseñas"
+data the_flags,"enseÃ±as"
 data the_flags,"pendones"
 data the_flags,"banderas"
 data the_flint,"pedernal"
 data the_idol,"agujero"
 data the_idol,"ojo"
-data the_idol,"ídolo"
+data the_idol,"Ã­dolo"
 data the_key,"llave"
 data the_lake,"agua"
 data the_lake,"laguna"
@@ -1607,7 +1607,7 @@ data the_lake,"lago"
 data the_lock,"cerrojo"
 data the_lock,"cierre"
 data the_lock,"candado"
-data the_log,"leño"
+data the_log,"leÃ±o"
 data the_log,"madero"
 data the_log,"tronco"
 data the_man,"anciano"
@@ -1643,7 +1643,7 @@ data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,19,2
 data "Ambrosio es un hombre de mediana edad, que te mira afable."
 data the_torch,limbo,0
-data "Está apagada."
+data "EstÃ¡ apagada."
 data the_flags,28,1
 data "Son las banderas britana y sajona: dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
 data the_cloak,ulfius,0
@@ -1663,7 +1663,7 @@ data "Un hilo se ha desprendido al cortar la capa con la espada."
 data the_man,28,1
 data "Es el jefe de los refugiados."
 data the_idol,41,1
-data "El ídolo tiene dos agujeros por ojos."
+data "El Ã­dolo tiene dos agujeros por ojos."
 data the_lake,44,1
 data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
 data the_key,46,1
@@ -1683,7 +1683,7 @@ data "Es un tronco recio, pero de liviano peso."
 data the_piece,limbo,0
 data "Es un poco de lo que antes era tu capa."
 data the_lock,47,1
-data "Está cerrado. Es muy grande y parece resistente."
+data "EstÃ¡ cerrado. Es muy grande y parece resistente."
 defproc label_things_end:enddef
 
 rem Actions
@@ -1737,23 +1737,23 @@ data to_break,"sacudir"
 data to_drop,"deja"
 data to_drop,"dejar"
 data to_drop,"desprenderse"
-data to_drop,"despréndete"
+data to_drop,"desprÃ©ndete"
 data to_drop,"soltar"
 data to_drop,"suelta"
 data to_examine,"ex"
 data to_examine,"examina"
 data to_examine,"examinar"
 data to_examine,"examinarte"
-data to_examine,"examínate"
+data to_examine,"examÃ­nate"
 data to_examine,"i"
-data to_examine,"mírate"
+data to_examine,"mÃ­rate"
 data to_finish,"acaba"
 data to_finish,"acabar"
 data to_finish,"fin"
 data to_finish,"finaliza"
 data to_finish,"finalizar"
 data to_finish,"rendirse"
-data to_finish,"ríndete"
+data to_finish,"rÃ­ndete"
 data to_finish,"termina"
 data to_finish,"terminar"
 data to_fling,"arroja"
@@ -1785,22 +1785,22 @@ data to_go_west,"oeste"
 data to_help,"auxilio"
 data to_help,"ayuda"
 data to_help,"ayudar"
-data to_help,"ayúdame"
+data to_help,"ayÃºdame"
 data to_help,"socorro"
 data to_insert,"coloca"
-data to_insert,"colócale"
+data to_insert,"colÃ³cale"
 data to_insert,"colocar"
 data to_insert,"colocarle"
 data to_insert,"introduce"
-data to_insert,"introdúcele"
+data to_insert,"introdÃºcele"
 data to_insert,"introducir"
 data to_insert,"introducirle"
 data to_insert,"inserta"
-data to_insert,"insértale"
+data to_insert,"insÃ©rtale"
 data to_insert,"insertar"
 data to_insert,"insertarle"
 data to_insert,"mete"
-data to_insert,"métele"
+data to_insert,"mÃ©tele"
 data to_insert,"meter"
 data to_insert,"meterle"
 data to_insert,"pon"
@@ -1809,7 +1809,7 @@ data to_insert,"poner"
 data to_insert,"ponerle"
 data to_insert,"situar"
 data to_insert,"situarle"
-data to_insert,"sitúa"
+data to_insert,"sitÃºa"
 data to_look,"m"
 data to_look,"mira"
 data to_look,"mirar"
@@ -1817,17 +1817,17 @@ data to_look,"ojea"
 data to_look,"ojear"
 data to_open,"abre"
 data to_open,"abrir"
-data to_swim,"bañar"
-data to_swim,"bañarse"
-data to_swim,"bañarte"
+data to_swim,"baÃ±ar"
+data to_swim,"baÃ±arse"
+data to_swim,"baÃ±arte"
 data to_swim,"bucea"
 data to_swim,"bucear"
-data to_swim,"báñate"
+data to_swim,"bÃ¡Ã±ate"
 data to_swim,"nada"
 data to_swim,"nadar"
 data to_swim,"zambullirse"
 data to_swim,"zambullirte"
-data to_swim,"zambúllete"
+data to_swim,"zambÃºllete"
 data to_take,"agarra"
 data to_take,"agarrar"
 data to_take,"coge"
@@ -1840,48 +1840,48 @@ data to_speak,"comenta"
 data to_speak,"comentar"
 data to_speak,"comentarle"
 data to_speak,"comentarlo"
-data to_speak,"comentárselo"
+data to_speak,"comentÃ¡rselo"
 data to_speak,"comunica"
 data to_speak,"comunicar"
 data to_speak,"comunicarle"
 data to_speak,"comunicarlo"
-data to_speak,"comunicárselo"
-data to_speak,"comunícale"
-data to_speak,"comunícalo"
-data to_speak,"comunícate"
-data to_speak,"coméntale"
-data to_speak,"coméntalo"
-data to_speak,"coméntaselo"
-data to_speak,"comentárselo"
+data to_speak,"comunicÃ¡rselo"
+data to_speak,"comunÃ­cale"
+data to_speak,"comunÃ­calo"
+data to_speak,"comunÃ­cate"
+data to_speak,"comÃ©ntale"
+data to_speak,"comÃ©ntalo"
+data to_speak,"comÃ©ntaselo"
+data to_speak,"comentÃ¡rselo"
 data to_speak,"conversa"
 data to_speak,"conversar"
 data to_speak,"decir"
 data to_speak,"decirle"
 data to_speak,"decirlo"
-data to_speak,"decírselo"
+data to_speak,"decÃ­rselo"
 data to_speak,"di"
 data to_speak,"dile"
 data to_speak,"dilo"
-data to_speak,"díselo"
+data to_speak,"dÃ­selo"
 data to_speak,"habla"
 data to_speak,"hablar"
 data to_speak,"hablarle"
-data to_speak,"háblale"
-data to_speak,"háblalo"
+data to_speak,"hÃ¡blale"
+data to_speak,"hÃ¡blalo"
 data to_speak,"platica"
 data to_speak,"platicar"
 data to_speak,"platicarle"
 data to_speak,"platicarlo"
-data to_speak,"platicárselo"
-data to_speak,"platícale"
-data to_speak,"platícalo"
+data to_speak,"platicÃ¡rselo"
+data to_speak,"platÃ­cale"
+data to_speak,"platÃ­calo"
 data to_speak,"pregunta"
 data to_speak,"preguntar"
 data to_speak,"preguntarle"
 data to_speak,"preguntarlo"
-data to_speak,"preguntárselo"
-data to_speak,"pregúntale"
-data to_speak,"pregúntalo"
+data to_speak,"preguntÃ¡rselo"
+data to_speak,"pregÃºntale"
+data to_speak,"pregÃºntalo"
 defproc label_verbs_end:enddef
 
 rem --------------------------------------------
@@ -1913,6 +1913,6 @@ enddef
 
 defproc _debug(text$)
 
-  print #tw,"Punto de depuración:"!text$
+  print #tw,"Punto de depuraciÃ³n:"!text$
 
 enddef
