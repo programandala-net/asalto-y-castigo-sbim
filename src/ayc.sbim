@@ -1,7 +1,7 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 
-let version$="0.2.0-dev.1+201709122258":rem After http://semver.org
+let version$="0.2.0-dev.2+201709122304":rem After http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -2027,7 +2027,7 @@ deffn lines_between(procedure_1$,procedure_2$)
   rem Return the number of program lines between two procedure or functions.
 
   loc line_step
-  let line_step=10
+  let line_step=1
   ret (lnum(procedure_2$)-lnum(procedure_1$))/line_step-1
 
 enddef
