@@ -1,7 +1,7 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 
-let version$="0.2.0+201709110044":rem After http://semver.org
+let version$="0.2.0+201709110103":rem After http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1645,7 +1645,7 @@ data "Ambrosio es un hombre de mediana edad, que te mira afable."
 data the_torch,limbo,0
 data "Está apagada."
 data the_flags,28,1
-data "Son las banderas britana y sajona. Dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
+data "Son las banderas britana y sajona: dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
 data the_cloak,ulfius,0
 data "Tu capa de general, de fina lana tintada de negro."
 data the_waterfall,38,1
