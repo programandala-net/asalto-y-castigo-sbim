@@ -1,7 +1,7 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 
-let version$="0.2.0+201709110103":rem After http://semver.org
+let version$="0.2.0+201709122053":rem After http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -787,7 +787,7 @@ deffn iso_input$(channel,max_chars)
     endsel 
   endrep typing
   curdis #channel
-  print #channel\\\
+  print #channel\\\:
   ret output$
 
 enddef
@@ -1090,7 +1090,7 @@ defproc end_of_scene
   rem Show a prompt and do a long pause.
 
   ink #tw,dark_green
-  print #tw,"..."\\
+  print #tw,"..."\\:
   long_pause
 
 enddef
@@ -1231,7 +1231,7 @@ defproc tell(txt$)
       endif
     endfor last
   endif
-  print #tw,\\
+  print #tw,\\:
 
 enddef
 
@@ -1253,7 +1253,7 @@ defproc about
   print #tw,"Versión"!version$
   ink #tw,light_grey
   print #tw,\\"http://www.caad.es/"
-  print #tw,"http://www.sinclairql.es/"\\\
+  print #tw,"http://www.sinclairql.es/"\\\:
 
 enddef
 
