@@ -1,15 +1,15 @@
 rem Boot for "Asalto y castigo"
 
-// Last modified 201709122255
+' Last modified 201709122255
 
-rem ============================================================
-rem Requriments
+' ==============================================================
+' Requriments
 
-rem From "DIY Toolkit", (C) Simon N. Goodwin:
-rem   minimum
+' From "DIY Toolkit", (C) Simon N. Goodwin:
+'   minimum
 
-rem From "Display toolkit", (C) Dilwyn Jones:
-rem   flim_w,flim_h,flim_x,flim_y,dmode
+' From "Display toolkit", (C) Dilwyn Jones:
+'   flim_w,flim_h,flim_x,flim_y,dmode
 
 tk2_ext
 
@@ -20,10 +20,9 @@ lrespr dev$&"ext_megatk_code"
 lrespr dev$&"ext_minmax_code":print #0,"DIY Toolkit - minmax"
 let a=respr(flen(\dev$&"ext_inarray_code"))
 lbytes dev$&"ext_inarray_code",a
-poke a+301,0:rem force strict comparisons
+poke a+301,0 ' force strict comparisons
 call a:print #0,"DIY Toolkit - inarray"
 
 lrun dev$&"ayc_bas"
 
 #include device.sbim
-

@@ -1,7 +1,8 @@
 rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
+rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.3+201709122313":rem After http://semver.org
+let version$="0.2.0-dev.4+201709130022" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -11,17 +12,17 @@ rem Sinclar BASIC (Sinclair ZX Spectrum), Locomotive BASIC (Amstrad CPC) and Bla
 rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
 
-rem --------------------------------------------
-rem Requirements
+' ==============================================================
+' Requirements
 
-rem From "MegaToolkit", (C) 1992 Michael A. Crowe:
-rem   true,false,char_w,char_x,pos_x,pos_y,lnum
+' From "MegaToolkit", (C) 1992 Michael A. Crowe:
+'   true,false,char_w,char_x,pos_x,pos_y,lnum
 
-rem From "DIY Toolkit", (C) Simon N. Goodwin:
-rem   inarray%
+' From "DIY Toolkit", (C) Simon N. Goodwin:
+'   inarray%
 
-rem --------------------------------------------
-rem Main
+' ==============================================================
+' Main
 
 main
 
@@ -43,12 +44,12 @@ defproc main
 
 enddef
 
-rem --------------------------------------------
-rem Plot
+' ==============================================================
+' Plot
 
 defproc plot
 
-  rem Check the plot conditions.
+  ' Check the plot conditions.
 
   if current_location=8 and location_exit(8,north)
     let location_exit(8,north)=false
@@ -65,7 +66,7 @@ defproc plot
 
   if saxons_follow and current_location<12
     let saxons_follow=saxons_follow+1
-    narrate "No sabes cu√°nto tiempo te queda..."
+    narrate "No sabes cu·nto tiempo te queda..."
     if saxons_follow>10 
       narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
       speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
@@ -79,7 +80,7 @@ defproc plot
   endif
 
   if current_location=20 and (not is_it_accessible(the_torch) or not lit_the_torch)
-    rem XXX TODO -- Why `>19` in the original? I put `=20`, which is the exit from 17
+    ' XXX TODO -- Why `>19` in the original? I put `=20`, which is the exit from 17
     narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
     short_pause
     let current_location=17
@@ -107,7 +108,7 @@ enddef
 
 defproc location_plot
 
-  rem Check the plot conditions related to the new location.
+  ' Check the plot conditions related to the new location.
 
   sel on current_location
     =11,38,44
@@ -135,7 +136,7 @@ enddef
 
 defproc rocks_and_log
 
-  rem Action using the log with rocks.
+  ' Action using the log with rocks.
 
   if hacked_the_log
     narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso."
@@ -149,7 +150,7 @@ enddef
 
 defproc open_the_door
 
-  rem Action opening the door.
+  ' Action opening the door.
 
   narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
   short_pause
@@ -164,12 +165,12 @@ defproc open_the_door
 
 enddef
 
-rem --------------------------------------------
-rem Parser
+' ==============================================================
+' Parser
 
 defproc command
 
-  rem Accept a command, analize it and execute it.
+  ' Accept a command, analize it and execute it.
 
   loc next_space,command$
 
@@ -191,7 +192,7 @@ enddef
 
 defproc parse_word(word$)
 
-  rem Analize the given word.
+  ' Analize the given word.
 
   if not action
     let action=parse_verb(word$)
@@ -207,7 +208,7 @@ enddef
 
 deffn parse_verb(word$)
 
-  rem Analize the given word; it's supposed to be a verb.
+  ' Analize the given word; it's supposed to be a verb.
 
   loc found
   let found=inarray%(verb$,0,word$)
@@ -218,7 +219,7 @@ enddef
 
 deffn parse_noun(word$)
 
-  rem Analize the given word; it's supposed to be a noun.
+  ' Analize the given word; it's supposed to be a noun.
 
   loc found
   let found=inarray%(noun$,0,word$)
@@ -229,7 +230,7 @@ enddef
 
 deffn fine_command
 
-  rem Check if the command is right: check its parts and the accesibility of the object and the complement, if present. Return 1 if it's right, or 0 otherwise.
+  ' Check if the command is right: check its parts and the accesibility of the object and the complement, if present. Return 1 if it's right, or 0 otherwise.
 
   loc syntax
   let syntax=action_syntax(action)
@@ -248,8 +249,8 @@ deffn fine_command
 
 enddef
 
-rem --------------------------------------------
-rem Actions
+' ==============================================================
+' Actions
 
 defproc do_action(action)
 
@@ -282,7 +283,7 @@ defproc action_help
   narrate "Direcciones: n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
   narrate "m[irar] redescribe un lugar, ex[aminar] permite examinar un objeto, o en su defecto a ti."
   narrate "Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, tirar..."
-  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sin√≥nimos tanto de verbos como de nombres."
+  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinÛnimos tanto de verbos como de nombres."
   narrate "El atajo de teclado Ctrl+B (des)activa el bip de error de tecleo."
 
 enddef
@@ -303,7 +304,7 @@ enddef
 
 defproc action_end
 
-  if yes("¬øQuieres volver a intentarlo?")
+  if yes("øQuieres volver a intentarlo?")
     let start_over=true
   else
     clear_screen:stop
@@ -396,7 +397,7 @@ defproc action_break
             narrate "Sabes que el resultado es la hoja de tu espada, mellada. No."
           =the_flint
             let hacked_the_log=true
-            let thing_description$(the_log)=thing_description$(the_log)&" Su punta est√° afilada."
+            let thing_description$(the_log)=thing_description$(the_log)&" Su punta est· afilada."
             narrate "Con el pedernal, recortas la punta del tronco."
           =remainder
             narrate "El problema es encontrar la herramienta adecuada para hacerlo."
@@ -492,8 +493,8 @@ defproc talk_to_ambrosio
 
     if current_location=46
       if not ambrosio_follows
-        speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conoc√©is un camino m√°s corto."
-        speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos deb√©is hacer el vuestro, verlo todo con vuestros ojos."
+        speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocÈis un camino m·s corto."
+        speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debÈis hacer el vuestro, verlo todo con vuestros ojos."
         narrate "Ulfius sacude la cabeza."
         speak "No lo entiendo, la verdad."
       endif
@@ -565,7 +566,7 @@ defproc action_insert
       if object=the_log
         rocks_and_log
       else
-        narrate "No tiene sentido meter eso ah√≠."
+        narrate "No tiene sentido meter eso ahÌ."
       endif
     =the_idol
       sel on object
@@ -581,11 +582,11 @@ defproc action_insert
       endsel
     =the_lock
       if object=the_key
-        narrate "La llave gira f√°cilmente dentro del candado."
+        narrate "La llave gira f·cilmente dentro del candado."
         short_pause
         open_the_door
       else
-        narrate "No tiene sentido meter eso ah√≠."
+        narrate "No tiene sentido meter eso ahÌ."
       endif
     =remainder
       narrate "No tiene sentido meter nada en eso."
@@ -623,7 +624,7 @@ enddef
 defproc action_look
 
   clear_screen
-  rem narrate "["&current_location&"]":rem XXX INFORMER
+  ' narrate "["&current_location&"]" ' XXX INFORMER
   describe location_description$(current_location)
   location_plot
   list_present_things 
@@ -650,8 +651,8 @@ defproc list_present_things
 
 enddef
 
-rem --------------------------------------------
-rem Data interface
+' ==============================================================
+' Data interface
 
 deffn is_it_a_person(thing)
 
@@ -713,12 +714,12 @@ deffn is_it_vanished(thing)
 
 enddef
 
-rem --------------------------------------------
-rem Input
+' ==============================================================
+' Input
 
 deffn accept$
 
-  rem Return a new user command, formatted for the parsing.
+  ' Return a new user command, formatted for the parsing.
 
   loc command$
   ink #tw,yellow
@@ -732,15 +733,15 @@ enddef
 
 deffn iso_input$(channel,max_chars)
 
-  rem Return a text typed by the user.
+  ' Return a text typed by the user.
 
-  rem channel =
-  rem Channel of the window to be used, at the current cursor position.
-  rem max_chars =
-  rem Maximum length. If it's zero, it will be the maximum possible on the current line, with the current character size.
+  ' channel =
+  ' Channel of the window to be used, at the current cursor position.
+  ' max_chars =
+  ' Maximum length. If it's zero, it will be the maximum possible on the current line, with the current character size.
 
-  rem Spanish chars are translated to ISO 8859-1; all letters are made lowercase.
-  rem Not allowed: starting or double spaces, digits and punctuation.
+  ' Spanish chars are translated to ISO 8859-1; all letters are made lowercase.
+  ' Not allowed: starting or double spaces, digits and punctuation.
 
   loc output$,key$,key,cursor_pos,cursor_x0,cursor_y0
 
@@ -756,30 +757,30 @@ deffn iso_input$(channel,max_chars)
     let key$=inkey$(#channel,-1)
     let key=code(key$)
     sel on key
-      =2:let mistype_bell_active=not mistype_bell_active:rem Ctrl+B
-      =9:tab 8:rem Tab
+      =2:let mistype_bell_active=not mistype_bell_active ' Ctrl+B
+      =9:tab 8 ' Tab
       =enter:if len(output$):exit typing:else mistype_bell
       =space:type_space
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
-      =131,163:type chr$(233):rem √©/√â 
-      =135,167:type chr$(252):rem √º/√ú 
-      =137,169:type chr$(241):rem √±/√ë 
-      =140:type chr$(225):rem √° 
-      =147:type chr$(237):rem √≠ 
-      =150:type chr$(243):rem √≥ 
-      =153:type chr$(250):rem √∫ 
+      =131,163:type chr$(233) ' È/… 
+      =135,167:type chr$(252) ' ¸/‹ 
+      =137,169:type chr$(241) ' Ò/— 
+      =140:type chr$(225) ' · 
+      =147:type chr$(237) ' Ì 
+      =150:type chr$(243) ' Û 
+      =153:type chr$(250) ' ˙ 
       =192:cursor_left
-      =193:start_of_line:rem Alt+Left
-      =194:backspace_char:rem Ctrl+Left
-      =195:delete_line_left:rem Ctrl+Alt+Left
-      =196:previous_word:rem Shift+Left
+      =193:start_of_line ' Alt+Left
+      =194:backspace_char ' Ctrl+Left
+      =195:delete_line_left ' Ctrl+Alt+Left
+      =196:previous_word ' Shift+Left
       =200:cursor_right
-      =201:end_of_line:rem Alt+Right
-      =202:delete_char:rem Ctrl+Right
-      =203:delete_line_right:rem Ctrl+Alt+Right
-      =204:next_word:rem Shift+Right
-      =253:tab -8:rem Shift+Tab
+      =201:end_of_line ' Alt+Right
+      =202:delete_char ' Ctrl+Right
+      =203:delete_line_right ' Ctrl+Alt+Right
+      =204:next_word ' Shift+Right
+      =253:tab -8 ' Shift+Tab
     endsel 
   endrep typing
   curdis #channel
@@ -790,7 +791,7 @@ enddef
 
 defproc type(char$)
 
-  rem If there is space, add the given character and type it.
+  ' If there is space, add the given character and type it.
 
   if len(output$)<max_chars
     sel on cursor_pos
@@ -809,7 +810,7 @@ enddef
 
 defproc type_space
 
-  rem If possible, add a space and type it.
+  ' If possible, add a space and type it.
 
   if cursor_pos=1
     mistype_bell
@@ -833,7 +834,7 @@ enddef
 
 defproc tab(offset)
 
-  rem If possible, add the given offset to the cursor position.
+  ' If possible, add the given offset to the cursor position.
 
   if (offset<1 and cursor_pos=1) or (offset>0 and cursor_pos=len(output$)+1)
     mistype_bell
@@ -848,7 +849,7 @@ enddef
 
 defproc start_of_line
 
-  rem Put the cursor at the start of the line.
+  ' Put the cursor at the start of the line.
 
   let cursor_pos=1
   set_cursor cursor_pos
@@ -857,7 +858,7 @@ enddef
 
 defproc end_of_line
 
-  rem Put the cursor at the end of the line.
+  ' Put the cursor at the end of the line.
 
   let cursor_pos=len(output$)+1
   set_cursor cursor_pos
@@ -866,7 +867,7 @@ enddef
 
 defproc backspace_char
 
-  rem If possible, delete the character at the left of the cursor.
+  ' If possible, delete the character at the left of the cursor.
 
   loc original$
 
@@ -890,7 +891,7 @@ enddef
 
 defproc delete_char
 
-  rem If possible, delete the character under the cursor.
+  ' If possible, delete the character under the cursor.
 
   loc original$
 
@@ -913,7 +914,7 @@ enddef
 
 defproc delete_line_right
 
-  rem If possible, delete to end of line.
+  ' If possible, delete to end of line.
 
   if len(output$)
     if cursor_pos=len(output$)+1
@@ -930,7 +931,7 @@ enddef
 
 defproc delete_line_left
 
-  rem If possible, delete the character at the left of the cursor.
+  ' If possible, delete the character at the left of the cursor.
 
   if len(output$)
     if cursor_pos=1
@@ -948,7 +949,7 @@ enddef
 
 defproc cursor_left
 
-  rem If possible, move the cursor one character left.
+  ' If possible, move the cursor one character left.
 
   if cursor_pos>1
     curdis #channel
@@ -963,7 +964,7 @@ enddef
 
 defproc cursor_right
 
-  rem If possible, move the cursor one character right.
+  ' If possible, move the cursor one character right.
 
   if cursor_pos<len(output$)+1
     curdis #channel
@@ -978,7 +979,7 @@ enddef
 
 defproc previous_word
 
-  rem If possible, move the cursor to the start of the previous word.
+  ' If possible, move the cursor to the start of the previous word.
 
   loc temp,from_char,to_char
 
@@ -1009,7 +1010,7 @@ enddef
 
 defproc next_word
 
-  rem If possible, move the cursor to the start of the next word (or to the end of the last word).
+  ' If possible, move the cursor to the start of the next word (or to the end of the last word).
 
   loc from_char,to_char
 
@@ -1033,7 +1034,7 @@ enddef
 
 defproc show_input
 
-  rem Show the current text.
+  ' Show the current text.
 
   curdis #channel
   set_cursor 1
@@ -1046,7 +1047,7 @@ enddef
 
 defproc set_cursor(column)
 
-  rem Set the text cursor at the pixel position of the given column (which is relative to the typed text).
+  ' Set the text cursor at the pixel position of the given column (which is relative to the typed text).
 
   cursor #channel,cursor_x0+(column-1)*char_w(#channel),cursor_y0
 
@@ -1054,7 +1055,7 @@ enddef
 
 defproc mistype_bell
 
-  rem Mistype sound.
+  ' Mistype sound.
 
   if mistype_bell_active:beep 1000,0
 
@@ -1062,7 +1063,7 @@ enddef
 
 deffn yes(question$)
 
-  rem Show the given question and wait for S or N to be pressed (ignoring case). Return 1 if S was pressed; 0 otherwise.
+  ' Show the given question and wait for S or N to be pressed (ignoring case). Return 1 if S was pressed; 0 otherwise.
 
   loc answer$
 
@@ -1083,7 +1084,7 @@ enddef
 
 defproc end_of_scene
 
-  rem Show a prompt and do a long pause.
+  ' Show a prompt and do a long pause.
 
   ink #tw,dark_green
   print #tw,"..."\\:
@@ -1093,7 +1094,7 @@ enddef
 
 defproc short_pause
 
-  rem Do a short pause; it's used between certain paragraphs.
+  ' Do a short pause; it's used between certain paragraphs.
 
   wait_for_key_press(2)
 
@@ -1101,7 +1102,7 @@ enddef
 
 defproc long_pause
 
-  rem Do a long pause; it's used after every scene.
+  ' Do a long pause; it's used after every scene.
 
   wait_for_key_press(16)
 
@@ -1109,7 +1110,7 @@ enddef
 
 defproc wait_for_key_press(seconds)
 
-  rem Wait the given seconds, or until a key is pressed.
+  ' Wait the given seconds, or until a key is pressed.
 
   loc start_time
   let start_time=date
@@ -1127,14 +1128,14 @@ defproc wait_for_key_press(seconds)
 
 enddef
 
-rem --------------------------------------------
-rem Strings
+' ==============================================================
+' Strings
 
 deffn iso_upper(char)
 
-  rem Return the uppercase char code of the given ISO 8859-1 char.
+  ' Return the uppercase char code of the given ISO 8859-1 char.
 
-  loc c:let c=char:rem QDOS and Minerva need this
+  loc c:let c=char ' QDOS and Minerva need this
   sel on c
     =97 to 122,224 to 246,248 to 254:ret c-32
     =remainder:ret c
@@ -1144,7 +1145,7 @@ enddef
 
 deffn iso_upper$(text$)
 
-  rem Return the given ISO 8859-1 text in uppercase.
+  ' Return the given ISO 8859-1 text in uppercase.
 
   loc i,upper_text$
   let upper_text$=text$
@@ -1157,14 +1158,14 @@ enddef
 
 deffn iso_upper_1$(text$)
 
-  rem Return the given ISO 8859-1 text with the first letter in uppercase.
+  ' Return the given ISO 8859-1 text with the first letter in uppercase.
 
   ret iso_upper$(text$(1))&text$(2 to)
 
 enddef
 
-rem --------------------------------------------
-rem Screen
+' ==============================================================
+' Screen
 
 defproc clear_screen
 
@@ -1173,12 +1174,12 @@ defproc clear_screen
 
 enddef
 
-rem --------------------------------------------
-rem Text output
+' ==============================================================
+' Text output
 
 defproc speak(quote$)
 
-  rem Print a dialog quote, with the proper quote chars.
+  ' Print a dialog quote, with the proper quote chars.
 
   loc last
   ink #tw,yellow
@@ -1197,7 +1198,7 @@ enddef
 
 defproc describe(txt$)
 
-  rem Print a location description.
+  ' Print a location description.
 
   ink #tw,dark_cyan:tell txt$
 
@@ -1205,7 +1206,7 @@ enddef
 
 defproc narrate(txt$)
 
-  rem Print a narrative text.
+  ' Print a narrative text.
 
   ink #tw,light_grey:tell txt$
 
@@ -1213,7 +1214,7 @@ enddef
 
 defproc tell(txt$)
 
-  rem Print a text, left justified.
+  ' Print a text, left justified.
 
   loc text$,first,last
 
@@ -1231,12 +1232,12 @@ defproc tell(txt$)
 
 enddef
 
-rem --------------------------------------------
-rem About
+' ==============================================================
+' About
 
 defproc about
 
-  rem Show the credits.
+  ' Show the credits.
 
   clear_screen
   ink #tw,light_red:print #tw,"Asalto y castigo"
@@ -1246,7 +1247,7 @@ defproc about
   print #tw,\"Reescrita en SuperBASIC para QL por"
   print #tw,"Marcos Cruz (programandala.net), 2011"
   print #tw,"http://programandala.net/"
-  print #tw,"Versi√≥n"!version$
+  print #tw,"VersiÛn"!version$
   ink #tw,light_grey
   print #tw,\\"http://www.caad.es/"
   print #tw,"http://www.sinclairql.es/"\\\:
@@ -1255,7 +1256,7 @@ enddef
 
 defproc intro
 
-  rem Game intro.
+  ' Game intro.
 
   clear_screen
   narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja."
@@ -1270,12 +1271,12 @@ defproc intro
 
 enddef
 
-rem --------------------------------------------
-rem Init
+' ==============================================================
+' Init
 
 defproc first_time_init
 
-  rem Init needed only once.
+  ' Init needed only once.
 
   let dev$=device$("ayc_bas","mdvflpwinsubdevdosnfasfafdk")
   init_the_keyboard
@@ -1292,7 +1293,7 @@ enddef
 
 defproc game_init
 
-  rem Init needed before every game.
+  ' Init needed before every game.
 
   loc y
   let y=pos_y(#tw)
@@ -1307,7 +1308,7 @@ enddef
 
 defproc init_the_keyboard
 
-  rem If needed, load the Spanish SMSQ keybard table.
+  ' If needed, load the Spanish SMSQ keybard table.
 
   loc Spanish
   let Spanish=34
@@ -1324,7 +1325,7 @@ enddef
 
 defproc init_the_screen
 
-  rem Init the screen. If needed, change its mode and colour scheme.
+  ' Init the screen. If needed, change its mode and colour scheme.
 
   loc screen_mode
   let screen_mode=dmode
@@ -1340,7 +1341,7 @@ enddef
 
 defproc init_pal_colours
 
-  rem Set the PAL colour mode and the needed colours.
+  ' Set the PAL colour mode and the needed colours.
 
   colour_pal
   let black=0
@@ -1354,7 +1355,7 @@ enddef
 
 defproc init_ql_colours
 
-  rem Set colours used in QL colour mode.
+  ' Set colours used in QL colour mode.
 
   let black=0
   let dark_cyan=5
@@ -1373,7 +1374,7 @@ enddef
 
 defproc init_the_window
 
-  rem Init the window, maximum size 800x600.
+  ' Init the window, maximum size 800x600.
 
   let csize_w=3-(scr_w=512)
   let csize_h=scr_w>512
@@ -1438,7 +1439,7 @@ enddef
 
 defproc init_the_preferences
 
-  rem Init the game preferences.
+  ' Init the game preferences.
 
   let mistype_bell_active=true
 
@@ -1446,28 +1447,28 @@ enddef
 
 defproc init_the_constants
 
-  rem Init all the constants.
+  ' Init all the constants.
 
-  rem Misc
-  let space=32:rem char code
-  let enter=10:rem char code
-  let nl$=chr$(enter):rem new line
-  let l_quote$="¬´":rem castilian left quote
-  let r_quote$="¬ª":rem castilian right quote
-  let limbo=255:rem location of vanished things
+  ' Misc
+  let space=32 ' char code
+  let enter=10 ' char code
+  let nl$=chr$(enter) ' new line
+  let l_quote$="´" ' castilian left quote
+  let r_quote$="ª" ' castilian right quote
+  let limbo=255 ' location of vanished things
 
-  rem Action syntax flags
+  ' Action syntax flags
   let no_object_needed=0
   let object_needed=1
   let object_and_complement_needed=2
 
-  rem Error messages 
+  ' Error messages 
   let not_seen$="No lo veo, o no es importante."
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
   let not_by_hand$="En cualquier caso, no con las manos desnudas."
 
-  rem Action ids
+  ' Action ids
   let to_go_down=1
   let to_open=2
   let to_go_up=3
@@ -1487,7 +1488,7 @@ defproc init_the_constants
   let to_finish=17
   let to_fling=18
 
-  rem Thing ids
+  ' Thing ids
   let ulfius=0
   let the_altar=1
   let ambrosio=2
@@ -1513,7 +1514,7 @@ defproc init_the_constants
   let the_piece=22
   let the_lock=23
 
-  rem Direction ids
+  ' Direction ids
   let north=0
   let south=1
   let east=2
@@ -1527,20 +1528,20 @@ enddef
 
 defproc init_the_flags
 
-  rem Init the game flags.
+  ' Init the game flags.
 
-  let ambrosio_follows=false:rem Does Ambrosio follow me?
-  let saxons_follow=false:rem Do the saxons follow me?
-  let talked_to_the_man=false:rem Have I talked to the man?
-  let hacked_the_log=false:rem Did I hacked the log?
-  let lit_the_torch=false:rem Is the torch lit?
-  let start_over=false:rem Do I start a new game?
+  let ambrosio_follows=false ' Does Ambrosio follow me?
+  let saxons_follow=false ' Do the saxons follow me?
+  let talked_to_the_man=false ' Have I talked to the man?
+  let hacked_the_log=false ' Did I hacked the log?
+  let lit_the_torch=false ' Is the torch lit?
+  let start_over=false ' Do I start a new game?
 
 enddef
 
 defproc init_the_data
 
-  rem Init the data arrays. The first element (0) of the arrays is not used, except for the directions.
+  ' Init the data arrays. The first element (0) of the arrays is not used, except for the directions.
 
   loc i,j,max_word_lenght,action
 
@@ -1567,7 +1568,7 @@ defproc init_the_data
   let things=(@things_end-@things_start)/2
   dim thing$(things,max_word_lenght)
 
-  rem Note: The last synonym on the list will be the actual thing name.
+  ' Note: The last synonym on the list will be the actual thing name.
   for i=1 to nouns
     read the_thing(i),noun$(i)
     let thing$(the_thing(i))=noun$(i)
@@ -1600,10 +1601,10 @@ defproc init_the_data
 
 enddef
 
-rem --------------------------------------------
-rem Data
+' ==============================================================
+' Data
 
-rem Location descriptions
+' Location descriptions
 
 label @location_descriptions_start
 data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
@@ -1611,7 +1612,7 @@ data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte
 data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
 data "Cruce de caminos. Una senda parte al oeste, a la sierra por el paso del Perro, y otra hacia el norte, por un frondoso bosque que la rodea."
 data "Desde la linde, al sur, hacia el oeste se extiende frondoso el bosque que rodea la sierra. La salida se abre hacia el sur."
-data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre ra√≠ces, de un luminoso este al oeste."
+data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raÌces, de un luminoso este al oeste."
 data "Paso del Perro. Abruptamente, del bosque se pasa a un estrecho camino entre altas rocas. El inquietante desfiladero tuerce de este a sur."
 data "Entrada a la cueva. El paso entre el desfiladero sigue de norte a este. La entrada a una cueva se abre al sur en la pared de roca."
 data "Derrumbe. El camino desciende hacia la agreste sierra, al oeste, desde los verdes valles al este. Pero un gran derrumbe bloquea la sierra."
@@ -1646,7 +1647,7 @@ data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un es
 data "Gran cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
 data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
 data "Explanada. Una gran explanada enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
-data "√çdolo. El √≠dolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
+data "Õdolo. El Ìdolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
 data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
 data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
 data "Lago interior. Unas escaleras dan paso a un hermoso lago interior, y siguen hacia el oeste. Al norte, un oscuro y estrecho pasaje sube."
@@ -1659,9 +1660,9 @@ data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, a
 data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
 label @location_descriptions_end
 
-rem Location exits
+' Location exits
 
-rem  data: north,south,east,west,down,up
+'  data: north,south,east,west,down,up
 data 0,2,0,0,0,0
 data 1,0,0,3,0,0
 data 0,0,2,4,0,0
@@ -1714,10 +1715,10 @@ data 0,0,48,50,0,0
 data 0,51,49,0,0,0
 data 50,0,0,0,0,0
 
-rem Nouns
+' Nouns
 
-rem data: thing id, noun
-rem (for every thing id, the last noun listed will be the main one) 
+' data: thing id, noun
+' (for every thing id, the last noun listed will be the main one) 
 label @nouns_start
 data ambrosio,"ambrosio"
 data the_altar,"altar"
@@ -1727,13 +1728,13 @@ data the_door,"puerta"
 data the_emerald,"joya"
 data the_emerald,"esmeralda"
 data the_fallen_away,"derrumbe"
-data the_flags,"ense√±as"
+data the_flags,"enseÒas"
 data the_flags,"pendones"
 data the_flags,"banderas"
 data the_flint,"pedernal"
 data the_idol,"agujero"
 data the_idol,"ojo"
-data the_idol,"√≠dolo"
+data the_idol,"Ìdolo"
 data the_key,"llave"
 data the_lake,"agua"
 data the_lake,"laguna"
@@ -1741,7 +1742,7 @@ data the_lake,"lago"
 data the_lock,"cerrojo"
 data the_lock,"cierre"
 data the_lock,"candado"
-data the_log,"le√±o"
+data the_log,"leÒo"
 data the_log,"madero"
 data the_log,"tronco"
 data the_man,"anciano"
@@ -1767,17 +1768,18 @@ data the_torch,"antorcha"
 data the_waterfall,"catarata"
 data the_waterfall,"cascada"
 label @nouns_end
+rem XXX TMP -- to prevent labels clash
 
-rem Things
+' Things
 
-rem data: id,location,type,description
+' data: id,location,type,description
 label @things_start
 data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,19,2
 data "Ambrosio es un hombre de mediana edad, que te mira afable."
 data the_torch,limbo,0
-data "Est√° apagada."
+data "Est· apagada."
 data the_flags,28,1
 data "Son las banderas britana y sajona: dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
 data the_cloak,ulfius,0
@@ -1797,7 +1799,7 @@ data "Un hilo se ha desprendido al cortar la capa con la espada."
 data the_man,28,1
 data "Es el jefe de los refugiados."
 data the_idol,41,1
-data "El √≠dolo tiene dos agujeros por ojos."
+data "El Ìdolo tiene dos agujeros por ojos."
 data the_lake,44,1
 data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
 data the_key,46,1
@@ -1817,12 +1819,13 @@ data "Es un tronco recio, pero de liviano peso."
 data the_piece,limbo,0
 data "Es un poco de lo que antes era tu capa."
 data the_lock,47,1
-data "Est√° cerrado. Es muy grande y parece resistente."
+data "Est· cerrado. Es muy grande y parece resistente."
 label @things_end
+rem XXX TMP -- to prevent labels clash
 
-rem Actions
+' Actions
 
-rem data: action id,action syntax 
+' data: action id,action syntax 
 label @actions_start
 data to_break,object_needed
 data to_drop,object_needed
@@ -1843,10 +1846,11 @@ data to_swim,no_object_needed
 data to_take,object_needed
 data to_speak,object_needed
 label @actions_end
+rem XXX TMP -- to prevent labels clash
 
-rem Verbs 
+' Verbs 
 
-rem data: action id,verb or synonym
+' data: action id,verb or synonym
 label @verbs_start
 data to_break,"afila"
 data to_break,"afilar"
@@ -1871,23 +1875,23 @@ data to_break,"sacudir"
 data to_drop,"deja"
 data to_drop,"dejar"
 data to_drop,"desprenderse"
-data to_drop,"despr√©ndete"
+data to_drop,"desprÈndete"
 data to_drop,"soltar"
 data to_drop,"suelta"
 data to_examine,"ex"
 data to_examine,"examina"
 data to_examine,"examinar"
 data to_examine,"examinarte"
-data to_examine,"exam√≠nate"
+data to_examine,"examÌnate"
 data to_examine,"i"
-data to_examine,"m√≠rate"
+data to_examine,"mÌrate"
 data to_finish,"acaba"
 data to_finish,"acabar"
 data to_finish,"fin"
 data to_finish,"finaliza"
 data to_finish,"finalizar"
 data to_finish,"rendirse"
-data to_finish,"r√≠ndete"
+data to_finish,"rÌndete"
 data to_finish,"termina"
 data to_finish,"terminar"
 data to_fling,"arroja"
@@ -1919,22 +1923,22 @@ data to_go_west,"oeste"
 data to_help,"auxilio"
 data to_help,"ayuda"
 data to_help,"ayudar"
-data to_help,"ay√∫dame"
+data to_help,"ay˙dame"
 data to_help,"socorro"
 data to_insert,"coloca"
-data to_insert,"col√≥cale"
+data to_insert,"colÛcale"
 data to_insert,"colocar"
 data to_insert,"colocarle"
 data to_insert,"introduce"
-data to_insert,"introd√∫cele"
+data to_insert,"introd˙cele"
 data to_insert,"introducir"
 data to_insert,"introducirle"
 data to_insert,"inserta"
-data to_insert,"ins√©rtale"
+data to_insert,"insÈrtale"
 data to_insert,"insertar"
 data to_insert,"insertarle"
 data to_insert,"mete"
-data to_insert,"m√©tele"
+data to_insert,"mÈtele"
 data to_insert,"meter"
 data to_insert,"meterle"
 data to_insert,"pon"
@@ -1943,7 +1947,7 @@ data to_insert,"poner"
 data to_insert,"ponerle"
 data to_insert,"situar"
 data to_insert,"situarle"
-data to_insert,"sit√∫a"
+data to_insert,"sit˙a"
 data to_look,"m"
 data to_look,"mira"
 data to_look,"mirar"
@@ -1951,17 +1955,17 @@ data to_look,"ojea"
 data to_look,"ojear"
 data to_open,"abre"
 data to_open,"abrir"
-data to_swim,"ba√±ar"
-data to_swim,"ba√±arse"
-data to_swim,"ba√±arte"
+data to_swim,"baÒar"
+data to_swim,"baÒarse"
+data to_swim,"baÒarte"
 data to_swim,"bucea"
 data to_swim,"bucear"
-data to_swim,"b√°√±ate"
+data to_swim,"b·Òate"
 data to_swim,"nada"
 data to_swim,"nadar"
 data to_swim,"zambullirse"
 data to_swim,"zambullirte"
-data to_swim,"zamb√∫llete"
+data to_swim,"zamb˙llete"
 data to_take,"agarra"
 data to_take,"agarrar"
 data to_take,"coge"
@@ -1974,52 +1978,52 @@ data to_speak,"comenta"
 data to_speak,"comentar"
 data to_speak,"comentarle"
 data to_speak,"comentarlo"
-data to_speak,"coment√°rselo"
+data to_speak,"coment·rselo"
 data to_speak,"comunica"
 data to_speak,"comunicar"
 data to_speak,"comunicarle"
 data to_speak,"comunicarlo"
-data to_speak,"comunic√°rselo"
-data to_speak,"comun√≠cale"
-data to_speak,"comun√≠calo"
-data to_speak,"comun√≠cate"
-data to_speak,"com√©ntale"
-data to_speak,"com√©ntalo"
-data to_speak,"com√©ntaselo"
-data to_speak,"coment√°rselo"
+data to_speak,"comunic·rselo"
+data to_speak,"comunÌcale"
+data to_speak,"comunÌcalo"
+data to_speak,"comunÌcate"
+data to_speak,"comÈntale"
+data to_speak,"comÈntalo"
+data to_speak,"comÈntaselo"
+data to_speak,"coment·rselo"
 data to_speak,"conversa"
 data to_speak,"conversar"
 data to_speak,"decir"
 data to_speak,"decirle"
 data to_speak,"decirlo"
-data to_speak,"dec√≠rselo"
+data to_speak,"decÌrselo"
 data to_speak,"di"
 data to_speak,"dile"
 data to_speak,"dilo"
-data to_speak,"d√≠selo"
+data to_speak,"dÌselo"
 data to_speak,"habla"
 data to_speak,"hablar"
 data to_speak,"hablarle"
-data to_speak,"h√°blale"
-data to_speak,"h√°blalo"
+data to_speak,"h·blale"
+data to_speak,"h·blalo"
 data to_speak,"platica"
 data to_speak,"platicar"
 data to_speak,"platicarle"
 data to_speak,"platicarlo"
-data to_speak,"platic√°rselo"
-data to_speak,"plat√≠cale"
-data to_speak,"plat√≠calo"
+data to_speak,"platic·rselo"
+data to_speak,"platÌcale"
+data to_speak,"platÌcalo"
 data to_speak,"pregunta"
 data to_speak,"preguntar"
 data to_speak,"preguntarle"
 data to_speak,"preguntarlo"
-data to_speak,"pregunt√°rselo"
-data to_speak,"preg√∫ntale"
-data to_speak,"preg√∫ntalo"
+data to_speak,"pregunt·rselo"
+data to_speak,"preg˙ntale"
+data to_speak,"preg˙ntalo"
 label @verbs_end
 
-rem --------------------------------------------
-rem Meta
+' ==============================================================
+' Meta
 
 defproc s
 
@@ -2037,6 +2041,6 @@ enddef
 
 defproc _debug(text$)
 
-  print #tw,"Punto de depuraci√≥n:"!text$
+  print #tw,"Punto de depuraciÛn:"!text$
 
 enddef
