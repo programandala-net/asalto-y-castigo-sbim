@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.5+201709131653" ' after http://semver.org
+let version$="0.2.0-dev.6+201709131716" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -59,8 +59,8 @@ defproc plot
       era una trampa."
     short_pause
     narrate "En el estrecho paso es posible resistir, \
-      aunque por desgracia sus efectivos \
-      son muy superiores a los tuyos." ' XXX FIXME text
+      aunque por desgracia sus tropas \
+      son más numerosas que las tuyas."
     end_of_scene:clear_screen
     narrate "Tus oficiales te conminan a huir."
     speak "Capturando a un general britano, ganan doblemente."
@@ -450,7 +450,6 @@ defproc action_break
         sel on complement
           =false:narrate not_by_hand$
           =the_sword
-            ' XXX FIXME text
             narrate "Sabes que el resultado es \
               la hoja de tu espada, mellada. No."
           =the_flint
