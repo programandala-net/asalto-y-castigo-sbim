@@ -7,7 +7,5 @@
 - Replace "action_" prefix with "do_".
 - Read every location description from the `data` only when needed, to
   save memory.
-- Check 1st/2nd person in texts.
-- Add synonyms, eg. «recoger».
 - Rewrite and improve the help.
 - Save and restore game sessions.

@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.8+201709131738" ' after http://semver.org
+let version$="0.2.0-dev.9+201709132028" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1953,13 +1953,16 @@ data the_cloak,"lana"
 data the_cloak,"capa"
 data the_door,"puerta"
 data the_emerald,"joya"
+data the_emerald,"brillante"
 data the_emerald,"esmeralda"
 data the_fallen_away,"derrumbe"
 data the_flags,"enseñas"
 data the_flags,"pendones"
 data the_flags,"banderas"
 data the_flint,"pedernal"
+data the_idol,"agujeros"
 data the_idol,"agujero"
+data the_idol,"ojos"
 data the_idol,"ojo"
 data the_idol,"ídolo"
 data the_key,"llave"
@@ -1979,6 +1982,7 @@ data the_man,"hombre"
 data the_piece,"pedazo"
 data the_piece,"trozo"
 data the_rags,"harapo"
+data the_rocks,"piedras"
 data the_rocks,"rocas"
 data the_snake,"culebra"
 data the_snake,"ofidio"
@@ -2203,6 +2207,8 @@ data to_take,"coge"
 data to_take,"coger"
 data to_take,"toma"
 data to_take,"tomar"
+data to_take,"recoge"
+data to_take,"recoger"
 data to_speak,"charla"
 data to_speak,"charlar"
 data to_speak,"comenta"
