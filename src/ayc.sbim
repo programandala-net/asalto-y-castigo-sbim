@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.7+201709131723" ' after http://semver.org
+let version$="0.2.0-dev.8+201709131738" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -451,7 +451,7 @@ defproc action_break
           =false:narrate not_by_hand$
           =the_sword
             narrate "Sabes que el resultado es \
-              la hoja de tu espada, mellada. No."
+              la hoja de tu espada, mellada. No." ' XXX FIXME text
           =the_flint
             let hacked_the_log=true
             let thing_description$(the_log)=\
@@ -540,23 +540,23 @@ defproc talk_to_ambrosio
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
     end_of_scene:clear_screen
     narrate "Por primera vez, \
-      Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. \
-      Y tras tanto acontecido, llora desconsoladamente."
+      te sientas y cuentas a Ambrosio todo lo que ha pasado. \
+      Y, tras tanto acontecido, lloras desconsoladamente."
     end_of_scene:clear_screen
-    narrate "Ambrosio le propone un trato, que acepta: \
+    narrate "Ambrosio te propone un trato, que aceptas: \
       por ayudarle a salir de la cueva, \
-      objetos, vitales para la empresa, le son entregados."
+      objetos, vitales para la empresa, te son entregados."
     let location(the_torch)=ulfius
     let location(the_flint)=ulfius
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
     let location(ambrosio)=46
-    narrate "Ulfius se da la vuelta \
-      para ver si Ambrosio le sigue, \
+    narrate "Te das la vuelta \
+      para ver si Ambrosio te sigue, \
       pero... ha desaparecido."
     short_pause
-    narrate "Ulfius piensa entonces \
-      en el hecho curioso de que supiera su nombre."
+    narrate "Piensas entonces \
+      en el hecho curioso de que supiera tu nombre."
     end_of_scene:clear_screen
 
   else
@@ -569,7 +569,7 @@ defproc talk_to_ambrosio
           debido a magia de maligno poder. \
           En cuanto al camino, vos debéis hacer el vuestro, \
           verlo todo con vuestros ojos."
-        narrate "Ulfius sacude la cabeza."
+        narrate "Sacudes la cabeza."
         speak "No lo entiendo, la verdad."
       endif
     endif
@@ -599,14 +599,14 @@ defproc talk_to_the_man
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
-    speak "La piedra debe devolverse a su lugar de encierro."
+    speak "La piedra debe devolverse a su lugar de encierro." ' XXX FIXME text
     narrate "Un hombre te arrebata la piedra y se la lleva."
     let location(the_stone)=18
   else
     if is_it_accessible(the_sword)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
-      speak "Nadie portando armas puede pasar."
+      speak "Nadie portando armas puede pasar." ' XXX FIXME text
     else
       let location_exit(28,east)=29
       narrate "El hombre, calmado, indica hacia el este y habla:"
@@ -650,7 +650,7 @@ defproc action_insert
       sel on object
         =the_emerald,the_stone
           do_vanish object
-          narrate "Encaja. Metido. Desaparece en su interior."
+          narrate "Encaja. Metido. Desaparece en su interior." ' XXX FIXME text
           if is_it_vanished(the_stone) \
             and is_it_vanished(the_emerald)
             let location_exit(41,south)=42
@@ -668,7 +668,7 @@ defproc action_insert
         narrate "No tiene sentido meter eso ahí."
       endif
     =remainder
-      narrate "No tiene sentido meter nada en eso."
+      narrate "No tiene sentido meter nada en eso." ' XXX FIXME text
   endsel
 
 enddef
@@ -693,9 +693,9 @@ defproc action_inventory
     if location(i)=ulfius:let list$=list$&"  - "&thing$(i)&nl$
   endfor i
   if len(list$)
-    narrate "Llevo conmigo:"&nl$&list$ ' XXX FIXME 2nd person
+    narrate "Llevas contigo:"&nl$&list$
   else
-    narrate "No llevo nada conmigo." ' XXX FIXME 2nd person
+    narrate "No llevas nada contigo." ' XXX TODO improve text
   endif
 
 enddef
@@ -2255,12 +2255,6 @@ label @verbs_end
 
 ' ==============================================================
 ' Meta
-
-defproc s
-
-  save_o "ayc_rendered_bas"
-
-enddef
 
 defproc fatal_error(message$)
 
