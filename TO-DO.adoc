@@ -1,9 +1,9 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-12
+:revdate: 2017-09-13
 
 - Replace location literal identifiers with variables.
-- Split long lines.
 - Review the texts.
 - Replace "action_" prefix with "do_".
- 
+- Read every location description from the `data` only when needed, to
+  save memory.

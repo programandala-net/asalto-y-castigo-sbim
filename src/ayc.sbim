@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.4+201709130022" ' after http://semver.org
+let version$="0.2.0-dev.5+201709131653" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -54,9 +54,13 @@ defproc plot
   if current_location=8 and location_exit(8,north)
     let location_exit(8,north)=false
     let saxons_follow=1
-    narrate "Una partida sajona aparece por el este. Para cuando te vuelves al norte, ya no te queda ninguna duda: era una trampa."
+    narrate "Una partida sajona aparece por el este. \
+      Para cuando te vuelves al norte, ya no te queda ninguna duda: \
+      era una trampa."
     short_pause
-    narrate "En el estrecho paso es posible resistir, aunque por desgracia sus efectivos son muy superiores a los tuyos."
+    narrate "En el estrecho paso es posible resistir, \
+      aunque por desgracia sus efectivos \
+      son muy superiores a los tuyos." ' XXX FIXME text
     end_of_scene:clear_screen
     narrate "Tus oficiales te conminan a huir."
     speak "Capturando a un general britano, ganan doblemente."
@@ -68,8 +72,10 @@ defproc plot
     let saxons_follow=saxons_follow+1
     narrate "No sabes cuánto tiempo te queda..."
     if saxons_follow>10 
-      narrate "Los sajones te capturan. Su general, sonriendo ampliamente, dice:"
-      speak "Bien, bien... Del gran Ulfius podremos sacar una buena ventaja."
+      narrate "Los sajones te capturan. \
+        Su general, sonriendo ampliamente, dice:"
+      speak "Bien, bien... \
+        Del gran Ulfius podremos sacar una buena ventaja."
       end_of_scene:clear_screen
       action_end
     endif
@@ -79,9 +85,13 @@ defproc plot
     ret
   endif
 
-  if current_location=20 and (not is_it_accessible(the_torch) or not lit_the_torch)
-    ' XXX TODO -- Why `>19` in the original? I put `=20`, which is the exit from 17
-    narrate "Ante la reinante e intimidante oscuridad, retrocedes a donde puedes ver."
+  if current_location=20 \
+    and (not is_it_accessible(the_torch) \
+    or not lit_the_torch)
+      ' XXX TODO -- Why `>19` in the original?
+      ' I put `=20`, which is the exit from 17
+    narrate "Ante la reinante e intimidante oscuridad, \
+      retrocedes a donde puedes ver."
     short_pause
     let current_location=17
     action_look
@@ -89,15 +99,20 @@ defproc plot
   endif
 
   if current_location=51
-    narrate "Agotado, das parte en el castillo de tu llegada y de lo que ha pasado."
+    narrate "Agotado, das parte en el castillo de tu llegada \
+      y de lo que ha pasado."
     short_pause
     narrate "Pides audiencia al rey, Uther Pendragon."
     end_of_scene:clear_screen
-    speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&"ha ordenado que no se le moleste, pues sufre una amarga tristeza."
+    speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&\
+      "ha ordenado que no se le moleste, \
+      pues sufre una amarga tristeza."
     short_pause
     narrate "No puedes entenderlo. El rey, tu amigo."
     short_pause
-    narrate "Agotado, decepcionado, apesadumbrado, decides ir a dormir a tu casa. Es lo poco que puedes hacer."
+    narrate "Agotado, decepcionado, apesadumbrado, \
+      decides ir a dormir a tu casa. \
+      Es lo poco que puedes hacer."
     short_pause
     narrate "Te has ganado un buen descanso."
     end_of_scene:clear_screen
@@ -114,9 +129,14 @@ defproc location_plot
     =11,38,44
       let location(the_lake)=current_location
     =1 to 9
-      if location_exit(8,north):narrate "Tus hombres siguen tus pasos."
+      if location_exit(8,north):\
+        narrate "Tus hombres siguen tus pasos."
     =16
-      narrate "En la distancia, por entre los resquicios de las rocas, y allende el canal de agua, los sajones tratan de buscar la salida que encontraste por casualidad."
+      narrate "En la distancia, \
+        por entre los resquicios de las rocas, \
+        y allende el canal de agua, \
+        los sajones tratan de buscar la salida \
+        que encontraste por casualidad."
     =31
       if location_exit(31,north)
         narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
@@ -127,7 +147,9 @@ defproc location_plot
       let location_exit(28,east)=false
   endsel
 
-  if not is_it_vanished(ambrosio) and can_be_taken(the_key) and (current_location=46 or ambrosio_follows)
+  if not is_it_vanished(ambrosio) \
+    and can_be_taken(the_key) \
+    and (current_location=46 or ambrosio_follows)
     let location(ambrosio)=current_location
     narrate "Tu benefactor te sigue, esperanzado."
   endif
@@ -139,11 +161,14 @@ defproc rocks_and_log
   ' Action using the log with rocks.
 
   if hacked_the_log
-    narrate "Haciendo palanca, consigues desencajar una, y el resto caen por su propio peso."
+    narrate "Haciendo palanca, consigues desencajar una, \
+      y el resto caen por su propio peso."
     do_vanish the_rocks
     let location_exit(31,north)=32
   else
-    narrate "Lo intentas con el tronco, pero la punta es demasiado gruesa, y no penetra entre los resquicios de las rocas."
+    narrate "Lo intentas con el tronco, \
+      pero la punta es demasiado gruesa, \
+      y no penetra entre los resquicios de las rocas."
   endif
 
 enddef
@@ -152,7 +177,8 @@ defproc open_the_door
 
   ' Action opening the door.
 
-  narrate "La puerta se abre, rechinando, mientras hiedras y hierbas se rompen en su trazado."
+  narrate "La puerta se abre, rechinando, \
+    mientras hiedras y hierbas se rompen en su trazado."
   short_pause
   narrate "Ambrosio, alegre, se despide de ti."
   speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
@@ -230,7 +256,9 @@ enddef
 
 deffn fine_command
 
-  ' Check if the command is right: check its parts and the accesibility of the object and the complement, if present. Return 1 if it's right, or 0 otherwise.
+  ' Check if the command is right: check its parts and the
+  ' accesibility of the object and the complement, if present. Return
+  ' 1 if it's right, or 0 otherwise.
 
   loc syntax
   let syntax=action_syntax(action)
@@ -238,12 +266,25 @@ deffn fine_command
   if not action:narrate "No conozco ese verbo.":ret 0
 
   sel on syntax
-    =object_needed:if not object:narrate not_seen$:ret 0
-    =object_and_complement_needed:if (not object or not complement):narrate not_seen$:ret 0
+    =object_needed
+      if not object:\
+        narrate not_seen$:\
+        ret 0
+    =object_and_complement_needed
+      if (not object or not complement):\
+        narrate not_seen$:\
+        ret 0
   endsel
 
-  if object:if not is_it_accessible(object):narrate not_seen$:ret 0
-  if complement:if not is_it_accessible(complement):narrate not_seen$:ret 0
+  if object:\
+    if not is_it_accessible(object):\
+       narrate not_seen$:\
+       ret 0
+
+  if complement:\
+    if not is_it_accessible(complement):\
+      narrate not_seen$:\
+      ret 0
 
   ret 1
 
@@ -280,11 +321,17 @@ enddef
 
 defproc action_help
 
-  narrate "Direcciones: n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
-  narrate "m[irar] redescribe un lugar, ex[aminar] permite examinar un objeto, o en su defecto a ti."
-  narrate "Se puede cortar, nadar, atacar, empujar, golpear, coger, dejar, tirar..."
-  narrate "Se aceptan formas verbales en infinitivo e imperativo; y diversos sinónimos tanto de verbos como de nombres."
-  narrate "El atajo de teclado Ctrl+B (des)activa el bip de error de tecleo."
+  narrate "Direcciones: \
+    n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
+  narrate "m[irar] redescribe un lugar, \
+    ex[aminar] permite examinar un objeto, \
+    o en su defecto a ti."
+  narrate "Se puede cortar, \
+    nadar, atacar, empujar, golpear, coger, dejar, tirar..."
+  narrate "Se aceptan formas verbales en infinitivo e imperativo; \
+    y diversos sinónimos tanto de verbos como de nombres."
+  narrate "El atajo de teclado Ctrl+B \
+    (des)activa el bip de error de tecleo."
 
 enddef
 
@@ -316,9 +363,12 @@ defproc action_swim
 
   if current_location=11
     clear_screen
-    narrate "Caes hacia el fondo por el peso de tu coraza. Como puedes, te desprendes de ella y buceas, pensando en avanzar, aunque perdido."
+    narrate "Caes hacia el fondo por el peso de tu coraza. \
+      Como puedes, te desprendes de ella y buceas, \
+      pensando en avanzar, aunque perdido."
     short_pause
-    narrate "Consigues emerger, si bien en un sitio desconocido de la caverna..."
+    narrate "Consigues emerger, \
+      si bien en un sitio desconocido de la caverna..."
     end_of_scene
     let current_location=12
     action_look
@@ -349,8 +399,14 @@ enddef
 defproc action_drop
 
   sel on object
-    =the_sword:if current_location<12:narrate "No, es lo que queda de mi padre.":ret
-    =the_torch:if lit_the_torch:narrate "No, sin luz es imposible moverse por la caverna.":ret
+    =the_sword:\
+      if current_location<12:\
+        narrate "No, es lo que queda de mi padre.":\
+        ret
+    =the_torch:\
+      if lit_the_torch:\
+        narrate "No, sin luz es imposible moverse por la caverna.":\
+        ret
   endsel
   if location(object)=ulfius
     let location(object)=current_location
@@ -394,13 +450,17 @@ defproc action_break
         sel on complement
           =false:narrate not_by_hand$
           =the_sword
-            narrate "Sabes que el resultado es la hoja de tu espada, mellada. No."
+            ' XXX FIXME text
+            narrate "Sabes que el resultado es \
+              la hoja de tu espada, mellada. No."
           =the_flint
             let hacked_the_log=true
-            let thing_description$(the_log)=thing_description$(the_log)&" Su punta está afilada."
+            let thing_description$(the_log)=\
+              thing_description$(the_log)&" Su punta está afilada."
             narrate "Con el pedernal, recortas la punta del tronco."
           =remainder
-            narrate "El problema es encontrar la herramienta adecuada para hacerlo."
+            narrate "El problema es encontrar \
+              la herramienta adecuada para hacerlo."
         endsel
       endif
 
@@ -434,10 +494,14 @@ defproc action_break
         =the_sword
           if is_it_accessible(the_torch)
             let lit_the_torch=true
-            let thing_description$(the_torch)="Ilumina perfectamente."
-            narrate "Poderosas chispas salen del choque entre espada y pedernal, encendiendo la antorcha."
+            let thing_description$(the_torch)=\
+              "Ilumina perfectamente."
+            narrate "Poderosas chispas salen \
+              del choque entre espada y pedernal, \
+              encendiendo la antorcha."
           else
-            narrate "Ante el potente choque con la espada, poderosas chispas saltan en todas direcciones."
+            narrate "Ante el potente choque con la espada, \
+              poderosas chispas saltan en todas direcciones."
           endif
         =remainder:narrate not_with_that$
       endsel
@@ -476,31 +540,43 @@ defproc talk_to_ambrosio
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
     end_of_scene:clear_screen
-    narrate "Por primera vez, Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. Y tras tanto acontecido, llora desconsoladamente."
+    narrate "Por primera vez, \
+      Ulfius se sienta y cuenta a Ambrosio todo lo que ha pasado. \
+      Y tras tanto acontecido, llora desconsoladamente."
     end_of_scene:clear_screen
-    narrate "Ambrosio le propone un trato, que acepta: por ayudarle a salir de la cueva, objetos, vitales para la empresa, le son entregados."
+    narrate "Ambrosio le propone un trato, que acepta: \
+      por ayudarle a salir de la cueva, \
+      objetos, vitales para la empresa, le son entregados."
     let location(the_torch)=ulfius
     let location(the_flint)=ulfius
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
     let location(ambrosio)=46
-    narrate "Ulfius se da la vuelta para ver si Ambrosio le sigue, pero... ha desaparecido."
+    narrate "Ulfius se da la vuelta \
+      para ver si Ambrosio le sigue, \
+      pero... ha desaparecido."
     short_pause
-    narrate "Ulfius piensa entonces en el hecho curioso de que supiera su nombre."
+    narrate "Ulfius piensa entonces \
+      en el hecho curioso de que supiera su nombre."
     end_of_scene:clear_screen
 
   else
 
     if current_location=46
       if not ambrosio_follows
-        speak "La llave, Ambrosio, estaba ya en tu poder. Y es obvio que conocéis un camino más corto."
-        speak "Estoy atrapado en la cueva debido a magia de maligno poder. En cuanto al camino, vos debéis hacer el vuestro, verlo todo con vuestros ojos."
+        speak "La llave, Ambrosio, estaba ya en tu poder. \
+          Y es obvio que conocéis un camino más corto."
+        speak "Estoy atrapado en la cueva \
+          debido a magia de maligno poder. \
+          En cuanto al camino, vos debéis hacer el vuestro, \
+          verlo todo con vuestros ojos."
         narrate "Ulfius sacude la cabeza."
         speak "No lo entiendo, la verdad."
       endif
     endif
     if current_location>=45 and current_location<=47
-      speak "Por favor, Ulfius, cumple tu promesa. Toma la llave en tu mano y abre la puerta de la cueva."
+      speak "Por favor, Ulfius, cumple tu promesa. \
+        Toma la llave en tu mano y abre la puerta de la cueva."
       let location(the_key)=ulfius
       do_takeable the_key
       let ambrosio_follows=true
@@ -529,7 +605,8 @@ defproc talk_to_the_man
     let location(the_stone)=18
   else
     if is_it_accessible(the_sword)
-      narrate "El hombre se enfurece, y alza su mano indicando al norte."
+      narrate "El hombre se enfurece, \
+        y alza su mano indicando al norte."
       speak "Nadie portando armas puede pasar."
     else
       let location_exit(28,east)=29
@@ -547,9 +624,11 @@ defproc action_fling
     =13,16
       narrate "No hay suficiente profundidad."
     =19 
-      if (object=the_sword or object=the_stone) and talked_to_the_man
+      if (object=the_sword or object=the_stone) \
+        and talked_to_the_man
         let location(object)=39
-        narrate "La corriente lo arrastra fuertemente, hasta perderlo de vista."
+        narrate "La corriente lo arrastra fuertemente, \
+          hasta perderlo de vista."
       else
         narrate "No quieres perder eso."
       endif
@@ -573,7 +652,8 @@ defproc action_insert
         =the_emerald,the_stone
           do_vanish object
           narrate "Encaja. Metido. Desaparece en su interior."
-          if is_it_vanished(the_stone) and is_it_vanished(the_emerald)
+          if is_it_vanished(the_stone) \
+            and is_it_vanished(the_emerald)
             let location_exit(41,south)=42
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
@@ -735,13 +815,15 @@ deffn iso_input$(channel,max_chars)
 
   ' Return a text typed by the user.
 
-  ' channel =
-  ' Channel of the window to be used, at the current cursor position.
-  ' max_chars =
-  ' Maximum length. If it's zero, it will be the maximum possible on the current line, with the current character size.
+  ' channel = Channel of the window to be used, at the current cursor
+  ' position.
+  '
+  ' max_chars = Maximum length. If it's zero, it will be the maximum
+  ' possible on the current line, with the current character size.
 
-  ' Spanish chars are translated to ISO 8859-1; all letters are made lowercase.
-  ' Not allowed: starting or double spaces, digits and punctuation.
+  ' Spanish chars are translated to ISO 8859-1; all letters are made
+  ' lowercase.  Not allowed: starting or double spaces, digits and
+  ' punctuation.
 
   loc output$,key$,key,cursor_pos,cursor_x0,cursor_y0
 
@@ -798,7 +880,9 @@ defproc type(char$)
     =len(output$)+1
       let output$=output$&char$
     =remainder
-      let output$=output$(1 to cursor_pos-1)&char$&output$(cursor_pos to)
+      let output$=output$(1 to cursor_pos-1)\
+        &char$\
+        &output$(cursor_pos to)
     endsel
     let cursor_pos=cursor_pos+1
     show_input
@@ -836,7 +920,8 @@ defproc tab(offset)
 
   ' If possible, add the given offset to the cursor position.
 
-  if (offset<1 and cursor_pos=1) or (offset>0 and cursor_pos=len(output$)+1)
+  if (offset<1 and cursor_pos=1) \
+    or (offset>0 and cursor_pos=len(output$)+1)
     mistype_bell
   else
     let cursor_pos=cursor_pos+offset
@@ -994,12 +1079,18 @@ defproc previous_word
     let from_char=to_char
 
     rep search
-      if not ((cursor_pos>1) and not(from_char<>space and to_char=space and temp>1)):exit search
+
+      if not ((cursor_pos>1) \
+        and not(from_char<>space and to_char=space and temp>1)):\
+          exit search
+
         let from_char=to_char
         let cursor_pos=cursor_pos-1
         let temp=temp+1
         let to_char=code(output$(cursor_pos))
+
     endrep search
+
     let cursor_pos=cursor_pos+(cursor_pos<>1)
     set_cursor cursor_pos
     show_input
@@ -1010,7 +1101,8 @@ enddef
 
 defproc next_word
 
-  ' If possible, move the cursor to the start of the next word (or to the end of the last word).
+  ' If possible, move the cursor to the start of the next word (or to
+  ' the end of the last word).
 
   loc from_char,to_char
 
@@ -1019,12 +1111,19 @@ defproc next_word
   else
     let to_char=code(output$(cursor_pos))
     let from_char=to_char
+
     rep search
-      if not ((cursor_pos<len(output$)) and not(from_char=space and to_char<>space)):exit search
+
+      if not ((cursor_pos<len(output$)) \
+        and not(from_char=space and to_char<>space)):\
+          exit search
+
       let from_char=to_char
       let cursor_pos=cursor_pos+1
       let to_char=code(output$(cursor_pos))
+
     endrep search
+
     let cursor_pos=cursor_pos+(cursor_pos=len(output$))
     set_cursor cursor_pos
     show_input
@@ -1047,7 +1146,8 @@ enddef
 
 defproc set_cursor(column)
 
-  ' Set the text cursor at the pixel position of the given column (which is relative to the typed text).
+  ' Set the text cursor at the pixel position of the given column
+  ' (which is relative to the typed text).
 
   cursor #channel,cursor_x0+(column-1)*char_w(#channel),cursor_y0
 
@@ -1063,7 +1163,8 @@ enddef
 
 deffn yes(question$)
 
-  ' Show the given question and wait for S or N to be pressed (ignoring case). Return 1 if S was pressed; 0 otherwise.
+  ' Show the given question and wait for S or N to be pressed
+  ' (ignoring case).  Return 1 if S was pressed; 0 otherwise.
 
   loc answer$
 
@@ -1158,7 +1259,8 @@ enddef
 
 deffn iso_upper_1$(text$)
 
-  ' Return the given ISO 8859-1 text with the first letter in uppercase.
+  ' Return the given ISO 8859-1 text with the first letter in
+  ' uppercase.
 
   ret iso_upper$(text$(1))&text$(2 to)
 
@@ -1259,14 +1361,19 @@ defproc intro
   ' Game intro.
 
   clear_screen
-  narrate "El sol despunta de entre la niebla, haciendo humear los tejados de paja."
+  narrate "El sol despunta de entre la niebla, \
+    haciendo humear los tejados de paja."
   short_pause
-  narrate "Piensas en el encargo realizado por Uther Pendragon. Atacar una aldea tranquila, aunque sea una llena de sajones, no te llena de orgullo."
+  narrate "Piensas en el encargo realizado por Uther Pendragon. \
+    Atacar una aldea tranquila, aunque sea una llena de sajones, \
+    no te llena de orgullo."
   short_pause
-  narrate "Los hombres se ciernen sobre la aldea, y la destruyen. No hubo tropas enemigas, ni honor en la batalla."
+  narrate "Los hombres se ciernen sobre la aldea, y la destruyen. \
+    No hubo tropas enemigas, ni honor en la batalla."
   end_of_scene:clear_screen
   speak "Sire Ulfius, la batalla ha terminado."
-  narrate "Lentamente, das la orden de volver a casa. Los oficiales detienen como pueden el saqueo."
+  narrate "Lentamente, das la orden de volver a casa. \
+    Los oficiales detienen como pueden el saqueo."
   end_of_scene:clear_screen
 
 enddef
@@ -1541,7 +1648,8 @@ enddef
 
 defproc init_the_data
 
-  ' Init the data arrays. The first element (0) of the arrays is not used, except for the directions.
+  ' Init the data arrays. The first element (0) of the arrays is not
+  ' used, except for the directions.
 
   loc i,j,max_word_lenght,action
 
@@ -1549,7 +1657,8 @@ defproc init_the_data
 
   restore
 
-  let locations=@location_descriptions_end-@location_descriptions_start
+  let locations=@location_descriptions_end\
+    -@location_descriptions_start
   dim location_description$(locations,255)
   for i=1 to locations
     read location_description$(i)
@@ -1607,57 +1716,171 @@ enddef
 ' Location descriptions
 
 label @location_descriptions_start
-data "Aldea Sajona. No ha quedado nada en pie, ni piedra sobre piedra. El entorno es desolador. Solo resta volver al sur, a casa."
-data "Sobre la colina, casi sobre la niebla de la aldea sajona arrasada al norte, a tus pies. El camino desciende hacia el oeste."
-data "Camino entre colinas. El camino avanza por el valle, desde la parte alta, al este, a una zona harto boscosa, al oeste."
-data "Cruce de caminos. Una senda parte al oeste, a la sierra por el paso del Perro, y otra hacia el norte, por un frondoso bosque que la rodea."
-data "Desde la linde, al sur, hacia el oeste se extiende frondoso el bosque que rodea la sierra. La salida se abre hacia el sur."
-data "Bosque. Jirones de niebla se enzarcen en frondosas ramas y arbustos. La senda serpentea entre raíces, de un luminoso este al oeste."
-data "Paso del Perro. Abruptamente, del bosque se pasa a un estrecho camino entre altas rocas. El inquietante desfiladero tuerce de este a sur."
-data "Entrada a la cueva. El paso entre el desfiladero sigue de norte a este. La entrada a una cueva se abre al sur en la pared de roca."
-data "Derrumbe. El camino desciende hacia la agreste sierra, al oeste, desde los verdes valles al este. Pero un gran derrumbe bloquea la sierra."
-data "Gruta de entrada. El estrecho paso se adentra hacia el oeste, desde la boca, al norte. "
-data "Gran lago. Una gran estancia alberga un lago de profundas e iridiscentes aguas, debido a la luz exterior. No hay otra salida que el este."
-data "Salida del paso secreto. Una gran estancia se abre hacia el oeste, y se estrecha hasta morir, al este, en una parte de agua."
-data "Puente semipodrido. La sala se abre en semioscuridad a un puente cubierto de podredumbre sobre el lecho de un canal, de este a oeste."
-data "Recodo de la cueva. La iridiscente cueva gira de este a sur."
-data "Pasaje arenoso. La gruta desciende de norte a sur sobre un lecho arenoso. Al este, un agujero del que llega claridad."
-data "Pasaje del agua. Como un acueducto, el agua baja con gran fuerza de norte a este, aunque la salida practicable es la del oeste."
-data "Estalactitas. Muchas estalactitas se agrupan encima de tu cabeza, y se abren cual arco de entrada hacia el este y sur."
-data "Puente de piedra. Un arco de piedra se eleva, cual puente sobre la oscuridad, de este a oeste. En su mitad, un altar."
-data "Recodo arenoso del canal. La furiosa corriente, de norte a este, impide el paso, excepto al oeste. Al fondo, se oye un gran estruendo."
-data "Un tramo de cueva estrecho te permite avanzar hacia el norte y el sur; un pasaje surge al este."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste; un pasaje surge al sur."
+data "Aldea Sajona. \
+  No ha quedado nada en pie, ni piedra sobre piedra. \
+  El entorno es desolador. \
+  Solo resta volver al sur, a casa."
+data "Sobre la colina, \
+  casi sobre la niebla de la aldea sajona arrasada al norte, \
+  a tus pies. El camino desciende hacia el oeste."
+data "Camino entre colinas. \
+  El camino avanza por el valle, desde la parte alta, \
+  al este, a una zona harto boscosa, al oeste."
+data "Cruce de caminos. \
+  Una senda parte al oeste, \
+  a la sierra por el paso del Perro, \
+  y otra hacia el norte, \
+  por un frondoso bosque que la rodea."
+data "Desde la linde, al sur, \
+  hacia el oeste se extiende \
+  frondoso el bosque que rodea la sierra. \
+  La salida se abre hacia el sur."
+data "Bosque. \
+  Jirones de niebla se enzarcen en frondosas ramas y arbustos. \
+  La senda serpentea entre raíces, \
+  de un luminoso este al oeste."
+data "Paso del Perro. \
+  Abruptamente, del bosque se pasa \
+  a un estrecho camino entre altas rocas. \
+  El inquietante desfiladero tuerce de este a sur."
+data "Entrada a la cueva. \
+  El paso entre el desfiladero sigue de norte a este. \
+  La entrada a una cueva se abre al sur en la pared de roca."
+data "Derrumbe. \
+  El camino desciende hacia la agreste sierra, al oeste, \
+  desde los verdes valles al este. \
+  Pero un gran derrumbe bloquea la sierra."
+data "Gruta de entrada. \
+  El estrecho paso se adentra hacia el oeste, \
+  desde la boca, al norte. "
+data "Gran lago. \
+  Una gran estancia alberga un lago \
+  de profundas e iridiscentes aguas, debido a la luz exterior. \
+  No hay otra salida que el este."
+data "Salida del paso secreto. \
+  Una gran estancia se abre hacia el oeste, \
+  y se estrecha hasta morir, \
+  al este, en una parte de agua."
+data "Puente semipodrido. \
+  La sala se abre en semioscuridad \
+  a un puente cubierto de podredumbre \
+  sobre el lecho de un canal, de este a oeste."
+data "Recodo de la cueva. \
+  La iridiscente cueva gira de este a sur."
+data "Pasaje arenoso. \
+  La gruta desciende de norte a sur sobre un lecho arenoso. \
+  Al este, un agujero del que llega claridad."
+data "Pasaje del agua. \
+  Como un acueducto, \
+  el agua baja con gran fuerza de norte a este, \
+  aunque la salida practicable es la del oeste."
+data "Estalactitas. \
+  Muchas estalactitas se agrupan encima de tu cabeza, \
+  y se abren cual arco de entrada hacia el este y sur."
+data "Puente de piedra. \
+  Un arco de piedra se eleva, cual puente sobre la oscuridad, \
+  de este a oeste. En su mitad, un altar."
+data "Recodo arenoso del canal. \
+  La furiosa corriente, de norte a este, \
+  impide el paso, excepto al oeste. \
+  Al fondo, se oye un gran estruendo."
+data "Un tramo de cueva estrecho te permite avanzar \
+  hacia el norte y el sur; un pasaje surge al este."
+data "Un tramo de cueva estrecho te permite avanzar \
+  de este a oeste; un pasaje surge al sur."
+data "Un tramo de cueva estrecho te permite avanzar \
+  de este a oeste; un pasaje surge al sur."
 data "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
 data "Un tramo de cueva estrecho te permite avanzar de este a norte."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte y al sur surgen pasajes."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste. Al norte surge un pasaje."
-data "Un tramo de cueva estrecho te permite avanzar al oeste. Al norte surge un pasaje."
-data "Refugio. Una amplia estancia de norte a este, hace de albergue a refugiados: hay banderas de ambos bandos. Un hombre anciano te contempla. Los refugiados te rodean."
-data "Espiral. Cual escalera de caracol gigante, desciende a las profundidades, dejando a los refugiados al oeste."
-data "Inicio de la espiral. Se eleva en la penumbra. La caverna se estrecha ahora como para una sola persona, hacia el este."
-data "Puerta norte. En este pasaje grandes rocas se encuentran entre las columnas de un arco de medio punto."
-data "Precipicio. El camino ahora no excede de dos palmos de cornisa sobre un abismo insondable. El soporte de roca gira en 'U' de oeste a sur."
-data "Pasaje de salida. El paso se va haciendo menos estrecho a medida que se avanza hacia el sur, para entonces comenzar hacia el este."
-data "Pasaje de gravilla. El paso se anchea de oeste a norte, y guijarros mojados y mohosos tachonan el suelo de roca."
-data "Puente sobre el acueducto. Un puente se tiende de norte a sur sobre el curso del agua. Resbaladizas escaleras descienden hacia el oeste."
-data "Remanso. Estruendosa corriente baja con el pasaje elevado desde el oeste, y forma un meandro arenoso. Unas escaleras suben al este."
-data "Canal de agua. El agua baja del oeste con renovadas fuerzas, dejando un estrecho paso elevado lateral para avanzar a este o a oeste."
-data "Gran cascada. Cae el agua hacia el este, descendiendo con gran fuerza hacia el canal, no sin antes embalsarse en un lago poco profundo."
-data "Interior de la cascada. Musgoso y rocoso, con la cortina de agua tras de ti, el nivel del agua ha crecido un poco en este curioso hueco."
-data "Explanada. Una gran explanada enlosetada contempla un bello panorama de estalactitas. Unos casi imperceptibles escalones conducen al este."
-data "Ídolo. El ídolo parece un centinela siniestro de una gran roca que se encuentra al sur. Se puede volver a la explanada al oeste."
-data "Pasaje estrecho. Como un pasillo que corteja el canal de agua, a su lado, baja de norte a sur. Se aprecia un aumento de luz hacia el sur."
-data "Pasaje de la serpiente. El pasaje sigue de norte a sur."
-data "Lago interior. Unas escaleras dan paso a un hermoso lago interior, y siguen hacia el oeste. Al norte, un oscuro y estrecho pasaje sube."
-data "Cruce de pasajes. Estrechos pasos permiten ir al oeste, al este (menos oscuro), y al sur, un lugar de gran luminosidad."
-data "Hogar de Ambrosio. Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
-data "Salida de la cueva. Por el oeste, una puerta impide, cuando cerrada, la salida de la cueva. Se adivina la luz diurna al otro lado."
-data "Bosque a la entrada. Apenas se puede reconocer la entrada de la cueva, al este. El sendero sale del bosque hacia el oeste."
-data "Sendero del bosque. El sendero recorre esta parte del bosque de este a oeste."
-data "Camino norte. El camino norte de Westmorland se interna hacia el bosque, al norte (en tu estado no puedes ir), y a Westmorland, al sur."
-data "Westmorland. La villa bulle de actividad con el mercado en el centro de la plaza, donde se encuentra el castillo."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
+  Al norte y al sur surgen pasajes."
+data "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
+  Al norte surge un pasaje."
+data "Un tramo de cueva estrecho te permite avanzar al oeste. \
+  Al norte surge un pasaje."
+data "Refugio. \
+  Una amplia estancia de norte a este, \
+  hace de albergue a refugiados: \
+  hay banderas de ambos bandos. \
+  Un hombre anciano te contempla. Los refugiados te rodean."
+data "Espiral. \
+  Cual escalera de caracol gigante, \
+  desciende a las profundidades, \
+  dejando a los refugiados al oeste."
+data "Inicio de la espiral. \
+  Se eleva en la penumbra. \
+  La caverna se estrecha ahora como para una sola persona, \
+  hacia el este."
+data "Puerta norte. \
+  En este pasaje grandes rocas se encuentran entre las columnas \
+  de un arco de medio punto."
+data "Precipicio. \
+  El camino ahora no excede de dos palmos de cornisa \
+  sobre un abismo insondable. \
+  El soporte de roca gira en 'U' de oeste a sur."
+data "Pasaje de salida. \
+  El paso se va haciendo menos estrecho \
+  a medida que se avanza hacia el sur, \
+  para entonces comenzar hacia el este."
+data "Pasaje de gravilla. \
+  El paso se anchea de oeste a norte, \
+  y guijarros mojados y mohosos tachonan el suelo de roca."
+data "Puente sobre el acueducto. \
+  Un puente se tiende de norte a sur sobre el curso del agua. \
+  Resbaladizas escaleras descienden hacia el oeste."
+data "Remanso. \
+  Estruendosa corriente baja con el pasaje elevado desde el oeste, \
+  y forma un meandro arenoso. Unas escaleras suben al este."
+data "Canal de agua. \
+  El agua baja del oeste con renovadas fuerzas, \
+  dejando un estrecho paso elevado \
+  lateral para avanzar a este o a oeste."
+data "Gran cascada. \
+  Cae el agua hacia el este, \
+  descendiendo con gran fuerza hacia el canal, \
+  no sin antes embalsarse en un lago poco profundo."
+data "Interior de la cascada. \
+  Musgoso y rocoso, con la cortina de agua tras de ti, \
+  el nivel del agua ha crecido un poco en este curioso hueco."
+data "Explanada. \
+  Una gran explanada enlosetada \
+  contempla un bello panorama de estalactitas. \
+  Unos casi imperceptibles escalones conducen al este."
+data "Ídolo. \
+  El ídolo parece un centinela siniestro \
+  de una gran roca que se encuentra al sur. \
+  Se puede volver a la explanada al oeste."
+data "Pasaje estrecho. \
+  Como un pasillo que corteja el canal de agua, \
+  a su lado, baja de norte a sur. \
+  Se aprecia un aumento de luz hacia el sur."
+data "Pasaje de la serpiente. \
+  El pasaje sigue de norte a sur."
+data "Lago interior. \
+  Unas escaleras dan paso a un hermoso lago interior, \
+  y siguen hacia el oeste. \
+  Al norte, un oscuro y estrecho pasaje sube."
+data "Cruce de pasajes. \
+  Estrechos pasos permiten ir al oeste, \
+  al este (menos oscuro), y al sur, \
+  un lugar de gran luminosidad."
+data "Hogar de Ambrosio. \
+  Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
+data "Salida de la cueva. \
+  Por el oeste, una puerta impide, cuando cerrada, \
+  la salida de la cueva. Se adivina la luz diurna al otro lado."
+data "Bosque a la entrada. \
+  Apenas se puede reconocer la entrada de la cueva, al este. \
+  El sendero sale del bosque hacia el oeste."
+data "Sendero del bosque. \
+  El sendero recorre esta parte del bosque de este a oeste."
+data "Camino norte. \
+  El camino norte de Westmorland se interna hacia el bosque, \
+  al norte (en tu estado no puedes ir), y a Westmorland, al sur."
+data "Westmorland. \
+  La villa bulle de actividad \
+  con el mercado en el centro de la plaza, \
+  donde se encuentra el castillo."
 label @location_descriptions_end
 
 ' Location exits
@@ -1781,11 +2004,13 @@ data "Ambrosio es un hombre de mediana edad, que te mira afable."
 data the_torch,limbo,0
 data "Está apagada."
 data the_flags,28,1
-data "Son las banderas britana y sajona: dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
+data "Son las banderas britana y sajona: \
+  dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
 data the_cloak,ulfius,0
 data "Tu capa de general, de fina lana tintada de negro."
 data the_waterfall,38,1
-data "No ves nada por la cortina de agua. El lago es muy poco profundo."
+data "No ves nada por la cortina de agua. \
+  El lago es muy poco profundo."
 data the_fallen_away,9,1
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
 data the_emerald,39,0
@@ -1801,7 +2026,8 @@ data "Es el jefe de los refugiados."
 data the_idol,41,1
 data "El ídolo tiene dos agujeros por ojos."
 data the_lake,44,1
-data "La luz entra por un resquicio, y caprichosos reflejos te maravillan."
+data "La luz entra por un resquicio, \
+  y caprichosos reflejos te maravillan."
 data the_key,46,1
 data "Una llave grande, de hierro herrumboso."
 data the_flint,limbo,0
@@ -1813,7 +2039,8 @@ data "Muy recia y con un gran candado."
 data the_rocks,31,1
 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
 data the_snake,43,1
-data "Una serpiente bloquea el paso al sur, corriendo a su lado el agua."
+data "Una serpiente bloquea el paso al sur, \
+  corriendo a su lado el agua."
 data the_log,15,0
 data "Es un tronco recio, pero de liviano peso."
 data the_piece,limbo,0
@@ -2044,3 +2271,5 @@ defproc _debug(text$)
   print #tw,"Punto de depuración:"!text$
 
 enddef
+
+' vim: textwidth=70
