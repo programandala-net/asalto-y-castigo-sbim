@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.6+201709131716" ' after http://semver.org
+let version$="0.2.0-dev.7+201709131723" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -693,9 +693,9 @@ defproc action_inventory
     if location(i)=ulfius:let list$=list$&"  - "&thing$(i)&nl$
   endfor i
   if len(list$)
-    narrate "Llevo conmigo:"&nl$&list$
+    narrate "Llevo conmigo:"&nl$&list$ ' XXX FIXME 2nd person
   else
-    narrate "No llevo nada conmigo."
+    narrate "No llevo nada conmigo." ' XXX FIXME 2nd person
   endif
 
 enddef
@@ -735,31 +735,31 @@ enddef
 
 deffn is_it_a_person(thing)
 
-  ret thing_type(thing)=2
+  ret thing_type(thing)=person_type
 
 enddef
 
 defproc do_takeable(thing)
 
-  let thing_type(thing)=false
+  let thing_type(thing)=takeable_type
 
 enddef
 
 defproc do_not_takeable(thing)
 
-  let thing_type(thing)=true
+  let thing_type(thing)=untakeable_type
 
 enddef
 
 deffn can_be_taken(thing)
 
-  ret not thing_type(thing)
+  ret thing_type(thing)=takeable_type
 
 enddef
 
 deffn cannot_be_taken(thing)
 
-  ret thing_type(thing)
+  ret thing_type(thing)<>takeable_type
 
 enddef
 
@@ -1629,6 +1629,11 @@ defproc init_the_constants
   let down=5
   let first_direction=north
   let last_direction=down
+
+  ' Thing types
+  let takeable_type=false
+  let untakeable_type=true
+  let person_type=2
 
 enddef
 
