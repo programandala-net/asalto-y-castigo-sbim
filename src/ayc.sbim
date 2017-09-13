@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.10+201709132140" ' after http://semver.org
+let version$="0.2.0-dev.11+201709140045" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -51,8 +51,8 @@ defproc plot
 
   ' Check the plot conditions.
 
-  if current_location=8 and location_exit(8,north)
-    let location_exit(8,north)=false
+  if current_location=cave_entrance_loc and location_exit(cave_entrance_loc,north)
+    let location_exit(cave_entrance_loc,north)=nowhere
     let saxons_follow=1
     narrate "Una partida sajona aparece por el este. \
       Para cuando te vuelves al norte, ya no te queda ninguna duda: \
@@ -68,10 +68,10 @@ defproc plot
     ret
   endif
 
-  if saxons_follow and current_location<12
+  if saxons_follow and current_location<secret_exit_loc ' XXX TODO `<>` is clearer
     let saxons_follow=saxons_follow+1
     narrate "No sabes cuánto tiempo te queda..."
-    if saxons_follow>10 
+    if saxons_follow>10 ' XXX TODO random
       narrate "Los sajones te capturan. \
         Su general, sonriendo ampliamente, dice:"
       speak "Bien, bien... \
@@ -79,26 +79,26 @@ defproc plot
       end_of_scene:clear_screen
       action_end
     endif
-    if current_location<10 
+    if current_location<cave_hall_loc ' XXX TODO `=` is enough?
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
     ret
   endif
 
-  if current_location=20 \
+  if current_location=cave_strait_1_loc \
     and (not is_it_accessible(the_torch) \
     or not lit_the_torch)
-      ' XXX TODO -- Why `>19` in the original?
-      ' I put `=20`, which is the exit from 17
+      ' XXX TODO -- Why `>channel_sand_corner_loc` in the original?
+      ' I put `=cave_strait_1_loc`, which is the exit from stalactites_loc
     narrate "Ante la reinante e intimidante oscuridad, \
       retrocedes a donde puedes ver."
     short_pause
-    let current_location=17
+    let current_location=stalactites_loc
     action_look
     ret
   endif
 
-  if current_location=51
+  if current_location=westmorland_loc ' XXX TODO move to `location_plot`?
     narrate "Agotado, das parte en el castillo de tu llegada \
       y de lo que ha pasado."
     short_pause
@@ -116,7 +116,7 @@ defproc plot
     short_pause
     narrate "Te has ganado un buen descanso."
     end_of_scene:clear_screen
-    action_end
+    action_end ' XXX TODO happy end instead
   endif
 
 enddef
@@ -126,30 +126,30 @@ defproc location_plot
   ' Check the plot conditions related to the new location.
 
   sel on current_location
-    =11,38,44
+    =big_lake_loc,big_waterfall_loc,inner_lake_loc
       let location(the_lake)=current_location
-    =1 to 9
-      if location_exit(8,north):\
+    =saxon_village_loc to fallen_away_loc
+      if location_exit(cave_entrance_loc,north):\
         narrate "Tus hombres siguen tus pasos."
-    =16
+    =water_passage_loc
       narrate "En la distancia, \
         por entre los resquicios de las rocas, \
         y allende el canal de agua, \
         los sajones tratan de buscar la salida \
         que encontraste por casualidad."
-    =31
-      if location_exit(31,north)
+    =north_gate_loc
+      if location_exit(north_gate_loc,north)
         narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
       else
         narrate "Las rocas bloquean el camino."
       endif
-    =28
-      let location_exit(28,east)=false
+    =refuge_loc
+      let location_exit(refuge_loc,east)=nowhere
   endsel
 
   if not is_it_vanished(ambrosio) \
     and can_be_taken(the_key) \
-    and (current_location=46 or ambrosio_follows)
+    and (current_location=ambrosios_home_loc or ambrosio_follows)
     let location(ambrosio)=current_location
     narrate "Tu benefactor te sigue, esperanzado."
   endif
@@ -164,7 +164,7 @@ defproc rocks_and_log
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
     do_vanish the_rocks
-    let location_exit(31,north)=32
+    let location_exit(north_gate_loc,north)=precipice_loc
   else
     narrate "Lo intentas con el tronco, \
       pero la punta es demasiado gruesa, \
@@ -187,7 +187,7 @@ defproc open_the_door
   do_vanish the_key
   let thing_description$(the_door)="Entreabierta."
   let thing_description$(the_lock)="Abierto."
-  let location_exit(47,west)=48
+  let location_exit(cave_exit_loc,west)=cave_exit_forest_loc
 
 enddef
 
@@ -361,7 +361,7 @@ enddef
 
 defproc action_swim
 
-  if current_location=11
+  if current_location=big_lake_loc
     clear_screen
     narrate "Caes hacia el fondo por el peso de tu coraza. \
       Como puedes, te desprendes de ella y buceas, \
@@ -370,7 +370,7 @@ defproc action_swim
     narrate "Consigues emerger, \
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
-    let current_location=12
+    let current_location=secret_exit_loc
     action_look
   else
     narrate "No tiene sentido nadar ahora."
@@ -380,7 +380,7 @@ enddef
 
 defproc action_open
 
-  if current_location=47
+  if current_location=cave_exit_loc
     if object=the_door or object=the_lock
       if is_it_accessible(the_key)
         open_the_door
@@ -400,7 +400,7 @@ defproc action_drop
 
   sel on object
     =the_sword:\
-      if current_location<12:\
+      if current_location<secret_exit_loc:\
         narrate "No, es lo que queda de mi padre.":\
         ret
     =the_torch:\
@@ -512,7 +512,7 @@ defproc action_break
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
           do_vanish the_snake
-          let location_exit(43,south)=44
+          let location_exit(snake_passage_loc,south)=inner_lake_loc
         =remainder:narrate not_with_that$
       endsel
 
@@ -534,7 +534,7 @@ enddef
 
 defproc talk_to_ambrosio
 
-  if location(ambrosio)=19
+  if location(ambrosio)=channel_sand_corner_loc
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
@@ -550,7 +550,7 @@ defproc talk_to_ambrosio
     let location(the_flint)=ulfius
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
-    let location(ambrosio)=46
+    let location(ambrosio)=ambrosios_home_loc
     narrate "Te das la vuelta \
       para ver si Ambrosio te sigue, \
       pero... ha desaparecido."
@@ -561,7 +561,7 @@ defproc talk_to_ambrosio
 
   else
 
-    if current_location=46
+    if current_location=ambrosios_home_loc
       if not ambrosio_follows
         speak "La llave, Ambrosio, estaba ya en tu poder. \
           Y es obvio que conocéis un camino más corto."
@@ -573,7 +573,7 @@ defproc talk_to_ambrosio
         speak "No lo entiendo, la verdad."
       endif
     endif
-    if current_location>=45 and current_location<=47
+    if current_location>=passage_crossing_loc and current_location<=cave_exit_loc
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
       let location(the_key)=ulfius
@@ -601,14 +601,14 @@ defproc talk_to_the_man
     short_pause
     speak "La piedra debe devolverse a su lugar de encierro." ' XXX FIXME text
     narrate "Un hombre te arrebata la piedra y se la lleva."
-    let location(the_stone)=18
+    let location(the_stone)=stone_bridge_loc
   else
     if is_it_accessible(the_sword)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
       speak "Nadie portando armas puede pasar." ' XXX FIXME text
     else
-      let location_exit(28,east)=29
+      let location_exit(refuge_loc,east)=spiral_loc
       narrate "El hombre, calmado, indica hacia el este y habla:"
       speak "Si vienes en paz, puedes ir en paz."
       narrate "Todos se apartan y permiten ahora el paso al este."
@@ -620,12 +620,12 @@ enddef
 defproc action_fling
 
   sel on current_location
-    =13,16
+    =ruined_bridge_loc,water_passage_loc
       narrate "No hay suficiente profundidad."
-    =19 
+    =channel_sand_corner_loc
       if (object=the_sword or object=the_stone) \
         and talked_to_the_man
-        let location(object)=39
+        let location(object)=inside_waterfall_loc
         narrate "La corriente lo arrastra fuertemente, \
           hasta perderlo de vista."
       else
@@ -653,7 +653,7 @@ defproc action_insert
           narrate "Encaja. Metido. Desaparece en su interior." ' XXX FIXME text
           if is_it_vanished(the_stone) \
             and is_it_vanished(the_emerald)
-            let location_exit(41,south)=42
+            let location_exit(idol_loc,south)=strait_passage_loc
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
@@ -702,14 +702,11 @@ enddef
 
 defproc action_look
 
-  loc description$ ' XXX NEW
+  loc description$
 
   clear_screen
   ' narrate "["&current_location&"]" ' XXX INFORMER
 
-'  describe location_description$(current_location) ' XXX OLD
-
-  ' XXX NEW
   restore @location_descriptions_start+current_location-1
   read description$
   describe description$
@@ -1415,7 +1412,7 @@ defproc game_init
   print #tw,"Preparando los datos..."
   init_the_flags
   init_the_data
-  let current_location=1
+  let current_location=saxon_village_loc
   cls #tw,3
   cursor #tw,0,y
 
@@ -1629,6 +1626,61 @@ defproc init_the_constants
   let the_piece=22
   let the_lock=23
 
+  ' Location ids
+
+  let nowhere=0
+  let saxon_village_loc=1
+  let on_the_hill_loc=2
+  let path_between_hills_loc=3
+  let paths_crossing_loc=4
+  let near_the_forest_loc=5
+  let forest_loc=6
+  let dog_passage_loc=7
+  let cave_entrance_loc=8
+  let fallen_away_loc=9
+  let cave_hall_loc=10
+  let big_lake_loc=11
+  let secret_exit_loc=12
+  let ruined_bridge_loc=13
+  let cave_corner_loc=14
+  let sand_passage_loc=15
+  let water_passage_loc=16
+  let stalactites_loc=17
+  let stone_bridge_loc=18
+  let channel_sand_corner_loc=19
+  let cave_strait_1_loc=20
+  let cave_strait_2_loc=21
+  let cave_strait_3_loc=22
+  let cave_strait_4_loc=23
+  let cave_strait_5_loc=24
+  let cave_strait_6_loc=25
+  let cave_strait_7_loc=26
+  let cave_strait_8_loc=27
+  let refuge_loc=28
+  let spiral_loc=29
+  let spiral_start_loc=30
+  let north_gate_loc=31
+  let precipice_loc=32
+  let exit_passage_loc=33
+  let gravel_passage_loc=34
+  let bridge_over_aqueduct_loc=35
+  let pool_loc=36
+  let water_channel_loc=37
+  let big_waterfall_loc=38
+  let inside_waterfall_loc=39
+  let terrace_loc=40
+  let idol_loc=41
+  let strait_passage_loc=42
+  let snake_passage_loc=43
+  let inner_lake_loc=44
+  let passage_crossing_loc=45
+  let ambrosios_home_loc=46
+  let cave_exit_loc=47
+  let cave_exit_forest_loc=48
+  let forest_path_loc=49
+  let north_road_loc=50
+  let westmorland_loc=51
+
   ' Direction ids
   let north=0
   let south=1
@@ -1664,26 +1716,22 @@ defproc init_the_data
   ' Init the data arrays. The first element (0) of the arrays is not
   ' used, except for the directions.
 
-  loc i,j,max_word_lenght,action
+  loc i,j,max_word_lenght,action,from_location,to_location
 
-  let max_word_lenght=11
+  let max_word_lenght=11 ' XXX TODO calculate
 
   restore
 
   let locations=@location_descriptions_end\
     -@location_descriptions_start
-  ' XXX OLD
-  ' dim location_description$(locations,255)
-  ' for i=1 to locations
-  '   read location_description$(i)
-  ' endfor i
 
   dim location_exit(locations,last_direction)
   restore @location_exits
   for i=1 to locations
-    for j=first_direction to last_direction
-      read location_exit(i,j)
-    endfor j
+    read from_location
+    for to_location=first_direction to last_direction
+      read location_exit(from_location,to_location)
+    endfor to_location
   endfor i
 
   let nouns=@nouns_end-@nouns_start
@@ -1903,57 +1951,57 @@ rem XXX TMP -- to prevent labels clash
 
 '  data: north,south,east,west,down,up
 label @location_exits
-data 0,2,0,0,0,0
-data 1,0,0,3,0,0
-data 0,0,2,4,0,0
-data 5,0,3,9,0,0
-data 0,4,0,6,0,0
-data 0,0,5,7,0,0
-data 0,8,6,0,0,0
-data 7,10,0,0,0,0
-data 0,0,4,0,0,0
-data 8,0,0,11,0,0
-data 0,0,10,0,0,0
-data 0,0,0,13,0,0
-data 0,0,12,14,0,0
-data 0,15,13,0,0,0
-data 14,17,16,0,0,0
-data 0,0,0,15,0,0
-data 15,20,18,0,0,0
-data 0,0,19,17,0,0
-data 0,0,0,18,0,0
-data 17,22,25,0,0,0
-data 0,27,23,20,0,0
-data 0,24,27,22,0,0
-data 0,25,0,21,0,0
-data 22,0,26,0,0,0
-data 22,28,23,21,0,0
-data 26,0,20,27,0,0
-data 27,0,0,25,0,0
-data 26,0,0,0,0,0
-data 0,0,0,28,0,30
-data 0,0,31,0,29,0
-data 0,0,0,30,0,0
-data 0,33,0,31,0,0
-data 32,0,34,0,0,0
-data 35,0,0,33,0,0
-data 40,34,0,36,0,36
-data 0,0,35,37,35,0
-data 0,0,36,38,0,0
-data 0,0,37,39,0,0
-data 0,0,38,0,0,0
-data 0,35,41,0,0,0
-data 0,0,0,40,0,0
-data 41,43,0,0,0,0
-data 42,0,0,0,0,0
-data 43,0,0,45,0,0
-data 0,47,44,46,0,0
-data 0,0,45,0,0,0
-data 45,0,0,0,0,0
-data 0,0,47,49,0,0
-data 0,0,48,50,0,0
-data 0,51,49,0,0,0
-data 50,0,0,0,0,0
+data saxon_village_loc,nowhere,on_the_hill_loc,nowhere,nowhere,nowhere,nowhere
+data on_the_hill_loc,saxon_village_loc,nowhere,nowhere,path_between_hills_loc,nowhere,nowhere
+data path_between_hills_loc,nowhere,nowhere,on_the_hill_loc,paths_crossing_loc,nowhere,nowhere
+data paths_crossing_loc,near_the_forest_loc,nowhere,path_between_hills_loc,fallen_away_loc,nowhere,nowhere
+data near_the_forest_loc,nowhere,paths_crossing_loc,nowhere,forest_loc,nowhere,nowhere
+data forest_loc,nowhere,nowhere,near_the_forest_loc,dog_passage_loc,nowhere,nowhere
+data dog_passage_loc,nowhere,cave_entrance_loc,forest_loc,nowhere,nowhere,nowhere
+data cave_entrance_loc,dog_passage_loc,cave_hall_loc,nowhere,nowhere,nowhere,nowhere
+data fallen_away_loc,nowhere,nowhere,paths_crossing_loc,nowhere,nowhere,nowhere
+data cave_hall_loc,cave_entrance_loc,nowhere,nowhere,big_lake_loc,nowhere,nowhere
+data big_lake_loc,nowhere,nowhere,cave_hall_loc,nowhere,nowhere,nowhere
+data secret_exit_loc,nowhere,nowhere,nowhere,ruined_bridge_loc,nowhere,nowhere
+data ruined_bridge_loc,nowhere,nowhere,secret_exit_loc,cave_corner_loc,nowhere,nowhere
+data cave_corner_loc,nowhere,sand_passage_loc,ruined_bridge_loc,nowhere,nowhere,nowhere
+data sand_passage_loc,cave_corner_loc,stalactites_loc,water_passage_loc,nowhere,nowhere,nowhere
+data water_passage_loc,nowhere,nowhere,nowhere,sand_passage_loc,nowhere,nowhere
+data stalactites_loc,sand_passage_loc,cave_strait_1_loc,stone_bridge_loc,nowhere,nowhere,nowhere
+data stone_bridge_loc,nowhere,nowhere,channel_sand_corner_loc,stalactites_loc,nowhere,nowhere
+data channel_sand_corner_loc,nowhere,nowhere,nowhere,stone_bridge_loc,nowhere,nowhere
+data cave_strait_1_loc,stalactites_loc,cave_strait_3_loc,cave_strait_6_loc,nowhere,nowhere,nowhere
+data cave_strait_2_loc,nowhere,cave_strait_8_loc,cave_strait_4_loc,cave_strait_1_loc,nowhere,nowhere
+data cave_strait_3_loc,nowhere,cave_strait_5_loc,cave_strait_8_loc,cave_strait_3_loc,nowhere,nowhere
+data cave_strait_4_loc,nowhere,cave_strait_6_loc,nowhere,cave_strait_2_loc,nowhere,nowhere
+data cave_strait_5_loc,cave_strait_3_loc,nowhere,cave_strait_7_loc,nowhere,nowhere,nowhere
+data cave_strait_6_loc,cave_strait_3_loc,refuge_loc,cave_strait_4_loc,cave_strait_2_loc,nowhere,nowhere
+data cave_strait_7_loc,cave_strait_7_loc,nowhere,cave_strait_1_loc,cave_strait_8_loc,nowhere,nowhere
+data cave_strait_8_loc,cave_strait_8_loc,nowhere,nowhere,cave_strait_6_loc,nowhere,nowhere
+data refuge_loc,cave_strait_7_loc,nowhere,nowhere,nowhere,nowhere,nowhere
+data spiral_loc,nowhere,nowhere,nowhere,refuge_loc,nowhere,spiral_start_loc
+data spiral_start_loc,nowhere,nowhere,north_gate_loc,nowhere,spiral_loc,nowhere
+data north_gate_loc,nowhere,nowhere,nowhere,spiral_start_loc,nowhere,nowhere
+data precipice_loc,nowhere,exit_passage_loc,nowhere,north_gate_loc,nowhere,nowhere
+data exit_passage_loc,precipice_loc,nowhere,gravel_passage_loc,nowhere,nowhere,nowhere
+data gravel_passage_loc,bridge_over_aqueduct_loc,nowhere,nowhere,exit_passage_loc,nowhere,nowhere
+data bridge_over_aqueduct_loc,terrace_loc,gravel_passage_loc,nowhere,pool_loc,nowhere,pool_loc
+data pool_loc,nowhere,nowhere,bridge_over_aqueduct_loc,water_channel_loc,bridge_over_aqueduct_loc,nowhere
+data water_channel_loc,nowhere,nowhere,pool_loc,big_waterfall_loc,nowhere,nowhere
+data big_waterfall_loc,nowhere,nowhere,water_channel_loc,inside_waterfall_loc,nowhere,nowhere
+data inside_waterfall_loc,nowhere,nowhere,big_waterfall_loc,nowhere,nowhere,nowhere
+data terrace_loc,nowhere,bridge_over_aqueduct_loc,idol_loc,nowhere,nowhere,nowhere
+data idol_loc,nowhere,nowhere,nowhere,terrace_loc,nowhere,nowhere
+data strait_passage_loc,idol_loc,snake_passage_loc,nowhere,nowhere,nowhere,nowhere
+data snake_passage_loc,strait_passage_loc,nowhere,nowhere,nowhere,nowhere,nowhere
+data inner_lake_loc,snake_passage_loc,nowhere,nowhere,passage_crossing_loc,nowhere,nowhere
+data passage_crossing_loc,nowhere,cave_exit_loc,inner_lake_loc,ambrosios_home_loc,nowhere,nowhere
+data ambrosios_home_loc,nowhere,nowhere,passage_crossing_loc,nowhere,nowhere,nowhere
+data cave_exit_loc,passage_crossing_loc,nowhere,nowhere,nowhere,nowhere,nowhere
+data cave_exit_forest_loc,nowhere,nowhere,cave_exit_loc,forest_path_loc,nowhere,nowhere
+data forest_path_loc,nowhere,nowhere,cave_exit_forest_loc,north_road_loc,nowhere,nowhere
+data north_road_loc,nowhere,westmorland_loc,forest_path_loc,nowhere,nowhere,nowhere
+data westmorland_loc,north_road_loc,nowhere,nowhere,nowhere,nowhere,nowhere
 
 ' Nouns
 
