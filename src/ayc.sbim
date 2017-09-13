@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.11+201709140045" ' after http://semver.org
+let version$="0.2.0-dev.12+201709140048" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -34,7 +34,7 @@ defproc main
     game_init
     end_of_scene
     intro
-    action_look
+    do_look
     rep your_turn
       plot
       command
@@ -77,7 +77,7 @@ defproc plot
       speak "Bien, bien... \
         Del gran Ulfius podremos sacar una buena ventaja."
       end_of_scene:clear_screen
-      action_end
+      do_end
     endif
     if current_location<cave_hall_loc ' XXX TODO `=` is enough?
       narrate "Tus hombres luchan con denuedo contra los sajones."
@@ -94,7 +94,7 @@ defproc plot
       retrocedes a donde puedes ver."
     short_pause
     let current_location=stalactites_loc
-    action_look
+    do_look
     ret
   endif
 
@@ -116,7 +116,7 @@ defproc plot
     short_pause
     narrate "Te has ganado un buen descanso."
     end_of_scene:clear_screen
-    action_end ' XXX TODO happy end instead
+    do_end ' XXX TODO happy end instead
   endif
 
 enddef
@@ -163,7 +163,7 @@ defproc rocks_and_log
   if hacked_the_log
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
-    do_vanish the_rocks
+    vanish the_rocks
     let location_exit(north_gate_loc,north)=precipice_loc
   else
     narrate "Lo intentas con el tronco, \
@@ -183,8 +183,8 @@ defproc open_the_door
   narrate "Ambrosio, alegre, se despide de ti."
   speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
   narrate "Se ha ido."
-  do_vanish ambrosio
-  do_vanish the_key
+  vanish ambrosio
+  vanish the_key
   let thing_description$(the_door)="Entreabierta."
   let thing_description$(the_lock)="Abierto."
   let location_exit(cave_exit_loc,west)=cave_exit_forest_loc
@@ -296,30 +296,30 @@ enddef
 defproc do_action(action)
 
   sel on action
-    =to_break:action_break
-    =to_drop:action_drop
-    =to_examine:action_examine
-    =to_finish:action_end
-    =to_fling:action_fling
-    =to_go_down:action_move down
-    =to_go_east:action_move east
-    =to_go_north:action_move north
-    =to_go_south:action_move south
-    =to_go_up:action_move up
-    =to_go_west:action_move west
-    =to_help:action_help
-    =to_insert:action_insert
-    =to_look:action_look
-    =to_open:action_open
-    =to_speak:action_speak
-    =to_swim:action_swim
-    =to_take:action_take
+    =to_break:do_break
+    =to_drop:do_drop
+    =to_examine:do_examine
+    =to_finish:do_end
+    =to_fling:do_fling
+    =to_go_down:do_move down
+    =to_go_east:do_move east
+    =to_go_north:do_move north
+    =to_go_south:do_move south
+    =to_go_up:do_move up
+    =to_go_west:do_move west
+    =to_help:do_help
+    =to_insert:do_insert
+    =to_look:do_look
+    =to_open:do_open
+    =to_speak:do_speak
+    =to_swim:do_swim
+    =to_take:do_take
     =remainder:narrate "No puedes hacer eso."
   endsel
 
 enddef
 
-defproc action_help
+defproc do_help
 
   narrate "Direcciones: \
     n[orte], s[ur], e[ste], o[este], a[rriba] y [a]b[ajo]."
@@ -335,7 +335,7 @@ defproc action_help
 
 enddef
 
-defproc action_examine
+defproc do_examine
 
   if object
     if is_it_accessible(object)
@@ -344,12 +344,12 @@ defproc action_examine
       narrate not_seen$
     endif
   else
-    action_inventory
+    do_inventory
   endif
 
 enddef
 
-defproc action_end
+defproc do_end
 
   if yes("¿Quieres volver a intentarlo?")
     let start_over=true
@@ -359,7 +359,7 @@ defproc action_end
 
 enddef
 
-defproc action_swim
+defproc do_swim
 
   if current_location=big_lake_loc
     clear_screen
@@ -371,14 +371,14 @@ defproc action_swim
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
     let current_location=secret_exit_loc
-    action_look
+    do_look
   else
     narrate "No tiene sentido nadar ahora."
   endif
 
 enddef
 
-defproc action_open
+defproc do_open
 
   if current_location=cave_exit_loc
     if object=the_door or object=the_lock
@@ -396,7 +396,7 @@ defproc action_open
 
 enddef
 
-defproc action_drop
+defproc do_drop
 
   sel on object
     =the_sword:\
@@ -416,7 +416,7 @@ defproc action_drop
   endif
 enddef
 
-defproc action_take
+defproc do_take
 
   if location(object)=ulfius
     narrate "Pero si ya lo tengo..."
@@ -434,7 +434,7 @@ defproc action_take
 
 enddef
 
-defproc action_break
+defproc do_break
 
   if not complement and is_it_accessible(the_sword)
       let complement=the_sword
@@ -468,7 +468,7 @@ defproc action_break
       sel on complement
         =false:narrate not_by_hand$
         =the_sword
-          do_vanish the_cloak
+          vanish the_cloak
           let location(the_rags)=ulfius
           let location(the_thread)=ulfius
           let location(the_piece)=ulfius
@@ -511,7 +511,7 @@ defproc action_break
         =false:narrate not_by_hand$
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
-          do_vanish the_snake
+          vanish the_snake
           let location_exit(snake_passage_loc,south)=inner_lake_loc
         =remainder:narrate not_with_that$
       endsel
@@ -522,7 +522,7 @@ defproc action_break
 
 enddef
 
-defproc action_speak
+defproc do_speak
 
   sel on object
     =ambrosio:talk_to_ambrosio
@@ -617,7 +617,7 @@ defproc talk_to_the_man
 
 enddef
 
-defproc action_fling
+defproc do_fling
 
   sel on current_location
     =ruined_bridge_loc,water_passage_loc
@@ -637,7 +637,7 @@ defproc action_fling
 
 enddef
 
-defproc action_insert
+defproc do_insert
 
   sel on complement
     =the_rocks
@@ -649,7 +649,7 @@ defproc action_insert
     =the_idol
       sel on object
         =the_emerald,the_stone
-          do_vanish object
+          vanish object
           narrate "Encaja. Metido. Desaparece en su interior." ' XXX FIXME text
           if is_it_vanished(the_stone) \
             and is_it_vanished(the_emerald)
@@ -673,18 +673,18 @@ defproc action_insert
 
 enddef
 
-defproc action_move(direction)
+defproc do_move(direction)
 
   if location_exit(current_location,direction)
     let current_location=location_exit(current_location,direction)
-    action_look
+    do_look
   else
     narrate "No es posible."
   endif
 
 enddef
 
-defproc action_inventory
+defproc do_inventory
 
   loc i,list$
   let list$=""
@@ -700,7 +700,7 @@ defproc action_inventory
 
 enddef
 
-defproc action_look
+defproc do_look
 
   loc description$
 
@@ -787,7 +787,7 @@ deffn is_it_accessible(thing)
 
 enddef
 
-defproc do_vanish(thing)
+defproc vanish(thing)
 
   let location(thing)=limbo
 

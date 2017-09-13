@@ -3,8 +3,6 @@
 :revdate: 2017-09-14
 
 - Review the texts.
-- Replace "action_" prefix with "do_". Rename current `do_vanish` to
-  `vanish`.
 - Rewrite and improve the help.
 - Save and restore game sessions.
 - Replace location ranges, eg. `=saxon_village_loc to
