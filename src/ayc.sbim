@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.12+201709140048" ' after http://semver.org
+let version$="0.2.0-dev.13+201709140059" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -38,7 +38,8 @@ defproc main
     rep your_turn
       plot
       command
-      if start_over:exit your_turn
+      if start_over:\
+        exit your_turn
     endrep your_turn
   endrep game
 
@@ -51,7 +52,9 @@ defproc plot
 
   ' Check the plot conditions.
 
-  if current_location=cave_entrance_loc and location_exit(cave_entrance_loc,north)
+  if current_location=cave_entrance_loc \
+    and location_exit(cave_entrance_loc,north)
+
     let location_exit(cave_entrance_loc,north)=nowhere
     let saxons_follow=1
     narrate "Una partida sajona aparece por el este. \
@@ -61,14 +64,18 @@ defproc plot
     narrate "En el estrecho paso es posible resistir, \
       aunque por desgracia sus tropas \
       son más numerosas que las tuyas."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
     narrate "Tus oficiales te conminan a huir."
     speak "Capturando a un general britano, ganan doblemente."
     narrate "Sabes que es cierto, y te duele."
     ret
+
   endif
 
-  if saxons_follow and current_location<secret_exit_loc ' XXX TODO `<>` is clearer
+  if saxons_follow \
+    and current_location<secret_exit_loc ' XXX TODO `<>` is clearer
+
     let saxons_follow=saxons_follow+1
     narrate "No sabes cuánto tiempo te queda..."
     if saxons_follow>10 ' XXX TODO random
@@ -76,13 +83,15 @@ defproc plot
         Su general, sonriendo ampliamente, dice:"
       speak "Bien, bien... \
         Del gran Ulfius podremos sacar una buena ventaja."
-      end_of_scene:clear_screen
+      end_of_scene:\
+      clear_screen
       do_end
     endif
     if current_location<cave_hall_loc ' XXX TODO `=` is enough?
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
     ret
+
   endif
 
   if current_location=cave_strait_1_loc \
@@ -103,7 +112,8 @@ defproc plot
       y de lo que ha pasado."
     short_pause
     narrate "Pides audiencia al rey, Uther Pendragon."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
     speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&\
       "ha ordenado que no se le moleste, \
       pues sufre una amarga tristeza."
@@ -115,7 +125,8 @@ defproc plot
       Es lo poco que puedes hacer."
     short_pause
     narrate "Te has ganado un buen descanso."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
     do_end ' XXX TODO happy end instead
   endif
 
@@ -208,11 +219,13 @@ defproc command
   rep find_word
     let next_space=" " instr command$
     parse_word command$(1 to next_space-1)
-    if next_space=len(command$):exit find_word
+    if next_space=len(command$):\
+      exit find_word
     let command$=command$(next_space+1 to)
   endrep find_word
 
-  if fine_command:do_action action
+  if fine_command:\
+    do_action action
 
 enddef
 
@@ -226,7 +239,8 @@ defproc parse_word(word$)
     if not object
       let object=parse_noun(word$)
     else
-      if not complement:complement=parse_noun(word$)
+      if not complement:\
+        complement=parse_noun(word$)
     endif
   endif
 
@@ -238,7 +252,8 @@ deffn parse_verb(word$)
 
   loc found
   let found=inarray%(verb$,0,word$)
-  if found<0:ret 0
+  if found<0:\
+    ret 0
   ret the_action(found)
 
 enddef
@@ -249,7 +264,8 @@ deffn parse_noun(word$)
 
   loc found
   let found=inarray%(noun$,0,word$)
-  if found<0:ret 0
+  if found<0:\
+    ret 0
   ret the_thing(found)
 
 enddef
@@ -263,7 +279,9 @@ deffn fine_command
   loc syntax
   let syntax=action_syntax(action)
 
-  if not action:narrate "No conozco ese verbo.":ret 0
+  if not action:\
+    narrate "No conozco ese verbo.":\
+    ret 0
 
   sel on syntax
     =object_needed
@@ -354,7 +372,8 @@ defproc do_end
   if yes("¿Quieres volver a intentarlo?")
     let start_over=true
   else
-    clear_screen:stop
+    clear_screen:\
+    stop
   endif
 
 enddef
@@ -428,7 +447,8 @@ defproc do_take
         narrate "No es algo que se pueda coger."
       endif
     else
-      let location(object)=ulfius:narrate "Hecho."
+      let location(object)=ulfius:\
+      narrate "Hecho."
     endif
   endif
 
@@ -448,7 +468,8 @@ defproc do_break
         narrate "La punta ya es lo suficientemente afilada."
       else
         sel on complement
-          =false:narrate not_by_hand$
+          =false
+            narrate not_by_hand$
           =the_sword
             narrate "Sabes que el resultado es \
               la hoja de tu espada, mellada. No." ' XXX FIXME text
@@ -466,7 +487,8 @@ defproc do_break
     =the_cloak
 
       sel on complement
-        =false:narrate not_by_hand$
+        =false
+          narrate not_by_hand$
         =the_sword
           vanish the_cloak
           let location(the_rags)=ulfius
@@ -480,16 +502,21 @@ defproc do_break
     =the_rocks
 
       sel on complement
-        =false:narrate not_by_hand$
-        =the_log:rocks_and_log
-        =the_sword:narrate "Tu espada no hace nada."
-        =remainder:narrate not_with_that$
+        =false:\
+          narrate not_by_hand$
+        =the_log:\
+          rocks_and_log
+        =the_sword:\
+          narrate "Tu espada no hace nada."
+        =remainder:\
+          narrate not_with_that$
       endsel
 
     =the_flint
 
       sel on complement
-        =false:narrate not_by_hand$
+        =false:\
+          narrate not_by_hand$
         =the_sword
           if is_it_accessible(the_torch)
             let lit_the_torch=true
@@ -502,21 +529,25 @@ defproc do_break
             narrate "Ante el potente choque con la espada, \
               poderosas chispas saltan en todas direcciones."
           endif
-        =remainder:narrate not_with_that$
+        =remainder:\
+          narrate not_with_that$
       endsel
 
     =the_snake
 
       sel on complement
-        =false:narrate not_by_hand$
+        =false:\
+          narrate not_by_hand$
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
           vanish the_snake
           let location_exit(snake_passage_loc,south)=inner_lake_loc
-        =remainder:narrate not_with_that$
+        =remainder:\
+          narrate not_with_that$
       endsel
 
-    =remainder:narrate "Eso no es lo adecuado ahora."
+    =remainder:\
+      narrate "Eso no es lo adecuado ahora."
 
   endsel 
 
@@ -525,9 +556,12 @@ enddef
 defproc do_speak
 
   sel on object
-    =ambrosio:talk_to_ambrosio
-    =the_man:talk_to_the_man
-    =remainder:narrate "No tiene sentido hablar con eso."
+    =ambrosio:\
+      talk_to_ambrosio
+    =the_man:\
+      talk_to_the_man
+    =remainder:\
+      narrate "No tiene sentido hablar con eso."
   endsel
 
 enddef
@@ -538,11 +572,13 @@ defproc talk_to_ambrosio
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
     narrate "Por primera vez, \
       te sientas y cuentas a Ambrosio todo lo que ha pasado. \
       Y, tras tanto acontecido, lloras desconsoladamente."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
     narrate "Ambrosio te propone un trato, que aceptas: \
       por ayudarle a salir de la cueva, \
       objetos, vitales para la empresa, te son entregados."
@@ -557,7 +593,8 @@ defproc talk_to_ambrosio
     short_pause
     narrate "Piensas entonces \
       en el hecho curioso de que supiera tu nombre."
-    end_of_scene:clear_screen
+    end_of_scene:\
+    clear_screen
 
   else
 
@@ -573,12 +610,16 @@ defproc talk_to_ambrosio
         speak "No lo entiendo, la verdad."
       endif
     endif
-    if current_location>=passage_crossing_loc and current_location<=cave_exit_loc
+
+    if current_location>=passage_crossing_loc \
+      and current_location<=cave_exit_loc
+
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
       let location(the_key)=ulfius
       do_takeable the_key
       let ambrosio_follows=true
+
     endif
 
   endif
@@ -690,7 +731,8 @@ defproc do_inventory
   let list$=""
 
   for i=1 to things
-    if location(i)=ulfius:let list$=list$&"  - "&thing$(i)&nl$
+    if location(i)=ulfius:\
+      let list$=list$&"  - "&thing$(i)&nl$
   endfor i
   if len(list$)
     narrate "Llevas contigo:"&nl$&list$
@@ -810,7 +852,8 @@ deffn accept$
   ink #tw,yellow
   print #tw,"> ";
   let command$=iso_input$(#tw,0)
-  if command$(len(command$))<>" ":let command$=command$&" "
+  if command$(len(command$))<>" ":\
+    let command$=command$&" "
   ink #tw,light_grey
   ret command$
 
@@ -1162,7 +1205,8 @@ defproc mistype_bell
 
   ' Mistype sound.
 
-  if mistype_bell_active:beep 1000,0
+  if mistype_bell_active:\
+    beep 1000,0
 
 enddef
 
@@ -1241,10 +1285,12 @@ deffn iso_upper(char)
 
   ' Return the uppercase char code of the given ISO 8859-1 char.
 
-  loc c:let c=char ' QDOS and Minerva need this
+  loc c:let c=char ' XXX REMARK -- QDOS and Minerva need this
   sel on c
-    =97 to 122,224 to 246,248 to 254:ret c-32
-    =remainder:ret c
+    =97 to 122,224 to 246,248 to 254:\
+      ret c-32
+    =remainder:\
+      ret c
   endsel
 
 enddef
@@ -1307,7 +1353,8 @@ defproc describe(txt$)
 
   ' Print a location description.
 
-  ink #tw,dark_cyan:tell txt$
+  ink #tw,dark_cyan:\
+  tell txt$
 
 enddef
 
@@ -1315,7 +1362,8 @@ defproc narrate(txt$)
 
   ' Print a narrative text.
 
-  ink #tw,light_grey:tell txt$
+  ink #tw,light_grey:\
+  tell txt$
 
 enddef
 
@@ -1347,7 +1395,8 @@ defproc about
   ' Show the credits.
 
   clear_screen
-  ink #tw,light_red:print #tw,"Asalto y castigo"
+  ink #tw,light_red:\
+  print #tw,"Asalto y castigo"
   ink #tw,dark_cyan
   print #tw,\"Por Baltasar el Arquero, 2009"
   print #tw,"http://caad.es/baltasarq/"
@@ -1375,11 +1424,13 @@ defproc intro
   short_pause
   narrate "Los hombres se ciernen sobre la aldea, y la destruyen. \
     No hubo tropas enemigas, ni honor en la batalla."
-  end_of_scene:clear_screen
+  end_of_scene:\
+  clear_screen
   speak "Sire Ulfius, la batalla ha terminado."
   narrate "Lentamente, das la orden de volver a casa. \
     Los oficiales detienen como pueden el saqueo."
-  end_of_scene:clear_screen
+  end_of_scene:\
+  clear_screen
 
 enddef
 
@@ -1442,9 +1493,13 @@ defproc init_the_screen
   loc screen_mode
   let screen_mode=dmode
   sel on screen_mode
-    =0:mode 8:init_ql_colours
-    =8:init_ql_colours
-    =remainder:init_pal_colours
+    =0:\
+      mode 8:\
+      init_ql_colours
+    =8:\
+      init_ql_colours
+    =remainder:\
+      init_pal_colours
   endsel
   let scr_w=flim_w(#0)
   let scr_h=flim_h(#0)

@@ -16,3 +16,4 @@
 - Use an `enum` function to init the identifiers. Then make sure their
   data can be in any order, adding the identifier itself as the first
   datum.
+- Tidy and complete the file headers.
