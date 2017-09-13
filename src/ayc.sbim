@@ -2,7 +2,7 @@ rem Asalto y castigo
 rem a text adventure for QL, in SuperBASIC
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.9+201709132028" ' after http://semver.org
+let version$="0.2.0-dev.10+201709132140" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -702,9 +702,18 @@ enddef
 
 defproc action_look
 
+  loc description$ ' XXX NEW
+
   clear_screen
   ' narrate "["&current_location&"]" ' XXX INFORMER
-  describe location_description$(current_location)
+
+'  describe location_description$(current_location) ' XXX OLD
+
+  ' XXX NEW
+  restore @location_descriptions_start+current_location-1
+  read description$
+  describe description$
+
   location_plot
   list_present_things 
 
@@ -1663,12 +1672,14 @@ defproc init_the_data
 
   let locations=@location_descriptions_end\
     -@location_descriptions_start
-  dim location_description$(locations,255)
-  for i=1 to locations
-    read location_description$(i)
-  endfor i
+  ' XXX OLD
+  ' dim location_description$(locations,255)
+  ' for i=1 to locations
+  '   read location_description$(i)
+  ' endfor i
 
   dim location_exit(locations,last_direction)
+  restore @location_exits
   for i=1 to locations
     for j=first_direction to last_direction
       read location_exit(i,j)
@@ -1886,10 +1897,12 @@ data "Westmorland. \
   con el mercado en el centro de la plaza, \
   donde se encuentra el castillo."
 label @location_descriptions_end
+rem XXX TMP -- to prevent labels clash
 
 ' Location exits
 
 '  data: north,south,east,west,down,up
+label @location_exits
 data 0,2,0,0,0,0
 data 1,0,0,3,0,0
 data 0,0,2,4,0,0
