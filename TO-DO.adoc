@@ -22,7 +22,7 @@
   more generig, eg. "¿Eh?".
 - Replace 1st person error messages (eg. "No conozco ese verbo") with
   generic ones, ie. kill the narrator.
-- Redefine the system windows and font sizes.
 - Fix: "stone" is used in the description of the flint, but it's not a
   synonym.
 - Improve the general syntax checker.
+- Abandon compatibility with SuperBASIC using SBASIC-only features?
