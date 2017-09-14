@@ -1,25 +1,30 @@
-rem Asalto y castigo
-rem a text adventure for QL, in SuperBASIC
+rem This file is part of "Asalto y castigo",
+rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.13+201709140059" ' after http://semver.org
+let version$="0.2.0-dev.13+201709141643" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
 
-rem Original program in
-rem Sinclar BASIC (Sinclair ZX Spectrum), Locomotive BASIC (Amstrad CPC) and Blassic:
+rem This program is a Sinclair QL port/remake of:
+rem "Asalto y castigo"
 rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
+rem Written in Sinclar BASIC (Sinclair ZX Spectrum),
+rem Locomotive BASIC (Amstrad CPC) and Blassic.
 
 ' ==============================================================
 ' Requirements
 
 ' From "MegaToolkit", (C) 1992 Michael A. Crowe:
-'   true,false,char_w,char_x,pos_x,pos_y,lnum
+'   true, false, char_w, char_x, pos_x, pos_y
 
 ' From "DIY Toolkit", (C) Simon N. Goodwin:
-'   inarray%
+'   minimum, maximum, inarray%
+
+' From "Display toolkit", (C) Dilwyn Jones:
+'   flim_w, flim_h, dmode
 
 ' ==============================================================
 ' Main
