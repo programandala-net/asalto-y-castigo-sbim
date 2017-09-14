@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.13+201709141643" ' after http://semver.org
+let version$="0.2.0-dev.14+201709150018" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -281,21 +281,18 @@ deffn fine_command
   ' accesibility of the object and the complement, if present. Return
   ' 1 if it's right, or 0 otherwise.
 
-  loc syntax
-  let syntax=action_syntax(action)
-
   if not action:\
     narrate "No conozco ese verbo.":\
     ret 0
 
-  sel on syntax
+  sel on syntax(action)
     =object_needed
       if not object:\
-        narrate not_seen$:\
+        narrate not_seen$:\ ' XXX FIXME --  better message
         ret 0
     =object_and_complement_needed
       if (not object or not complement):\
-        narrate not_seen$:\
+        narrate not_seen$:\ ' XXX FIXME -- better message
         ret 0
   endsel
 
@@ -334,6 +331,7 @@ defproc do_action(action)
     =to_insert:do_insert
     =to_look:do_look
     =to_open:do_open
+    =to_sharpen:do_sharpen
     =to_speak:do_speak
     =to_swim:do_swim
     =to_take:do_take
@@ -461,63 +459,17 @@ enddef
 
 defproc do_break
 
-  if not complement and is_it_accessible(the_sword)
-      let complement=the_sword
-  endif
-
   sel on object
-
-    =the_log
-
-      if hacked_the_log
-        narrate "La punta ya es lo suficientemente afilada."
-      else
-        sel on complement
-          =false
-            narrate not_by_hand$
-          =the_sword
-            narrate "Sabes que el resultado es \
-              la hoja de tu espada, mellada. No." ' XXX FIXME text
-          =the_flint
-            let hacked_the_log=true
-            let thing_description$(the_log)=\
-              thing_description$(the_log)&" Su punta está afilada."
-            narrate "Con el pedernal, recortas la punta del tronco."
-          =remainder
-            narrate "El problema es encontrar \
-              la herramienta adecuada para hacerlo."
-        endsel
-      endif
-
-    =the_cloak
-
-      sel on complement
-        =false
-          narrate not_by_hand$
-        =the_sword
-          vanish the_cloak
-          let location(the_rags)=ulfius
-          let location(the_thread)=ulfius
-          let location(the_piece)=ulfius
-          narrate "Rasgas la capa, como buenamente puedes."
-        =remainder
-          narrate not_with_that$
-      endsel
-
-    =the_rocks
-
-      sel on complement
-        =false:\
-          narrate not_by_hand$
-        =the_log:\
-          rocks_and_log
-        =the_sword:\
-          narrate "Tu espada no hace nada."
-        =remainder:\
-          narrate not_with_that$
-      endsel
+    =the_log:\
+      do_break_the_log
+    =the_cloak:\
+      do_break_the_cloack
+    =the_rocks:\
+      do_break_the_rocks
 
     =the_flint
+
+      ' XXX TODO move to the proper action
 
       sel on complement
         =false:\
@@ -540,6 +492,8 @@ defproc do_break
 
     =the_snake
 
+      ' XXX TODO move to the proper action
+
       sel on complement
         =false:\
           narrate not_by_hand$
@@ -551,10 +505,93 @@ defproc do_break
           narrate not_with_that$
       endsel
 
+    ' =nothing XXX TODO
+
     =remainder:\
       narrate "Eso no es lo adecuado ahora."
 
   endsel 
+
+enddef
+
+defproc do_break_the_log
+  sel on complement
+    =false
+      narrate not_by_hand$
+    =the_sword
+      ' XXX TODO factor
+      narrate "Sabes que el resultado es \
+        la hoja de tu espada, mellada. No." ' XXX FIXME text
+    =remainder
+      narrate "No puedes hacer eso." ' XXX TODO  factor, generalize
+  endsel
+enddef
+
+defproc do_break_the_cloak
+  sel on complement
+    =false
+      narrate not_by_hand$
+    =the_sword
+      vanish the_cloak
+      let location(the_rags)=ulfius
+      let location(the_thread)=ulfius
+      let location(the_piece)=ulfius
+      narrate "Rasgas la capa, como buenamente puedes."
+    =remainder
+      narrate not_with_that$
+  endsel
+enddef
+
+defproc do_break_the_rocks
+  sel on complement
+    =false:\
+      narrate not_by_hand$
+    =the_log:\
+      rocks_and_log
+    =the_sword:\
+      narrate "Tu espada no hace nada." ' XXX TODO Improve.
+    =remainder:\
+      narrate not_with_that$
+  endsel
+enddef
+
+defproc do_sharpen
+
+  sel on object
+
+    =the_log
+
+      ' XXX factor, reuse with `to_break`, `to_cut`...
+
+      if hacked_the_log
+        narrate "La punta ya está suficientemente afilada."
+      else
+        sel on complement
+          =false
+            narrate not_by_hand$
+          =the_sword
+            narrate "Sabes que el resultado es \
+              la hoja de tu espada, mellada. No." ' XXX FIXME text
+          =the_flint
+            let hacked_the_log=true
+            let thing_description$(the_log)=\
+              thing_description$(the_log)&" Su punta está afilada."
+            narrate "Con el pedernal, afilas la punta del tronco."
+          ' =nothing XXX TODO
+          =remainder
+            ' XXX TODO factor
+            narrate "El problema es encontrar \
+              la herramienta adecuada para hacerlo."
+        endsel
+
+      endif
+
+    ' =nothing XXX TODO
+
+    =remainder:\
+      narrate "Eso no es lo adecuado ahora."
+
+  endsel
 
 enddef
 
@@ -566,7 +603,7 @@ defproc do_speak
     =the_man:\
       talk_to_the_man
     =remainder:\
-      narrate "No tiene sentido hablar con eso."
+      narrate "No tiene sentido hablar con eso." ' XXX TODO generalize
   endsel
 
 enddef
@@ -1472,6 +1509,19 @@ defproc game_init
   cls #tw,3
   cursor #tw,0,y
 
+  ' Special init conditions for checking and debuging:
+
+  sel on true
+
+    =true
+
+      ' Check "to sharpen"
+
+      let location(the_log)=current_location
+      let location(the_flint)=current_location
+
+  endsel
+
 enddef
 
 defproc init_the_keyboard
@@ -1629,7 +1679,7 @@ defproc init_the_constants
   let r_quote$="»" ' castilian right quote
   let limbo=255 ' location of vanished things
 
-  ' Action syntax flags
+  ' Syntax flags
   let no_object_needed=0
   let object_needed=1
   let object_and_complement_needed=2
@@ -1659,8 +1709,11 @@ defproc init_the_constants
   let to_go_south=16
   let to_finish=17
   let to_fling=18
+  let to_sharpen=19
+  ' XXX TODO calculate `actions` here
 
   ' Thing ids
+  ' let nothing=0 ' XXX TODO
   let ulfius=0
   let the_altar=1
   let ambrosio=2
@@ -1810,16 +1863,17 @@ defproc init_the_data
   dim thing_type(things)
   dim thing_description$(things,128)
   for i=1 to things
-    read thing
-    read location(thing),thing_type(thing)
-    read thing_description$(thing)
+    read \
+      thing,\
+      location(thing),\
+      thing_type(thing),\
+      thing_description$(thing)
   endfor i
 
   let actions=@actions_end-@actions_start
-  dim action_syntax(actions)
+  dim syntax(actions)
   for i=1 to actions
-    read action
-    read action_syntax(action)
+    read action,syntax(action)
   endfor i
 
   let verbs=@verbs_end-@verbs_start
@@ -2181,7 +2235,7 @@ rem XXX TMP -- to prevent labels clash
 
 ' Actions
 
-' data: action id,action syntax 
+' data: action id,syntax 
 label @actions_start
 data to_break,object_needed
 data to_drop,object_needed
@@ -2201,6 +2255,7 @@ data to_open,object_needed
 data to_swim,no_object_needed
 data to_take,object_needed
 data to_speak,object_needed
+data to_sharpen,object_needed
 label @actions_end
 rem XXX TMP -- to prevent labels clash
 
@@ -2208,26 +2263,24 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: action id,verb or synonym
 label @verbs_start
-data to_break,"afila"
-data to_break,"afilar"
-data to_break,"ataca"
-data to_break,"atacar"
-data to_break,"corta"
-data to_break,"cortar"
+data to_break,"ataca"     ' XXX TODO to_attack
+data to_break,"atacar"    ' XXX TODO to_attack
+data to_break,"corta"     ' XXX TODO to_cut
+data to_break,"cortar"    ' XXX TODO to_cut
 data to_break,"destroza"
 data to_break,"destrozar"
-data to_break,"empuja"
-data to_break,"empujar"
-data to_break,"golpea"
-data to_break,"golpear"
-data to_break,"mata"
-data to_break,"matar"
-data to_break,"recorta"
-data to_break,"recortar"
+data to_break,"empuja"    ' XXX TODO to_push
+data to_break,"empujar"   ' XXX TODO to_push
+data to_break,"golpea"    ' XXX TODO to_hit
+data to_break,"golpear"   ' XXX TODO to_hit
+data to_break,"mata"      ' XXX TODO to_kill
+data to_break,"matar"     ' XXX TODO to_kill
+data to_break,"recorta"   ' XXX TODO to_cut
+data to_break,"recortar"  ' XXX TODO to_cut
 data to_break,"rompe"
 data to_break,"romper"
-data to_break,"sacude"
-data to_break,"sacudir"
+data to_break,"sacude"    ' XXX TODO to_hit
+data to_break,"sacudir"   ' XXX TODO to_hit
 data to_drop,"deja"
 data to_drop,"dejar"
 data to_drop,"desprenderse"
@@ -2311,6 +2364,8 @@ data to_look,"ojea"
 data to_look,"ojear"
 data to_open,"abre"
 data to_open,"abrir"
+data to_sharpen,"afila"
+data to_sharpen,"afilar"
 data to_swim,"bañar"
 data to_swim,"bañarse"
 data to_swim,"bañarte"

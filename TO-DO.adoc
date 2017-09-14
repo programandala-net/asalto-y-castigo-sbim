@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-14
+:revdate: 2017-09-15
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -16,3 +16,13 @@
 - Use an `enum` function to init the identifiers. Then make sure their
   data can be in any order, adding the identifier itself as the first
   datum.
+- Factor all possible meanings currently defined for `do_break`.
+- Add `nothing` identifier. Add to `sel`. Use in current `=false`.
+- Change all errors like "Eso no es lo adecuado ahora" to something
+  more generig, eg. "¿Eh?".
+- Replace 1st person error messages (eg. "No conozco ese verbo") with
+  generic ones, ie. kill the narrator.
+- Redefine the system windows and font sizes.
+- Fix: "stone" is used in the description of the flint, but it's not a
+  synonym.
+- Improve the general syntax checker.
