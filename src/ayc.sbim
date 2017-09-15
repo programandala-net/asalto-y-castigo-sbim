@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.27+201709151825" ' after http://semver.org
+let version$="0.2.0-dev.28+201709151855" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -138,8 +138,7 @@ defproc dark_cave_strait_1
   narrate "Ante la reinante e intimidante oscuridad, \
     retrocedes a donde puedes ver."
   short_pause
-  let current_location=stalactites_loc
-  do_look_around
+  enter stalactites_loc
 
 enddef
 
@@ -435,8 +434,7 @@ defproc do_swim
     narrate "Consigues emerger, \
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
-    let current_location=secret_exit_loc
-    do_look_around
+    enter secret_exit_loc
     let under_attack=false
   else
     narrate "No tiene sentido nadar ahora."
@@ -806,8 +804,7 @@ enddef
 defproc do_move(direction)
 
   if way_out(current_location,direction)
-    let current_location=way_out(current_location,direction)
-    do_look_around
+    enter way_out(current_location,direction)
   else
     narrate "No es posible."
   endif
@@ -838,6 +835,13 @@ defproc do_look
   else
     do_look_around
   endif
+
+enddef
+
+defproc enter(new_location)
+
+  let current_location=new_location
+  do_look_around
 
 enddef
 
@@ -1004,7 +1008,7 @@ deffn iso_input$(channel,max_chars)
     sel on key
       =2:let mistype_bell_active=not mistype_bell_active ' Ctrl+B
       =9:tab 8 ' Tab
-      =enter:if len(output$):exit typing:else mistype_bell
+      =nl:if len(output$):exit typing:else mistype_bell
       =space:type_space
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
@@ -1747,12 +1751,11 @@ defproc init_the_constants
 
   ' Misc
 
-  let space=32 ' char code
-  let enter=10 ' char code
-  let nl$=chr$(enter) ' new line
+  let space=32     ' char code
+  let nl=10        ' char code of the enter key
+  let nl$=chr$(nl) ' new line
   let l_quote$="«" ' castilian left quote
   let r_quote$="»" ' castilian right quote
-  let limbo=255 ' location of vanished things
 
   ' Syntax flags
 
@@ -1833,6 +1836,7 @@ defproc init_the_constants
   ' Location identifiers
 
   let nowhere=0
+  let limbo=255 ' location of vanished things
 
   let next_enum=1
 
