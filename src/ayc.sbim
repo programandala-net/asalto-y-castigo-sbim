@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.15+201709151215" ' after http://semver.org
+let version$="0.2.0-dev.16+201709151237" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -329,6 +329,7 @@ defproc do_action(action)
     =to_go_west:do_move west
     =to_help:do_help
     =to_insert:do_insert
+    =to_inventory:do_inventory
     =to_look:do_look
     =to_open:do_open
     =to_sharpen:do_sharpen
@@ -365,7 +366,7 @@ defproc do_examine
       narrate not_seen$
     endif
   else
-    do_inventory
+    do_look
   endif
 
 enddef
@@ -786,6 +787,8 @@ enddef
 
 defproc do_look
 
+  ' XXX TODO change to `do_look_around`
+
   loc description$
 
   clear_screen
@@ -795,7 +798,7 @@ defproc do_look
   read description$
   describe description$
 
-  location_plot
+  location_plot ' XXX FIXME only when entering the location
   list_present_things 
 
 enddef
@@ -1713,6 +1716,7 @@ defproc init_the_constants
   let to_finish=17
   let to_fling=18
   let to_sharpen=19
+  let to_inventory=20
   ' XXX TODO calculate `actions` here
 
   ' Thing ids
@@ -2259,6 +2263,7 @@ data to_swim,no_object_needed
 data to_take,object_needed
 data to_speak,object_needed
 data to_sharpen,object_needed
+data to_inventory,no_object_needed
 label @actions_end
 rem XXX TMP -- to prevent labels clash
 
@@ -2293,10 +2298,6 @@ data to_drop,"suelta"
 data to_examine,"ex"
 data to_examine,"examina"
 data to_examine,"examinar"
-data to_examine,"examinarte"
-data to_examine,"examínate"
-data to_examine,"i"
-data to_examine,"mírate"
 data to_finish,"acaba"
 data to_finish,"acabar"
 data to_finish,"fin"
@@ -2324,8 +2325,8 @@ data to_go_north,"n"
 data to_go_north,"norte"
 data to_go_south,"s"
 data to_go_south,"sur"
-data to_go_up,"arriba"
 data to_go_up,"a"
+data to_go_up,"arriba"
 data to_go_up,"ascender"
 data to_go_up,"asciende"
 data to_go_up,"sube"
@@ -2338,28 +2339,34 @@ data to_help,"ayudar"
 data to_help,"ayúdame"
 data to_help,"socorro"
 data to_insert,"coloca"
-data to_insert,"colócale"
 data to_insert,"colocar"
 data to_insert,"colocarle"
-data to_insert,"introduce"
-data to_insert,"introdúcele"
-data to_insert,"introducir"
-data to_insert,"introducirle"
+data to_insert,"colócale"
 data to_insert,"inserta"
-data to_insert,"insértale"
 data to_insert,"insertar"
 data to_insert,"insertarle"
+data to_insert,"insértale"
+data to_insert,"introduce"
+data to_insert,"introducir"
+data to_insert,"introducirle"
+data to_insert,"introdúcele"
 data to_insert,"mete"
-data to_insert,"métele"
 data to_insert,"meter"
 data to_insert,"meterle"
+data to_insert,"métele"
 data to_insert,"pon"
-data to_insert,"ponle"
 data to_insert,"poner"
 data to_insert,"ponerle"
+data to_insert,"ponle"
 data to_insert,"situar"
 data to_insert,"situarle"
 data to_insert,"sitúa"
+data to_inventory,"examinarte"
+data to_inventory,"examínate"
+data to_inventory,"i"
+data to_inventory,"inventario"
+data to_inventory,"mirarte"
+data to_inventory,"mírate"
 data to_look,"m"
 data to_look,"mira"
 data to_look,"mirar"
@@ -2369,25 +2376,6 @@ data to_open,"abre"
 data to_open,"abrir"
 data to_sharpen,"afila"
 data to_sharpen,"afilar"
-data to_swim,"bañar"
-data to_swim,"bañarse"
-data to_swim,"bañarte"
-data to_swim,"bucea"
-data to_swim,"bucear"
-data to_swim,"báñate"
-data to_swim,"nada"
-data to_swim,"nadar"
-data to_swim,"zambullirse"
-data to_swim,"zambullirte"
-data to_swim,"zambúllete"
-data to_take,"agarra"
-data to_take,"agarrar"
-data to_take,"coge"
-data to_take,"coger"
-data to_take,"toma"
-data to_take,"tomar"
-data to_take,"recoge"
-data to_take,"recoger"
 data to_speak,"charla"
 data to_speak,"charlar"
 data to_speak,"comenta"
@@ -2406,7 +2394,6 @@ data to_speak,"comunícate"
 data to_speak,"coméntale"
 data to_speak,"coméntalo"
 data to_speak,"coméntaselo"
-data to_speak,"comentárselo"
 data to_speak,"conversa"
 data to_speak,"conversar"
 data to_speak,"decir"
@@ -2436,6 +2423,25 @@ data to_speak,"preguntarlo"
 data to_speak,"preguntárselo"
 data to_speak,"pregúntale"
 data to_speak,"pregúntalo"
+data to_swim,"bañar"
+data to_swim,"bañarse"
+data to_swim,"bañarte"
+data to_swim,"bucea"
+data to_swim,"bucear"
+data to_swim,"báñate"
+data to_swim,"nada"
+data to_swim,"nadar"
+data to_swim,"zambullirse"
+data to_swim,"zambullirte"
+data to_swim,"zambúllete"
+data to_take,"agarra"
+data to_take,"agarrar"
+data to_take,"coge"
+data to_take,"coger"
+data to_take,"recoge"
+data to_take,"recoger"
+data to_take,"toma"
+data to_take,"tomar"
 label @verbs_end
 
 ' ==============================================================

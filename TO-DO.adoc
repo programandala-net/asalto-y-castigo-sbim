@@ -25,3 +25,4 @@
 - Improve the general syntax checker.
 - Abandon compatibility with SuperBASIC using SBASIC-only features?
 - Add "exits/x" action.
+- Improve error "No conozco ese verbo".
