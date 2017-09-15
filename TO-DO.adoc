@@ -29,3 +29,8 @@
   which are shown every time the location is described.
 - Do not use `ulfius` identifier to take/drop. Write a wrapper.
 - Add `nothing` and set `ulfius` to 1.
+- Replace literals with constants in things' data lines.
+- Update notation "thing" to "entity".
+- Remove "thing_" prefix from arrays.
+- Rename `hacked_the_log` to `sharpen_the_log`?
+

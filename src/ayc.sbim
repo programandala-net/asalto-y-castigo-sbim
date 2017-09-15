@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.21+201709151455" ' after http://semver.org
+let version$="0.2.0-dev.22+201709151518" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -74,7 +74,7 @@ defproc plot
   endif
 
   if current_location=cave_strait_1_loc \
-    and (not is_it_accessible(the_torch) \
+    and (not is_accessible(the_torch) \
     or not lit_the_torch)
 
     ' XXX TODO -- Why `>channel_sand_corner_loc` in the
@@ -195,8 +195,8 @@ defproc location_plot
       let location_exit(refuge_loc,east)=nowhere
   endsel
 
-  if not is_it_vanished(ambrosio) \
-    and can_be_taken(the_key) \
+  if not is_vanished(ambrosio) \
+    and is_takeable(the_key) \
     and (current_location=ambrosios_home_loc or ambrosio_follows)
     let location(ambrosio)=current_location
     narrate "Tu benefactor te sigue, esperanzado."
@@ -327,12 +327,12 @@ deffn fine_command
     endsel
 
     if object:\
-      if not is_it_accessible(object):\
+      if not is_accessible(object):\
          narrate not_seen$:\
          ret false
 
     if complement:\
-      if not is_it_accessible(complement):\
+      if not is_accessible(complement):\
         narrate not_seen$:\
         ret false
 
@@ -406,7 +406,7 @@ enddef
 
 defproc do_examine_object
 
-  if is_it_accessible(object)
+  if is_accessible(object)
     narrate thing_description$(object)
   else
     narrate not_seen$
@@ -448,7 +448,7 @@ defproc do_open
 
   if current_location=cave_exit_loc
     if object=the_door or object=the_lock
-      if is_it_accessible(the_key)
+      if is_accessible(the_key)
         open_the_door
       else
         narrate "El candado bloquea la puerta."
@@ -474,7 +474,7 @@ defproc do_drop
         narrate "No, sin luz es imposible moverse por la caverna.":\
         ret
   endsel
-  if location(object)=ulfius
+  if is_hold(object)
     let location(object)=current_location
     narrate "Hecho."
   else
@@ -484,17 +484,17 @@ enddef
 
 defproc do_take
 
-  if location(object)=ulfius
+  if is_hold(object)
     narrate "Pero si ya lo tengo..."
   else
-    if cannot_be_taken(object)
+    if is_untakeable(object)
       if object=the_key
         narrate "Ambrosio la retiene consigo."
       else
         narrate "No es algo que se pueda coger."
       endif
     else
-      let location(object)=ulfius:\
+      be_hold object:\
       narrate "Hecho."
     endif
   endif
@@ -522,7 +522,7 @@ defproc do_break
         =nothing:\
           narrate not_by_hand$
         =the_sword
-          if is_it_accessible(the_torch)
+          if is_accessible(the_torch)
             let lit_the_torch=true
             let thing_description$(the_torch)=\
               "Ilumina perfectamente."
@@ -576,9 +576,9 @@ defproc do_break_the_cloak
       narrate not_by_hand$
     =the_sword
       vanish the_cloak
-      let location(the_rags)=ulfius
-      let location(the_thread)=ulfius
-      let location(the_piece)=ulfius
+      be_hold the_rags
+      be_hold the_thread
+      be_hold the_piece
       narrate "Rasgas la capa, como buenamente puedes."
     =remainder
       narrate not_with_that$
@@ -666,8 +666,8 @@ defproc talk_to_ambrosio
     narrate "Ambrosio te propone un trato, que aceptas: \
       por ayudarle a salir de la cueva, \
       objetos, vitales para la empresa, te son entregados."
-    let location(the_torch)=ulfius
-    let location(the_flint)=ulfius
+    be_hold the_torch
+    be_hold the_flint
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
     let location(ambrosio)=ambrosios_home_loc
@@ -700,8 +700,8 @@ defproc talk_to_ambrosio
 
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
-      let location(the_key)=ulfius
-      do_takeable the_key
+      be_hold the_key
+      be_takeable the_key
       let ambrosio_follows=true
 
     endif
@@ -719,7 +719,7 @@ defproc talk_to_the_man
     speak "Somos refugiados de la gran guerra. Buscamos la paz."
     short_pause
   endif
-  if is_it_accessible(the_stone)
+  if is_accessible(the_stone)
     narrate "El hombre se irrita."
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
@@ -728,7 +728,7 @@ defproc talk_to_the_man
     narrate "Un hombre te arrebata la piedra y se la lleva."
     let location(the_stone)=stone_bridge_loc
   else
-    if is_it_accessible(the_sword)
+    if is_accessible(the_sword)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
       speak "Todo aquel que porte armas jamás podrá pasar."
@@ -778,8 +778,8 @@ defproc do_insert
         =the_emerald,the_stone
           vanish object
           narrate "Encaja. Desaparece en su interior."
-          if is_it_vanished(the_stone) \
-            and is_it_vanished(the_emerald)
+          if is_vanished(the_stone) \
+            and is_vanished(the_emerald)
             let location_exit(idol_loc,south)=strait_passage_loc
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
@@ -817,7 +817,7 @@ defproc do_inventory
   let list$=""
 
   for i=1 to things
-    if location(i)=ulfius:\
+    if is_hold(i):\
       let list$=list$&"  - "&thing$(i)&nl$
   endfor i
   if len(list$)
@@ -856,12 +856,14 @@ enddef
 
 defproc list_present_things
 
-  loc n,list$
+  ' XXX TODO -- Improve with `item$` and "a"
+
+  loc i,list$
 
   let list$=""
   for n=1 to things
-    if location(n)=current_location
-      if is_it_a_person(n)
+    if is_here(n)
+      if is_a_person(n)
         let list$=list$&"  - "&iso_upper_1$(thing$(n))&nl$
       else
         let list$=list$&"  - "&thing$(n)&nl$
@@ -877,51 +879,59 @@ enddef
 ' ==============================================================
 ' Data interface
 
-deffn is_it_a_person(thing)
+deffn is_a_person(thing)
 
   ret thing_type(thing)=person_type
 
 enddef
 
-defproc do_takeable(thing)
+defproc be_takeable(thing)
 
   let thing_type(thing)=takeable_type
 
 enddef
 
-defproc do_not_takeable(thing)
+defproc be_untakeable(thing)
+
+  ' XXX REMARK -- Not used.
 
   let thing_type(thing)=untakeable_type
 
 enddef
 
-deffn can_be_taken(thing)
+deffn is_takeable(thing)
 
   ret thing_type(thing)=takeable_type
 
 enddef
 
-deffn cannot_be_taken(thing)
+deffn is_untakeable(thing)
 
   ret thing_type(thing)<>takeable_type
 
 enddef
 
-deffn is_it_here(thing)
+deffn is_here(thing)
 
   ret location(thing)=current_location
 
 enddef
 
-deffn is_it_hold(thing)
+defproc be_hold(thing)
 
-  ret location(thing)=ulfius
+  let location(thing)=protagonist
 
 enddef
 
-deffn is_it_accessible(thing)
+deffn is_hold(thing)
 
-  ret is_it_hold(thing) or is_it_here(thing)
+  ret location(thing)=protagonist
+
+enddef
+
+deffn is_accessible(thing)
+
+  ret is_hold(thing) or is_here(thing)
 
 enddef
 
@@ -931,7 +941,7 @@ defproc vanish(thing)
 
 enddef
 
-deffn is_it_vanished(thing)
+deffn is_vanished(thing)
 
   ret location(thing)=limbo
 
@@ -1784,7 +1794,8 @@ defproc init_the_constants
 
   let next_enum=1
 
-  let ulfius=enum
+  let protagonist=-1 ' XXX TMP until things are locations are united
+
   let the_altar=enum
   let ambrosio=enum
   let the_torch=enum
@@ -1897,12 +1908,12 @@ defproc init_the_flags
 
   ' Init the game flags.
 
-  let ambrosio_follows=false ' Does Ambrosio follow me?
-  let saxons_follow=false ' Do the saxons follow me?
+  let ambrosio_follows=false  ' Does Ambrosio follow me?
+  let saxons_follow=false     ' Do the saxons follow me?
   let talked_to_the_man=false ' Have I talked to the man?
-  let hacked_the_log=false ' Did I hacked the log?
-  let lit_the_torch=false ' Is the torch lit?
-  let start_over=false ' Do I start a new game?
+  let hacked_the_log=false    ' Did I hacked the log?
+  let lit_the_torch=false     ' Is the torch lit?
+  let start_over=false        ' Start a new game?
 
 enddef
 
@@ -1932,8 +1943,7 @@ defproc init_the_data
   let nouns=@nouns_end-@nouns_start
   dim noun$(nouns,max_word_lenght)
   dim the_thing(nouns)
-  let things=(@things_end-@things_start)/2+1
-    ' XXX REMARK -- +1 above because of the fake `nothing` thing
+  let things=(@things_end-@things_start)/2
   dim thing$(things,max_word_lenght)
 
   ' Note: The last synonym on the list will be the actual thing name.
@@ -1953,7 +1963,9 @@ defproc init_the_data
       location(thing),\
       thing_type(thing),\
       thing_description$(thing)
+'    print thing,thing_description$(thing):pause ' XXX INFORMER
   endfor i
+'  print "things read!":pause ' XXX INFORMER
 
   let actions=@actions_end-@actions_start
   dim syntax(actions)
@@ -2266,16 +2278,17 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: id,location,type,description
 label @things_start
+' XXX TODO -- replace literals with constants
 data the_altar,18,1
 data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,19,2
-data "Ambrosio es un hombre de mediana edad, que te mira afable."
+data "Ambrosio es un hombre de mediana edad, que te mira afable." ' XXX FIXME text
 data the_torch,limbo,0
 data "Está apagada."
 data the_flags,28,1
 data "Son las banderas britana y sajona: \
   dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
-data the_cloak,ulfius,0
+data the_cloak,protagonist,0
 data "Tu capa de general, de fina lana tintada de negro."
 data the_waterfall,38,1
 data "No ves nada por la cortina de agua. \
@@ -2284,7 +2297,7 @@ data the_fallen_away,9,1
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
 data the_emerald,39,0
 data "Es preciosa."
-data the_sword,ulfius,0
+data the_sword,protagonist,0
 data "Legado de tu padre, fiel herramienta en mil batallas."
 data the_rags,limbo,0
 data "Un trozo un poco grande de capa."
