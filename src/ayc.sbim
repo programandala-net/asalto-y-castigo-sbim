@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.23+201709151604" ' after http://semver.org
+let version$="0.2.0-dev.24+201709151614" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1892,6 +1892,7 @@ defproc init_the_constants
 
   ' Thing attribute
 
+  ' XXX TODO -- Use a bitmask.
   let takeable_attr=false
   let untakeable_attr=true
   let person_attr=2
@@ -2280,55 +2281,55 @@ rem XXX TMP -- to prevent labels clash
 ' data: id,location,type,description
 label @things_start
 ' XXX TODO -- replace literals with constants
-data the_altar,18,1
+data the_altar,stone_bridge_loc,untakeable_attr
 data "Justo en la mitad del puente, debe sostener algo importante."
-data ambrosio,19,2
+data ambrosio,channel_sand_corner_loc,person_attr
 data "Ambrosio es un hombre de mediana edad, que te mira afable." ' XXX FIXME text
-data the_torch,limbo,0
+data the_torch,limbo,takeable_attr
 data "Está apagada."
-data the_flags,28,1
+data the_flags,refuge_loc,untakeable_attr
 data "Son las banderas britana y sajona: \
   dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
-data the_cloak,protagonist,0
+data the_cloak,protagonist,takeable_attr
 data "Tu capa de general, de fina lana tintada de negro."
-data the_waterfall,38,1
+data the_waterfall,big_waterfall_loc,untakeable_attr
 data "No ves nada por la cortina de agua. \
   El lago es muy poco profundo."
-data the_fallen_away,9,1
+data the_fallen_away,fallen_away_loc,untakeable_attr
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
-data the_emerald,39,0
+data the_emerald,inside_waterfall_loc,takeable_attr
 data "Es preciosa."
-data the_sword,protagonist,0
+data the_sword,protagonist,takeable_attr
 data "Legado de tu padre, fiel herramienta en mil batallas."
-data the_rags,limbo,0
+data the_rags,limbo,takeable_attr
 data "Un trozo un poco grande de capa."
-data the_thread,limbo,0
+data the_thread,limbo,takeable_attr
 data "Un hilo se ha desprendido al cortar la capa con la espada."
-data the_man,28,1
+data the_man,refuge_loc,untakeable_attr
 data "Es el jefe de los refugiados."
-data the_idol,41,1
+data the_idol,idol_loc,untakeable_attr
 data "El ídolo tiene dos agujeros por ojos."
-data the_lake,44,1
+data the_lake,inner_lake_loc,untakeable_attr
 data "La luz entra por un resquicio, \
   y caprichosos reflejos te maravillan."
-data the_key,46,1
+data the_key,ambrosios_home_loc,untakeable_attr
 data "Una llave grande, de hierro herrumboso."
-data the_flint,limbo,0
+data the_flint,limbo,takeable_attr
 data "Se trata de una dura y afilada piedra."
-data the_stone,18,0
+data the_stone,channel_sand_corner_loc,takeable_attr
 data "Recia y pesada, pero no muy grande, de forma piramidal."
-data the_door,47,1
+data the_door,cave_exit_loc,untakeable_attr
 data "Muy recia y con un gran candado."
-data the_rocks,31,1
+data the_rocks,north_gate_loc,untakeable_attr
 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
-data the_snake,43,1
+data the_snake,snake_passage_loc,untakeable_attr
 data "Una serpiente bloquea el paso al sur, \
   corriendo a su lado el agua."
-data the_log,15,0
+data the_log,sand_passage_loc,takeable_attr
 data "Es un tronco recio, pero de liviano peso."
-data the_piece,limbo,0
+data the_piece,limbo,takeable_attr
 data "Es un poco de lo que antes era tu capa."
-data the_lock,47,1
+data the_lock,cave_exit_loc,untakeable_attr
 data "Está cerrado. Es muy grande y parece resistente."
 label @things_end
 rem XXX TMP -- to prevent labels clash
