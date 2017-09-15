@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.25+201709151631" ' after http://semver.org
+let version$="0.2.0-dev.26+201709151732" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -175,7 +175,7 @@ defproc location_plot
 
   sel on current_location
     =big_lake_loc,big_waterfall_loc,inner_lake_loc
-      let location(the_lake)=current_location
+      be_here the_lake
     =saxon_village_loc to fallen_away_loc
       if location_exit(cave_entrance_loc,north):\
         narrate "Tus hombres siguen tus pasos."
@@ -198,7 +198,7 @@ defproc location_plot
   if not is_vanished(ambrosio) \
     and is_takeable(the_key) \
     and (current_location=ambrosios_home_loc or ambrosio_follows)
-    let location(ambrosio)=current_location
+    be_here ambrosio
     narrate "Tu benefactor te sigue, esperanzado."
   endif
 
@@ -475,7 +475,7 @@ defproc do_drop
         ret
   endsel
   if is_hold(object)
-    let location(object)=current_location
+    be_here object
     narrate "Hecho."
   else
     narrate i_dont_have_it$
@@ -908,6 +908,12 @@ enddef
 deffn is_untakeable(thing)
 
   ret attribute(thing)<>takeable_attr
+
+enddef
+
+defproc be_here(thing)
+
+  let location(thing)=current_location
 
 enddef
 
@@ -1582,8 +1588,8 @@ defproc game_init
 
       ' Check "to sharpen"
 
-      let location(the_log)=current_location
-      let location(the_flint)=current_location
+      be_here the_log
+      be_here the_flint
 
   endsel
 
