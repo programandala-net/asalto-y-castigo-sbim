@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.22+201709151518" ' after http://semver.org
+let version$="0.2.0-dev.23+201709151604" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -233,8 +233,8 @@ defproc open_the_door
   narrate "Se ha ido."
   vanish ambrosio
   vanish the_key
-  let thing_description$(the_door)="Entreabierta."
-  let thing_description$(the_lock)="Abierto."
+  let description$(the_door)="Entreabierta."
+  let description$(the_lock)="Abierto."
   let location_exit(cave_exit_loc,west)=cave_exit_forest_loc
 
 enddef
@@ -407,7 +407,7 @@ enddef
 defproc do_examine_object
 
   if is_accessible(object)
-    narrate thing_description$(object)
+    narrate description$(object)
   else
     narrate not_seen$
   endif
@@ -524,7 +524,7 @@ defproc do_break
         =the_sword
           if is_accessible(the_torch)
             let lit_the_torch=true
-            let thing_description$(the_torch)=\
+            let description$(the_torch)=\
               "Ilumina perfectamente."
             narrate "Poderosas chispas salen \
               del choque entre espada y pedernal, \
@@ -616,8 +616,8 @@ defproc do_sharpen
             narrate not_by_sword$
           =the_flint
             let hacked_the_log=true
-            let thing_description$(the_log)=\
-              thing_description$(the_log)&" Su punta está afilada."
+            let description$(the_log)=\
+              description$(the_log)&" Su punta está afilada."
             narrate "Con el pedernal, afilas la punta del tronco."
           =remainder
             ' XXX TODO factor
@@ -881,13 +881,13 @@ enddef
 
 deffn is_a_person(thing)
 
-  ret thing_type(thing)=person_type
+  ret attribute(thing)=person_attr
 
 enddef
 
 defproc be_takeable(thing)
 
-  let thing_type(thing)=takeable_type
+  let attribute(thing)=takeable_attr
 
 enddef
 
@@ -895,19 +895,19 @@ defproc be_untakeable(thing)
 
   ' XXX REMARK -- Not used.
 
-  let thing_type(thing)=untakeable_type
+  let attribute(thing)=untakeable_attr
 
 enddef
 
 deffn is_takeable(thing)
 
-  ret thing_type(thing)=takeable_type
+  ret attribute(thing)=takeable_attr
 
 enddef
 
 deffn is_untakeable(thing)
 
-  ret thing_type(thing)<>takeable_type
+  ret attribute(thing)<>takeable_attr
 
 enddef
 
@@ -1027,7 +1027,8 @@ enddef
 
 defproc type(char$)
 
-  ' If there is space, add the given character and type it.
+  ' If possible, add the given character to the input line and
+  ' display it.
 
   if len(output$)<max_chars
     sel on cursor_pos
@@ -1048,7 +1049,7 @@ enddef
 
 defproc type_space
 
-  ' If possible, add a space and type it.
+  ' If possible, add a space to the input line and display it.
 
   if cursor_pos=1
     mistype_bell
@@ -1889,11 +1890,11 @@ defproc init_the_constants
   let first_direction=north
   let last_direction=down
 
-  ' Thing types
+  ' Thing attribute
 
-  let takeable_type=false
-  let untakeable_type=true
-  let person_type=2
+  let takeable_attr=false
+  let untakeable_attr=true
+  let person_attr=2
 
 enddef
 
@@ -1954,16 +1955,16 @@ defproc init_the_data
   endfor i
 
   dim location(things)
-  dim thing_type(things)
-  dim thing_description$(things,128)
+  dim attribute(things)
+  dim description$(things,128)
   restore @things_start
   for i=1 to things
     read \
       thing,\
       location(thing),\
-      thing_type(thing),\
-      thing_description$(thing)
-'    print thing,thing_description$(thing):pause ' XXX INFORMER
+      attribute(thing),\
+      description$(thing)
+'    print thing,description$(thing):pause ' XXX INFORMER
   endfor i
 '  print "things read!":pause ' XXX INFORMER
 

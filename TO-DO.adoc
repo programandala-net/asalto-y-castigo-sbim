@@ -31,6 +31,5 @@
 - Add `nothing` and set `ulfius` to 1.
 - Replace literals with constants in things' data lines.
 - Update notation "thing" to "entity".
-- Remove "thing_" prefix from arrays.
 - Rename `hacked_the_log` to `sharpen_the_log`?
-
+- Implement command line history.
