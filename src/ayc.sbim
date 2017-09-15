@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.28+201709151855" ' after http://semver.org
+let version$="0.2.0-dev.29+201709151944" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -301,7 +301,7 @@ deffn parse_noun(word$)
   let found=inarray%(noun$,0,word$)
   if found<0:\
     ret 0
-  ret the_thing(found)
+  ret entity_of_noun(found)
 
 enddef
 
@@ -816,9 +816,9 @@ defproc do_inventory
   loc i,list$
   let list$=""
 
-  for i=1 to things
+  for i=1 to entities
     if is_hold(i):\
-      let list$=list$&"  - "&thing$(i)&nl$
+      let list$=list$&"  - "&name$(i)&nl$
   endfor i
   if len(list$)
     narrate "Llevas contigo:"&nl$&list$
@@ -857,23 +857,23 @@ defproc do_look_around
   describe description$
 
   location_plot ' XXX FIXME only when entering the location
-  list_present_things
+  list_present_entities
 
 enddef
 
-defproc list_present_things
+defproc list_present_entities
 
   ' XXX TODO -- Improve with `item$` and "a"
 
   loc i,list$
 
   let list$=""
-  for n=1 to things
+  for n=1 to entities
     if is_here(n)
       if is_a_person(n)
-        let list$=list$&"  - "&iso_upper_1$(thing$(n))&nl$
+        let list$=list$&"  - "&iso_upper_1$(name$(n))&nl$
       else
-        let list$=list$&"  - "&thing$(n)&nl$
+        let list$=list$&"  - "&name$(n)&nl$
       endif
     endif
   endfor n
@@ -886,77 +886,77 @@ enddef
 ' ==============================================================
 ' Data interface
 
-deffn is_a_person(thing)
+deffn is_a_person(entity)
 
-  ret attribute(thing)=person_attr
-
-enddef
-
-defproc be_takeable(thing)
-
-  let attribute(thing)=takeable_attr
+  ret attribute(entity)=person_attr
 
 enddef
 
-defproc be_untakeable(thing)
+defproc be_takeable(entity)
+
+  let attribute(entity)=takeable_attr
+
+enddef
+
+defproc be_untakeable(entity)
 
   ' XXX REMARK -- Not used.
 
-  let attribute(thing)=untakeable_attr
+  let attribute(entity)=untakeable_attr
 
 enddef
 
-deffn is_takeable(thing)
+deffn is_takeable(entity)
 
-  ret attribute(thing)=takeable_attr
-
-enddef
-
-deffn is_untakeable(thing)
-
-  ret attribute(thing)<>takeable_attr
+  ret attribute(entity)=takeable_attr
 
 enddef
 
-defproc be_here(thing)
+deffn is_untakeable(entity)
 
-  let location(thing)=current_location
-
-enddef
-
-deffn is_here(thing)
-
-  ret location(thing)=current_location
+  ret attribute(entity)<>takeable_attr
 
 enddef
 
-defproc be_hold(thing)
+defproc be_here(entity)
 
-  let location(thing)=protagonist
-
-enddef
-
-deffn is_hold(thing)
-
-  ret location(thing)=protagonist
+  let location(entity)=current_location
 
 enddef
 
-deffn is_accessible(thing)
+deffn is_here(entity)
 
-  ret is_hold(thing) or is_here(thing)
-
-enddef
-
-defproc vanish(thing)
-
-  let location(thing)=limbo
+  ret location(entity)=current_location
 
 enddef
 
-deffn is_vanished(thing)
+defproc be_hold(entity)
 
-  ret location(thing)=limbo
+  let location(entity)=protagonist
+
+enddef
+
+deffn is_hold(entity)
+
+  ret location(entity)=protagonist
+
+enddef
+
+deffn is_accessible(entity)
+
+  ret is_hold(entity) or is_here(entity)
+
+enddef
+
+defproc vanish(entity)
+
+  let location(entity)=limbo
+
+enddef
+
+deffn is_vanished(entity)
+
+  ret location(entity)=limbo
 
 enddef
 
@@ -1803,11 +1803,11 @@ defproc init_the_constants
   let to_inventory=enum
   ' XXX TODO calculate `actions` here
 
-  ' Thing identifiers
+  ' Entity identifiers
 
   let next_enum=1
 
-  let protagonist=-1 ' XXX TMP until things are locations are united
+  let protagonist=-1 ' XXX TMP until locations are combined with the entities
 
   let the_altar=enum
   let ambrosio=enum
@@ -1836,7 +1836,7 @@ defproc init_the_constants
   ' Location identifiers
 
   let nowhere=0
-  let limbo=255 ' location of vanished things
+  let limbo=255 ' location of vanished entities
 
   let next_enum=1
 
@@ -1903,7 +1903,7 @@ defproc init_the_constants
   let first_direction=north
   let last_direction=down
 
-  ' Thing attribute
+  ' Entity attribute
 
   ' XXX TODO -- Use a bitmask.
   let takeable_attr=false
@@ -1935,7 +1935,7 @@ defproc init_the_data
   ' Init the data arrays. The first element (0) of the arrays is not
   ' used, except for the directions.
 
-  loc i,j,max_word_lenght,action,from_location,to_location
+  loc i,j,max_word_lenght,action,from_location,to_location,entity
 
   let max_word_lenght=11 ' XXX TODO calculate
 
@@ -1955,30 +1955,30 @@ defproc init_the_data
 
   let nouns=@nouns_end-@nouns_start
   dim noun$(nouns,max_word_lenght)
-  dim the_thing(nouns)
-  let things=(@things_end-@things_start)/2
-  dim thing$(things,max_word_lenght)
+  dim entity_of_noun(nouns)
+  let entities=(@entities_end-@entities_start)/2
+  dim name$(entities,max_word_lenght)
 
-  ' Note: The last synonym on the list will be the actual thing name.
+  ' Note: The last synonym on the list will be the name of the entity.
   restore @nouns_start
   for i=1 to nouns
-    read the_thing(i),noun$(i)
-    let thing$(the_thing(i))=noun$(i)
+    read entity_of_noun(i),noun$(i)
+    let name$(entity_of_noun(i))=noun$(i)
   endfor i
 
-  dim location(things)
-  dim attribute(things)
-  dim description$(things,128)
-  restore @things_start
-  for i=1 to things
+  dim location(entities)
+  dim attribute(entities)
+  dim description$(entities,128)
+  restore @entities_start
+  for i=1 to entities
     read \
-      thing,\
-      location(thing),\
-      attribute(thing),\
-      description$(thing)
-'    print thing,description$(thing):pause ' XXX INFORMER
+      entity,\
+      location(entity),\
+      attribute(entity),\
+      description$(entity)
+'    print entity,description$(entity):pause ' XXX INFORMER
   endfor i
-'  print "things read!":pause ' XXX INFORMER
+'  print "entities read!":pause ' XXX INFORMER
 
   let actions=@actions_end-@actions_start
   dim syntax(actions)
@@ -2230,8 +2230,8 @@ data westmorland_loc,north_road_loc,nowhere,nowhere,nowhere,nowhere,nowhere
 
 ' Nouns
 
-' data: thing id, noun
-' (for every thing id, the last noun listed will be the main one)
+' data: entity id, noun
+' (for every entity id, the last noun listed will be the main one)
 label @nouns_start
 data ambrosio,"ambrosio"
 data the_altar,"altar"
@@ -2292,10 +2292,10 @@ data the_waterfall,"cascada"
 label @nouns_end
 rem XXX TMP -- to prevent labels clash
 
-' Things
+' Entities
 
 ' data: id,location,type,description
-label @things_start
+label @entities_start
 ' XXX TODO -- replace literals with constants
 data the_altar,stone_bridge_loc,untakeable_attr
 data "Justo en la mitad del puente, debe sostener algo importante."
@@ -2347,7 +2347,7 @@ data the_piece,limbo,takeable_attr
 data "Es un poco de lo que antes era tu capa."
 data the_lock,cave_exit_loc,untakeable_attr
 data "Está cerrado. Es muy grande y parece resistente."
-label @things_end
+label @entities_end
 rem XXX TMP -- to prevent labels clash
 
 ' Actions

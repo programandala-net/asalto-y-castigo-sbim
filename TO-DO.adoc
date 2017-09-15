@@ -28,7 +28,6 @@
   the first time a location is entered, and specific descriptions,
   which are shown every time the location is described.
 - Add `nothing` and set `ulfius` to 1.
-- Update notation "thing" to "entity".
 - Rename `hacked_the_log` to `sharpen_the_log`?
 - Implement command line history.
 - Replace attribute identifiers with a bitmask.
@@ -38,3 +37,9 @@
 - Combine `nowhere` and `limbo`.
 - Use 0-index arrays. Therefore, do not use zero as special
   identifiers.
+- Fix: "rocks" are mentioned in the description of the fallen away,
+  but `the_rocks` entity exists in other location. The easiest
+  solution is creating two entities with identical name and a layer to
+  choose the right one depending on the current location or other
+  conditions.
+- Add locations to the ordinary entities.
