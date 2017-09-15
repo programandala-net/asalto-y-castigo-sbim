@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.14+201709150018" ' after http://semver.org
+let version$="0.2.0-dev.15+201709151215" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -288,11 +288,11 @@ deffn fine_command
   sel on syntax(action)
     =object_needed
       if not object:\
-        narrate not_seen$:\ ' XXX FIXME --  better message
+        narrate not_understood$:\
         ret 0
     =object_and_complement_needed
       if (not object or not complement):\
-        narrate not_seen$:\ ' XXX FIXME -- better message
+        narrate not_understood$:\
         ret 0
   endsel
 
@@ -335,7 +335,7 @@ defproc do_action(action)
     =to_speak:do_speak
     =to_swim:do_swim
     =to_take:do_take
-    =remainder:narrate "No puedes hacer eso."
+    =remainder:narrate not_understood$
   endsel
 
 enddef
@@ -519,11 +519,9 @@ defproc do_break_the_log
     =false
       narrate not_by_hand$
     =the_sword
-      ' XXX TODO factor
-      narrate "Sabes que el resultado es \
-        la hoja de tu espada, mellada. No." ' XXX FIXME text
+      narrate not_by_sword$
     =remainder
-      narrate "No puedes hacer eso." ' XXX TODO  factor, generalize
+      narrate not_understood$
   endsel
 enddef
 
@@ -570,8 +568,7 @@ defproc do_sharpen
           =false
             narrate not_by_hand$
           =the_sword
-            narrate "Sabes que el resultado es \
-              la hoja de tu espada, mellada. No." ' XXX FIXME text
+            narrate not_by_sword$
           =the_flint
             let hacked_the_log=true
             let thing_description$(the_log)=\
@@ -586,10 +583,11 @@ defproc do_sharpen
 
       endif
 
-    ' =nothing XXX TODO
+    =the_sword
+      narrate "La espada ya está suficientemente afilada."
 
     =remainder:\
-      narrate "Eso no es lo adecuado ahora."
+      narrate not_understood$
 
   endsel
 
@@ -682,14 +680,14 @@ defproc talk_to_the_man
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
-    speak "La piedra debe devolverse a su lugar de encierro." ' XXX FIXME text
+    speak "La piedra debe ser devuelta a su lugar de encierro."
     narrate "Un hombre te arrebata la piedra y se la lleva."
     let location(the_stone)=stone_bridge_loc
   else
     if is_it_accessible(the_sword)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
-      speak "Nadie portando armas puede pasar." ' XXX FIXME text
+      speak "Todo aquel que porte armas jamás podrá pasar."
     else
       let location_exit(refuge_loc,east)=spiral_loc
       narrate "El hombre, calmado, indica hacia el este y habla:"
@@ -722,25 +720,27 @@ enddef
 
 defproc do_insert
 
+  ' XXX TODO rewrite, invert `sel` levels
+
   sel on complement
     =the_rocks
       if object=the_log
         rocks_and_log
       else
-        narrate "No tiene sentido meter eso ahí."
+        narrate not_understood$
       endif
     =the_idol
       sel on object
         =the_emerald,the_stone
           vanish object
-          narrate "Encaja. Metido. Desaparece en su interior." ' XXX FIXME text
+          narrate "Encaja. Desaparece en su interior."
           if is_it_vanished(the_stone) \
             and is_it_vanished(the_emerald)
             let location_exit(idol_loc,south)=strait_passage_loc
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
-          narrate "No encaja."
+          narrate not_understood$
       endsel
     =the_lock
       if object=the_key
@@ -748,10 +748,10 @@ defproc do_insert
         short_pause
         open_the_door
       else
-        narrate "No tiene sentido meter eso ahí."
+        narrate not_understood$
       endif
     =remainder
-      narrate "No tiene sentido meter nada en eso." ' XXX FIXME text
+      narrate not_understood$
   endsel
 
 enddef
@@ -779,7 +779,7 @@ defproc do_inventory
   if len(list$)
     narrate "Llevas contigo:"&nl$&list$
   else
-    narrate "No llevas nada contigo." ' XXX TODO improve text
+    narrate "Nada llevas contigo."
   endif
 
 enddef
@@ -1443,7 +1443,7 @@ defproc about
   print #tw,\"Por Baltasar el Arquero, 2009"
   print #tw,"http://caad.es/baltasarq/"
   print #tw,\"Reescrita en SuperBASIC para QL por"
-  print #tw,"Marcos Cruz (programandala.net), 2011"
+  print #tw,"Marcos Cruz (programandala.net), 2011, 2017"
   print #tw,"http://programandala.net/"
   print #tw,"Versión"!version$
   ink #tw,light_grey
@@ -1689,6 +1689,9 @@ defproc init_the_constants
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
   let not_by_hand$="En cualquier caso, no con las manos desnudas."
+  let not_understood$="¿Eh?"
+  let not_by_sword$="Sabes que el resultado es \
+    la hoja de tu espada, mellada. No."
 
   ' Action ids
   let to_go_down=1

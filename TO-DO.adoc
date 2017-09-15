@@ -18,11 +18,10 @@
   datum.
 - Factor all possible meanings currently defined for `do_break`.
 - Add `nothing` identifier. Add to `sel`. Use in current `=false`.
-- Change all errors like "Eso no es lo adecuado ahora" to something
-  more generig, eg. "¿Eh?".
 - Replace 1st person error messages (eg. "No conozco ese verbo") with
   generic ones, ie. kill the narrator.
 - Fix: "stone" is used in the description of the flint, but it's not a
   synonym.
 - Improve the general syntax checker.
 - Abandon compatibility with SuperBASIC using SBASIC-only features?
+- Add "exits/x" action.
