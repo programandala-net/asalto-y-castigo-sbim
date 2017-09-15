@@ -16,7 +16,6 @@
 - Make sure the entities `data` lines can be in any order, adding the
   identifier itself as the first datum.
 - Factor all possible meanings currently defined for `do_break`.
-- Add `nothing` identifier. Add to `sel`. Use in current `=false`.
 - Replace 1st person error messages (eg. "No conozco ese verbo") with
   generic ones, ie. kill the narrator.
 - Fix: "stone" is used in the description of the flint, but it's not a

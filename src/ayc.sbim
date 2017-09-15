@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.20+201709151320" ' after http://semver.org
+let version$="0.2.0-dev.21+201709151455" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -248,9 +248,9 @@ defproc command
 
   loc next_space,command$
 
-  let action=false
-  let object=false
-  let complement=false
+  let action=nothing
+  let object=nothing
+  let complement=nothing
   let command$=accept$
 
   rep find_word
@@ -504,10 +504,13 @@ enddef
 defproc do_break
 
   sel on object
+
     =the_log:\
       do_break_the_log
+
     =the_cloak:\
       do_break_the_cloack
+
     =the_rocks:\
       do_break_the_rocks
 
@@ -516,7 +519,7 @@ defproc do_break
       ' XXX TODO move to the proper action
 
       sel on complement
-        =false:\
+        =nothing:\
           narrate not_by_hand$
         =the_sword
           if is_it_accessible(the_torch)
@@ -539,7 +542,7 @@ defproc do_break
       ' XXX TODO move to the proper action
 
       sel on complement
-        =false:\
+        =nothing:\
           narrate not_by_hand$
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
@@ -549,10 +552,8 @@ defproc do_break
           narrate not_with_that$
       endsel
 
-    ' =nothing XXX TODO
-
     =remainder:\
-      narrate "Eso no es lo adecuado ahora."
+      narrate not_understood$
 
   endsel
 
@@ -560,7 +561,7 @@ enddef
 
 defproc do_break_the_log
   sel on complement
-    =false
+    =nothing
       narrate not_by_hand$
     =the_sword
       narrate not_by_sword$
@@ -571,7 +572,7 @@ enddef
 
 defproc do_break_the_cloak
   sel on complement
-    =false
+    =nothing
       narrate not_by_hand$
     =the_sword
       vanish the_cloak
@@ -586,7 +587,7 @@ enddef
 
 defproc do_break_the_rocks
   sel on complement
-    =false:\
+    =nothing:\
       narrate not_by_hand$
     =the_log:\
       rocks_and_log
@@ -609,7 +610,7 @@ defproc do_sharpen
         narrate "La punta ya está suficientemente afilada."
       else
         sel on complement
-          =false
+          =nothing
             narrate not_by_hand$
           =the_sword
             narrate not_by_sword$
@@ -618,7 +619,6 @@ defproc do_sharpen
             let thing_description$(the_log)=\
               thing_description$(the_log)&" Su punta está afilada."
             narrate "Con el pedernal, afilas la punta del tronco."
-          ' =nothing XXX TODO
           =remainder
             ' XXX TODO factor
             narrate "El problema es encontrar \
@@ -1726,6 +1726,7 @@ defproc init_the_constants
   ' Init all the constants.
 
   ' Misc
+
   let space=32 ' char code
   let enter=10 ' char code
   let nl$=chr$(enter) ' new line
@@ -1734,11 +1735,13 @@ defproc init_the_constants
   let limbo=255 ' location of vanished things
 
   ' Syntax flags
+
   let no_object_needed=0
   let object_needed=1
   let object_and_complement_needed=2
 
   ' Error messages
+
   let not_seen$="No lo veo, o no es importante."
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
@@ -1747,7 +1750,11 @@ defproc init_the_constants
   let not_by_sword$="Sabes que el resultado es \
     la hoja de tu espada, mellada. No."
 
-  ' Action ids
+  ' Generic identifiers
+
+  let nothing=0 ' action, object or complement
+
+  ' Action identifiers
 
   let next_enum=1
 
@@ -1773,11 +1780,9 @@ defproc init_the_constants
   let to_inventory=enum
   ' XXX TODO calculate `actions` here
 
-  ' Thing ids
+  ' Thing identifiers
 
-  ' let nothing=0 ' XXX TODO
-
-  let next_enum=0 ' XXX TODO 1
+  let next_enum=1
 
   let ulfius=enum
   let the_altar=enum
@@ -1804,7 +1809,7 @@ defproc init_the_constants
   let the_piece=enum
   let the_lock=enum
 
-  ' Location ids
+  ' Location identifiers
 
   let nowhere=0
 
@@ -1862,7 +1867,8 @@ defproc init_the_constants
   let north_road_loc=enum
   let westmorland_loc=enum
 
-  ' Direction ids
+  ' Direction identifiers
+  
   let north=0
   let south=1
   let east=2
@@ -1873,6 +1879,7 @@ defproc init_the_constants
   let last_direction=down
 
   ' Thing types
+
   let takeable_type=false
   let untakeable_type=true
   let person_type=2
@@ -1925,10 +1932,12 @@ defproc init_the_data
   let nouns=@nouns_end-@nouns_start
   dim noun$(nouns,max_word_lenght)
   dim the_thing(nouns)
-  let things=(@things_end-@things_start)/2
+  let things=(@things_end-@things_start)/2+1
+    ' XXX REMARK -- +1 above because of the fake `nothing` thing
   dim thing$(things,max_word_lenght)
 
   ' Note: The last synonym on the list will be the actual thing name.
+  restore @nouns_start
   for i=1 to nouns
     read the_thing(i),noun$(i)
     let thing$(the_thing(i))=noun$(i)
@@ -1937,6 +1946,7 @@ defproc init_the_data
   dim location(things)
   dim thing_type(things)
   dim thing_description$(things,128)
+  restore @things_start
   for i=1 to things
     read \
       thing,\
@@ -1947,6 +1957,7 @@ defproc init_the_data
 
   let actions=@actions_end-@actions_start
   dim syntax(actions)
+  restore @actions_start
   for i=1 to actions
     read action,syntax(action)
   endfor i
@@ -1955,7 +1966,7 @@ defproc init_the_data
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
   let action=1
-  let last_action=0
+  restore @verbs_start
   for i=1 to verbs
     read the_action(i),verb$(i)
   endfor i
