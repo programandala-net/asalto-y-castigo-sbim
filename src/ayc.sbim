@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.17+201709151254" ' after http://semver.org
+let version$="0.2.0-dev.18+201709151309" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -60,20 +60,7 @@ defproc plot
   if current_location=cave_entrance_loc \
     and location_exit(cave_entrance_loc,north)
 
-    let location_exit(cave_entrance_loc,north)=nowhere
-    let saxons_follow=1
-    narrate "Una partida sajona aparece por el este. \
-      Para cuando te vuelves al norte, ya no te queda ninguna duda: \
-      era una trampa."
-    short_pause
-    narrate "En el estrecho paso es posible resistir, \
-      aunque por desgracia sus tropas \
-      son más numerosas que las tuyas."
-    end_of_scene:\
-    clear_screen
-    narrate "Tus oficiales te conminan a huir."
-    speak "Capturando a un general britano, ganan doblemente."
-    narrate "Sabes que es cierto, y te duele."
+    the_saxons_are_here
     ret
 
   endif
@@ -81,20 +68,7 @@ defproc plot
   if saxons_follow \
     and current_location<secret_exit_loc ' XXX TODO `<>` is clearer
 
-    let saxons_follow=saxons_follow+1
-    narrate "No sabes cuánto tiempo te queda..."
-    if saxons_follow>10 ' XXX TODO random
-      narrate "Los sajones te capturan. \
-        Su general, sonriendo ampliamente, dice:"
-      speak "Bien, bien... \
-        Del gran Ulfius podremos sacar una buena ventaja."
-      end_of_scene:\
-      clear_screen
-      do_end
-    endif
-    if current_location<cave_hall_loc ' XXX TODO `=` is enough?
-      narrate "Tus hombres luchan con denuedo contra los sajones."
-    endif
+    battle
     ret
 
   endif
@@ -102,38 +76,96 @@ defproc plot
   if current_location=cave_strait_1_loc \
     and (not is_it_accessible(the_torch) \
     or not lit_the_torch)
-      ' XXX TODO -- Why `>channel_sand_corner_loc` in the original?
-      ' I put `=cave_strait_1_loc`, which is the exit from stalactites_loc
-    narrate "Ante la reinante e intimidante oscuridad, \
-      retrocedes a donde puedes ver."
-    short_pause
-    let current_location=stalactites_loc
-    do_look_around
+
+    ' XXX TODO -- Why `>channel_sand_corner_loc` in the
+    ' original?  I put `=cave_strait_1_loc`, which is the exit
+    ' from `stalactites_loc`
+    '
+    ' XXX TODO -- Check if `stalactites_loc` can be accessed
+    ' from other exit. If so, the previous location should be
+    ' checked here.
+
+    dark_cave_strait_1
     ret
+
   endif
 
   if current_location=westmorland_loc ' XXX TODO move to `location_plot`?
-    narrate "Agotado, das parte en el castillo de tu llegada \
-      y de lo que ha pasado."
-    short_pause
-    narrate "Pides audiencia al rey, Uther Pendragon."
-    end_of_scene:\
-    clear_screen
-    speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&\
-      "ha ordenado que no se le moleste, \
-      pues sufre una amarga tristeza."
-    short_pause
-    narrate "No puedes entenderlo. El rey, tu amigo."
-    short_pause
-    narrate "Agotado, decepcionado, apesadumbrado, \
-      decides ir a dormir a tu casa. \
-      Es lo poco que puedes hacer."
-    short_pause
-    narrate "Te has ganado un buen descanso."
-    end_of_scene:\
-    clear_screen
-    do_end ' XXX TODO happy end instead
+    arrive_in_westmorland
   endif
+
+enddef
+
+defproc the_saxons_are_here
+
+  let location_exit(cave_entrance_loc,north)=nowhere
+  let saxons_follow=1
+  narrate "Una partida sajona aparece por el este. \
+    Para cuando te vuelves al norte, ya no te queda ninguna duda: \
+    era una trampa."
+  short_pause
+  narrate "En el estrecho paso es posible resistir, \
+    aunque por desgracia sus tropas \
+    son más numerosas que las tuyas."
+  end_of_scene:\
+  clear_screen
+  narrate "Tus oficiales te conminan a huir."
+  speak "Capturando a un general britano, ganan doblemente."
+  narrate "Sabes que es cierto, y te duele."
+
+enddef
+
+defproc battle
+
+  let saxons_follow=saxons_follow+1
+  narrate "No sabes cuánto tiempo te queda..."
+  if saxons_follow>10 ' XXX TODO random
+    narrate "Los sajones te capturan. \
+      Su general, sonriendo ampliamente, dice:"
+    speak "Bien, bien... \
+      Del gran Ulfius podremos sacar una buena ventaja."
+    end_of_scene:\
+    clear_screen
+    do_end
+  endif
+  if current_location<cave_hall_loc ' XXX TODO `=` is enough?
+    narrate "Tus hombres luchan con denuedo contra los sajones."
+  endif
+
+enddef
+
+defproc dark_cave_strait_1
+
+  narrate "Ante la reinante e intimidante oscuridad, \
+    retrocedes a donde puedes ver."
+  short_pause
+  let current_location=stalactites_loc
+  do_look_around
+
+enddef
+
+defproc arrive_in_westmorland
+
+  narrate "Agotado, das parte en el castillo de tu llegada \
+    y de lo que ha pasado."
+  short_pause
+  narrate "Pides audiencia al rey, Uther Pendragon."
+  end_of_scene:\
+  clear_screen
+  speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&\
+    "ha ordenado que no se le moleste, \
+    pues sufre una amarga tristeza."
+  short_pause
+  narrate "No puedes entenderlo. El rey, tu amigo."
+  short_pause
+  narrate "Agotado, decepcionado, apesadumbrado, \
+    decides ir a dormir a tu casa. \
+    Es lo poco que puedes hacer."
+  short_pause
+  narrate "Te has ganado un buen descanso."
+  end_of_scene
+  clear_screen
+  do_end ' XXX TODO happy end instead
 
 enddef
 
@@ -517,7 +549,7 @@ defproc do_break
     =remainder:\
       narrate "Eso no es lo adecuado ahora."
 
-  endsel 
+  endsel
 
 enddef
 
@@ -813,7 +845,7 @@ defproc do_look_around
   describe description$
 
   location_plot ' XXX FIXME only when entering the location
-  list_present_things 
+  list_present_things
 
 enddef
 
@@ -952,13 +984,13 @@ deffn iso_input$(channel,max_chars)
       =space:type_space
       =65 to 90:type chr$(key+32)
       =97 to 122:type key$
-      =131,163:type chr$(233) ' é/É 
-      =135,167:type chr$(252) ' ü/Ü 
-      =137,169:type chr$(241) ' ñ/Ñ 
-      =140:type chr$(225) ' á 
-      =147:type chr$(237) ' í 
-      =150:type chr$(243) ' ó 
-      =153:type chr$(250) ' ú 
+      =131,163:type chr$(233) ' é/É
+      =135,167:type chr$(252) ' ü/Ü
+      =137,169:type chr$(241) ' ñ/Ñ
+      =140:type chr$(225) ' á
+      =147:type chr$(237) ' í
+      =150:type chr$(243) ' ó
+      =153:type chr$(250) ' ú
       =192:cursor_left
       =193:start_of_line ' Alt+Left
       =194:backspace_char ' Ctrl+Left
@@ -970,7 +1002,7 @@ deffn iso_input$(channel,max_chars)
       =203:delete_line_right ' Ctrl+Alt+Right
       =204:next_word ' Shift+Right
       =253:tab -8 ' Shift+Tab
-    endsel 
+    endsel
   endrep typing
   curdis #channel
   print #channel\\\:
@@ -1530,7 +1562,7 @@ defproc game_init
 
   sel on true
 
-    =true
+    =false
 
       ' Check "to sharpen"
 
@@ -1641,7 +1673,7 @@ enddef
 
 defproc splash_screen
 
-  if flim_w(#0)=512 and flim_h(#0)=256 
+  if flim_w(#0)=512 and flim_h(#0)=256
     lbytes dev$&"img_ayc8_scr",address(#0)
   endif
 
@@ -1672,7 +1704,7 @@ enddef
 
 defproc fonts(font_address)
 
-  char_use #tw,font_address,0 
+  char_use #tw,font_address,0
 
 enddef
 
@@ -1701,7 +1733,7 @@ defproc init_the_constants
   let object_needed=1
   let object_and_complement_needed=2
 
-  ' Error messages 
+  ' Error messages
   let not_seen$="No lo veo, o no es importante."
   let i_dont_have_it$="No llevo eso conmigo."
   let not_with_that$="Con eso no..."
@@ -2141,7 +2173,7 @@ data westmorland_loc,north_road_loc,nowhere,nowhere,nowhere,nowhere,nowhere
 ' Nouns
 
 ' data: thing id, noun
-' (for every thing id, the last noun listed will be the main one) 
+' (for every thing id, the last noun listed will be the main one)
 label @nouns_start
 data ambrosio,"ambrosio"
 data the_altar,"altar"
@@ -2256,7 +2288,7 @@ rem XXX TMP -- to prevent labels clash
 
 ' Actions
 
-' data: action id,syntax 
+' data: action id,syntax
 label @actions_start
 data to_break,object_needed
 data to_drop,object_needed
@@ -2281,7 +2313,7 @@ data to_inventory,no_object_needed
 label @actions_end
 rem XXX TMP -- to prevent labels clash
 
-' Verbs 
+' Verbs
 
 ' data: action id,verb or synonym
 label @verbs_start
