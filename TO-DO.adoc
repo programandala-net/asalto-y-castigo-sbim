@@ -26,3 +26,7 @@
 - Abandon compatibility with SuperBASIC using SBASIC-only features?
 - Add "exits/x" action.
 - Improve error "No conozco ese verbo".
+- Split `location_plot` into actual plot, which must be executed only
+  the first time a location is entered, and specific descriptions,
+  which are shown every time the location is described.
+
