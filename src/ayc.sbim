@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.26+201709151732" ' after http://semver.org
+let version$="0.2.0-dev.27+201709151825" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -57,49 +57,42 @@ defproc plot
 
   ' Check the plot conditions.
 
-  if current_location=cave_entrance_loc \
-    and location_exit(cave_entrance_loc,north)
+  sel on true
 
-    the_saxons_are_here
-    ret
+    =(current_location=cave_entrance_loc \
+      and way_out(cave_entrance_loc,north))
 
-  endif
+      ambush
 
-  if saxons_follow \
-    and current_location<secret_exit_loc ' XXX TODO `<>` is clearer
+    =under_attack<>0
 
-    battle
-    ret
+      battle
 
-  endif
+    =(current_location=cave_strait_1_loc \
+      and (not is_accessible(the_torch) \
+      or not lit_the_torch))
 
-  if current_location=cave_strait_1_loc \
-    and (not is_accessible(the_torch) \
-    or not lit_the_torch)
+      ' XXX TODO -- Why `>channel_sand_corner_loc` in the
+      ' original?  I put `=cave_strait_1_loc`, which is the exit
+      ' from `stalactites_loc`
+      '
+      ' XXX TODO -2 Check if `stalactites_loc` can be accessed
+      ' from other exit. If so, the previous location should be
+      ' checked here.
 
-    ' XXX TODO -- Why `>channel_sand_corner_loc` in the
-    ' original?  I put `=cave_strait_1_loc`, which is the exit
-    ' from `stalactites_loc`
-    '
-    ' XXX TODO -- Check if `stalactites_loc` can be accessed
-    ' from other exit. If so, the previous location should be
-    ' checked here.
+      dark_cave_strait_1
 
-    dark_cave_strait_1
-    ret
+    =(current_location=westmorland_loc) ' XXX TODO move to `location_plot`?
+      arrive_in_westmorland
 
-  endif
-
-  if current_location=westmorland_loc ' XXX TODO move to `location_plot`?
-    arrive_in_westmorland
-  endif
+  endsel
 
 enddef
 
-defproc the_saxons_are_here
+defproc ambush
 
-  let location_exit(cave_entrance_loc,north)=nowhere
-  let saxons_follow=1
+  let way_out(cave_entrance_loc,north)=nowhere
+  let under_attack=1
   narrate "Una partida sajona aparece por el este. \
     Para cuando te vuelves al norte, ya no te queda ninguna duda: \
     era una trampa."
@@ -117,20 +110,26 @@ enddef
 
 defproc battle
 
-  let saxons_follow=saxons_follow+1
+  let under_attack=under_attack+1
   narrate "No sabes cuánto tiempo te queda..."
-  if saxons_follow>10 ' XXX TODO random
-    narrate "Los sajones te capturan. \
-      Su general, sonriendo ampliamente, dice:"
-    speak "Bien, bien... \
-      Del gran Ulfius podremos sacar una buena ventaja."
-    end_of_scene:\
-    clear_screen
-    do_end
+  if under_attack>10 ' XXX TODO random
+    captured
   endif
   if current_location<cave_hall_loc ' XXX TODO `=` is enough?
     narrate "Tus hombres luchan con denuedo contra los sajones."
   endif
+
+enddef
+
+defproc captured
+
+  narrate "Los sajones te capturan. \
+    Su general, sonriendo ampliamente, dice:"
+  speak "Bien, bien... \
+    Del gran Ulfius podremos sacar una buena ventaja."
+  end_of_scene:\
+  clear_screen
+  do_end
 
 enddef
 
@@ -177,7 +176,7 @@ defproc location_plot
     =big_lake_loc,big_waterfall_loc,inner_lake_loc
       be_here the_lake
     =saxon_village_loc to fallen_away_loc
-      if location_exit(cave_entrance_loc,north):\
+      if way_out(cave_entrance_loc,north):\
         narrate "Tus hombres siguen tus pasos."
     =water_passage_loc
       narrate "En la distancia, \
@@ -186,13 +185,13 @@ defproc location_plot
         los sajones tratan de buscar la salida \
         que encontraste por casualidad."
     =north_gate_loc
-      if location_exit(north_gate_loc,north)
+      if way_out(north_gate_loc,north)
         narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
       else
         narrate "Las rocas bloquean el camino."
       endif
     =refuge_loc
-      let location_exit(refuge_loc,east)=nowhere
+      let way_out(refuge_loc,east)=nowhere
   endsel
 
   if not is_vanished(ambrosio) \
@@ -212,7 +211,7 @@ defproc rocks_and_log
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
     vanish the_rocks
-    let location_exit(north_gate_loc,north)=precipice_loc
+    let way_out(north_gate_loc,north)=precipice_loc
   else
     narrate "Lo intentas con el tronco, \
       pero la punta es demasiado gruesa, \
@@ -235,7 +234,7 @@ defproc open_the_door
   vanish the_key
   let description$(the_door)="Entreabierta."
   let description$(the_lock)="Abierto."
-  let location_exit(cave_exit_loc,west)=cave_exit_forest_loc
+  let way_out(cave_exit_loc,west)=cave_exit_forest_loc
 
 enddef
 
@@ -438,6 +437,7 @@ defproc do_swim
     end_of_scene
     let current_location=secret_exit_loc
     do_look_around
+    let under_attack=false
   else
     narrate "No tiene sentido nadar ahora."
   endif
@@ -464,6 +464,7 @@ enddef
 
 defproc do_drop
 
+  ' XXX TODO -- Remove these cases:
   sel on object
     =the_sword:\
       if current_location<secret_exit_loc:\
@@ -474,12 +475,14 @@ defproc do_drop
         narrate "No, sin luz es imposible moverse por la caverna.":\
         ret
   endsel
+
   if is_hold(object)
     be_here object
     narrate "Hecho."
   else
     narrate i_dont_have_it$
   endif
+
 enddef
 
 defproc do_take
@@ -491,7 +494,7 @@ defproc do_take
       if object=the_key
         narrate "Ambrosio la retiene consigo."
       else
-        narrate "No es algo que se pueda coger."
+        narrate "No es algo que uno pueda llevar consigo."
       endif
     else
       be_hold object:\
@@ -547,7 +550,7 @@ defproc do_break
         =the_sword
           narrate "Ante los amenazadores tajos, la serpiente huye."
           vanish the_snake
-          let location_exit(snake_passage_loc,south)=inner_lake_loc
+          let way_out(snake_passage_loc,south)=inner_lake_loc
         =remainder:\
           narrate not_with_that$
       endsel
@@ -733,7 +736,7 @@ defproc talk_to_the_man
         y alza su mano indicando al norte."
       speak "Todo aquel que porte armas jamás podrá pasar."
     else
-      let location_exit(refuge_loc,east)=spiral_loc
+      let way_out(refuge_loc,east)=spiral_loc
       narrate "El hombre, calmado, indica hacia el este y habla:"
       speak "Si vienes en paz, puedes ir en paz."
       narrate "Todos se apartan y permiten ahora el paso al este."
@@ -780,7 +783,7 @@ defproc do_insert
           narrate "Encaja. Desaparece en su interior."
           if is_vanished(the_stone) \
             and is_vanished(the_emerald)
-            let location_exit(idol_loc,south)=strait_passage_loc
+            let way_out(idol_loc,south)=strait_passage_loc
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
@@ -802,8 +805,8 @@ enddef
 
 defproc do_move(direction)
 
-  if location_exit(current_location,direction)
-    let current_location=location_exit(current_location,direction)
+  if way_out(current_location,direction)
+    let current_location=way_out(current_location,direction)
     do_look_around
   else
     narrate "No es posible."
@@ -1574,7 +1577,7 @@ defproc game_init
   loc y
   let y=pos_y(#tw)
   print #tw,"Preparando los datos..."
-  init_the_flags
+  init_plot
   init_the_data
   let current_location=saxon_village_loc
   cls #tw,3
@@ -1912,12 +1915,10 @@ deffn enum
 
 enddef
 
-defproc init_the_flags
-
-  ' Init the game flags.
+defproc init_plot
 
   let ambrosio_follows=false  ' Does Ambrosio follow me?
-  let saxons_follow=false     ' Do the saxons follow me?
+  let under_attack=0          ' Battle counter
   let talked_to_the_man=false ' Have I talked to the man?
   let hacked_the_log=false    ' Did I hacked the log?
   let lit_the_torch=false     ' Is the torch lit?
@@ -1939,12 +1940,12 @@ defproc init_the_data
   let locations=@location_descriptions_end\
     -@location_descriptions_start
 
-  dim location_exit(locations,last_direction)
-  restore @location_exits
+  dim way_out(locations,last_direction)
+  restore @map
   for i=1 to locations
     read from_location
     for to_location=first_direction to last_direction
-      read location_exit(from_location,to_location)
+      read way_out(from_location,to_location)
     endfor to_location
   endfor i
 
@@ -2167,10 +2168,10 @@ data "Westmorland. \
 label @location_descriptions_end
 rem XXX TMP -- to prevent labels clash
 
-' Location exits
+' Map
 
-'  data: north,south,east,west,down,up
-label @location_exits
+'  data: location,north,south,east,west,down,up
+label @map
 data saxon_village_loc,nowhere,on_the_hill_loc,nowhere,nowhere,nowhere,nowhere
 data on_the_hill_loc,saxon_village_loc,nowhere,nowhere,path_between_hills_loc,nowhere,nowhere
 data path_between_hills_loc,nowhere,nowhere,on_the_hill_loc,paths_crossing_loc,nowhere,nowhere

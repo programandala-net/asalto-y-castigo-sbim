@@ -32,3 +32,7 @@
 - Rename `hacked_the_log` to `sharpen_the_log`?
 - Implement command line history.
 - Replace attribute identifiers with a bitmask.
+- Remove unnecessary splits. Convert short `if` to long.
+- Replace `let current_location=x:do_look_around` with `enter x`.
+- Improve `do_swim`: implement the other direction.
+- Improve `do_swim`: add a cuirass.
