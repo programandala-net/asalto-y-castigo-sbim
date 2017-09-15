@@ -8,22 +8,15 @@
 - Replace location ranges, eg. `=saxon_village_loc to
   fallen_away_loc`, with explicit lists.
 - Replace location comparions, eg. `<` and `>`, with functions.
-- Rename `saxons_follow`? It's a counter. `saxons_countdown`? Maybe
-  use a real time counter instead.
 - Init the exits with a procedure, not reading from data lines.
 - Check the discovery of the cave entrance. The entrance is not hidden
   anymore. It seems a recent bug.
-- Make sure the entities `data` lines can be in any order, adding the
-  identifier itself as the first datum.
 - Factor all possible meanings currently defined for `do_break`.
-- Replace 1st person error messages (eg. "No conozco ese verbo") with
-  generic ones, ie. kill the narrator.
 - Fix: "stone" is used in the description of the flint, but it's not a
   synonym.
 - Improve the general syntax checker.
 - Abandon compatibility with SuperBASIC using SBASIC-only features?
 - Add "exits/x" action.
-- Improve error "No conozco ese verbo".
 - Split `location_plot` into actual plot, which must be executed only
   the first time a location is entered, and specific descriptions,
   which are shown every time the location is described.

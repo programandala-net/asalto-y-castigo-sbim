@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.29+201709151944" ' after http://semver.org
+let version$="0.2.0-dev.30+201709152030" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -847,14 +847,10 @@ enddef
 
 defproc do_look_around
 
-  loc description$
-
   clear_screen
   ' narrate "["&current_location&"]" ' XXX INFORMER
 
-  restore @location_descriptions_start+current_location-1
-  read description$
-  describe description$
+  describe location_description$(current_location)
 
   location_plot ' XXX FIXME only when entering the location
   list_present_entities
@@ -1892,6 +1888,8 @@ defproc init_the_constants
   let north_road_loc=enum
   let westmorland_loc=enum
 
+  let locations=next_enum-1
+
   ' Direction identifiers
   
   let north=0
@@ -1940,9 +1938,6 @@ defproc init_the_data
   let max_word_lenght=11 ' XXX TODO calculate
 
   restore
-
-  let locations=@location_descriptions_end\
-    -@location_descriptions_start
 
   dim way_out(locations,last_direction)
   restore @map
@@ -2003,174 +1998,352 @@ enddef
 
 ' Location descriptions
 
-label @location_descriptions_start
-data "Aldea Sajona. \
-  No ha quedado nada en pie, ni piedra sobre piedra. \
-  El entorno es desolador. \
-  Solo resta volver al sur, a casa."
-data "Sobre la colina, \
-  casi sobre la niebla de la aldea sajona arrasada al norte, \
-  a tus pies. El camino desciende hacia el oeste."
-data "Camino entre colinas. \
-  El camino avanza por el valle, desde la parte alta, \
-  al este, a una zona harto boscosa, al oeste."
-data "Cruce de caminos. \
-  Una senda parte al oeste, \
-  a la sierra por el paso del Perro, \
-  y otra hacia el norte, \
-  por un frondoso bosque que la rodea."
-data "Desde la linde, al sur, \
-  hacia el oeste se extiende \
-  frondoso el bosque que rodea la sierra. \
-  La salida se abre hacia el sur."
-data "Bosque. \
-  Jirones de niebla se enzarcen en frondosas ramas y arbustos. \
-  La senda serpentea entre raíces, \
-  de un luminoso este al oeste."
-data "Paso del Perro. \
-  Abruptamente, del bosque se pasa \
-  a un estrecho camino entre altas rocas. \
-  El inquietante desfiladero tuerce de este a sur."
-data "Entrada a la cueva. \
-  El paso entre el desfiladero sigue de norte a este. \
-  La entrada a una cueva se abre al sur en la pared de roca."
-data "Derrumbe. \
-  El camino desciende hacia la agreste sierra, al oeste, \
-  desde los verdes valles al este. \
-  Pero un gran derrumbe bloquea la sierra."
-data "Gruta de entrada. \
-  El estrecho paso se adentra hacia el oeste, \
-  desde la boca, al norte. "
-data "Gran lago. \
-  Una gran estancia alberga un lago \
-  de profundas e iridiscentes aguas, debido a la luz exterior. \
-  No hay otra salida que el este."
-data "Salida del paso secreto. \
-  Una gran estancia se abre hacia el oeste, \
-  y se estrecha hasta morir, \
-  al este, en una parte de agua."
-data "Puente semipodrido. \
-  La sala se abre en semioscuridad \
-  a un puente cubierto de podredumbre \
-  sobre el lecho de un canal, de este a oeste."
-data "Recodo de la cueva. \
-  La iridiscente cueva gira de este a sur."
-data "Pasaje arenoso. \
-  La gruta desciende de norte a sur sobre un lecho arenoso. \
-  Al este, un agujero del que llega claridad."
-data "Pasaje del agua. \
-  Como un acueducto, \
-  el agua baja con gran fuerza de norte a este, \
-  aunque la salida practicable es la del oeste."
-data "Estalactitas. \
-  Muchas estalactitas se agrupan encima de tu cabeza, \
-  y se abren cual arco de entrada hacia el este y sur."
-data "Puente de piedra. \
-  Un arco de piedra se eleva, cual puente sobre la oscuridad, \
-  de este a oeste. En su mitad, un altar."
-data "Recodo arenoso del canal. \
-  La furiosa corriente, de norte a este, \
-  impide el paso, excepto al oeste. \
-  Al fondo, se oye un gran estruendo."
-data "Un tramo de cueva estrecho te permite avanzar \
-  hacia el norte y el sur; un pasaje surge al este."
-data "Un tramo de cueva estrecho te permite avanzar \
-  de este a oeste; un pasaje surge al sur."
-data "Un tramo de cueva estrecho te permite avanzar \
-  de este a oeste; un pasaje surge al sur."
-data "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
-data "Un tramo de cueva estrecho te permite avanzar de este a norte."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
-  Al norte y al sur surgen pasajes."
-data "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
-  Al norte surge un pasaje."
-data "Un tramo de cueva estrecho te permite avanzar al oeste. \
-  Al norte surge un pasaje."
-data "Refugio. \
-  Una amplia estancia de norte a este, \
-  hace de albergue a refugiados: \
-  hay banderas de ambos bandos. \
-  Un hombre anciano te contempla. Los refugiados te rodean."
-data "Espiral. \
-  Cual escalera de caracol gigante, \
-  desciende a las profundidades, \
-  dejando a los refugiados al oeste."
-data "Inicio de la espiral. \
-  Se eleva en la penumbra. \
-  La caverna se estrecha ahora como para una sola persona, \
-  hacia el este."
-data "Puerta norte. \
-  En este pasaje grandes rocas se encuentran entre las columnas \
-  de un arco de medio punto."
-data "Precipicio. \
-  El camino ahora no excede de dos palmos de cornisa \
-  sobre un abismo insondable. \
-  El soporte de roca gira en 'U' de oeste a sur."
-data "Pasaje de salida. \
-  El paso se va haciendo menos estrecho \
-  a medida que se avanza hacia el sur, \
-  para entonces comenzar hacia el este."
-data "Pasaje de gravilla. \
-  El paso se anchea de oeste a norte, \
-  y guijarros mojados y mohosos tachonan el suelo de roca."
-data "Puente sobre el acueducto. \
-  Un puente se tiende de norte a sur sobre el curso del agua. \
-  Resbaladizas escaleras descienden hacia el oeste."
-data "Remanso. \
-  Estruendosa corriente baja con el pasaje elevado desde el oeste, \
-  y forma un meandro arenoso. Unas escaleras suben al este."
-data "Canal de agua. \
-  El agua baja del oeste con renovadas fuerzas, \
-  dejando un estrecho paso elevado \
-  lateral para avanzar a este o a oeste."
-data "Gran cascada. \
-  Cae el agua hacia el este, \
-  descendiendo con gran fuerza hacia el canal, \
-  no sin antes embalsarse en un lago poco profundo."
-data "Interior de la cascada. \
-  Musgoso y rocoso, con la cortina de agua tras de ti, \
-  el nivel del agua ha crecido un poco en este curioso hueco."
-data "Explanada. \
-  Una gran explanada enlosetada \
-  contempla un bello panorama de estalactitas. \
-  Unos casi imperceptibles escalones conducen al este."
-data "Ídolo. \
-  El ídolo parece un centinela siniestro \
-  de una gran roca que se encuentra al sur. \
-  Se puede volver a la explanada al oeste."
-data "Pasaje estrecho. \
-  Como un pasillo que corteja el canal de agua, \
-  a su lado, baja de norte a sur. \
-  Se aprecia un aumento de luz hacia el sur."
-data "Pasaje de la serpiente. \
-  El pasaje sigue de norte a sur."
-data "Lago interior. \
-  Unas escaleras dan paso a un hermoso lago interior, \
-  y siguen hacia el oeste. \
-  Al norte, un oscuro y estrecho pasaje sube."
-data "Cruce de pasajes. \
-  Estrechos pasos permiten ir al oeste, \
-  al este (menos oscuro), y al sur, \
-  un lugar de gran luminosidad."
-data "Hogar de Ambrosio. \
-  Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
-data "Salida de la cueva. \
-  Por el oeste, una puerta impide, cuando cerrada, \
-  la salida de la cueva. Se adivina la luz diurna al otro lado."
-data "Bosque a la entrada. \
-  Apenas se puede reconocer la entrada de la cueva, al este. \
-  El sendero sale del bosque hacia el oeste."
-data "Sendero del bosque. \
-  El sendero recorre esta parte del bosque de este a oeste."
-data "Camino norte. \
-  El camino norte de Westmorland se interna hacia el bosque, \
-  al norte (en tu estado no puedes ir), y a Westmorland, al sur."
-data "Westmorland. \
-  La villa bulle de actividad \
-  con el mercado en el centro de la plaza, \
-  donde se encuentra el castillo."
-label @location_descriptions_end
-rem XXX TMP -- to prevent labels clash
+deffn location_description$(a_location)
+
+  ' Return the description of the given location.
+
+  ' XXX REMARK -- 
+  '
+  ' Formerly, the description was read from its `data` line when
+  ' needed, which method avoided duplication of the descriptions
+  ' (in the source and in an array), saving some memory, which
+  ' nevertheless is a negligible advantage in a modern QL
+  ' system.
+  '
+  ' The problem was the calculation of the line number to
+  ' `restore` made the constant identifiers be defined in a
+  ' fixed order.
+  '
+  ' This new method, a function with a `sel` structure, solves
+  ' that problem, while the speed penalty of the `sel` structure
+  ' is negligible.
+  '
+  ' An added advantage of this method is the descriptions can be
+  ' changed at run-time after the game conditions.
+
+  sel on a_location ' XXX TODO -- QDOS and Minerva need an intermedate variable.
+
+    =saxon_village_loc
+
+    ret "Aldea Sajona. \
+    No ha quedado nada en pie, ni piedra sobre piedra. \
+    El entorno es desolador. \
+    Solo resta volver al sur, a casa."
+
+    =on_the_hill_loc
+
+    ret "Sobre la colina, \
+    casi sobre la niebla de la aldea sajona arrasada al norte, \
+    a tus pies. El camino desciende hacia el oeste."
+
+    =path_between_hills_loc
+
+    ret "Camino entre colinas. \
+    El camino avanza por el valle, desde la parte alta, \
+    al este, a una zona harto boscosa, al oeste."
+
+    =paths_crossing_loc
+
+    ret "Cruce de caminos. \
+    Una senda parte al oeste, \
+    a la sierra por el paso del Perro, \
+    y otra hacia el norte, \
+    por un frondoso bosque que la rodea."
+
+    =near_the_forest_loc
+
+    ret "Desde la linde, al sur, \
+    hacia el oeste se extiende \
+    frondoso el bosque que rodea la sierra. \
+    La salida se abre hacia el sur."
+
+    =forest_loc
+
+    ret "Bosque. \
+    Jirones de niebla se enzarcen en frondosas ramas y arbustos. \
+    La senda serpentea entre raíces, \
+    de un luminoso este al oeste."
+
+    =dog_passage_loc
+
+    ret "Paso del Perro. \
+    Abruptamente, del bosque se pasa \
+    a un estrecho camino entre altas rocas. \
+    El inquietante desfiladero tuerce de este a sur."
+
+    =cave_entrance_loc
+
+    ret "Entrada a la cueva. \
+    El paso entre el desfiladero sigue de norte a este. \
+    La entrada a una cueva se abre al sur en la pared de roca."
+
+    =fallen_away_loc
+
+    ret "Derrumbe. \
+    El camino desciende hacia la agreste sierra, al oeste, \
+    desde los verdes valles al este. \
+    Pero un gran derrumbe bloquea la sierra."
+
+    =cave_hall_loc
+
+    ret "Gruta de entrada. \
+    El estrecho paso se adentra hacia el oeste, \
+    desde la boca, al norte. "
+
+    =big_lake_loc
+
+    ret "Gran lago. \
+    Una gran estancia alberga un lago \
+    de profundas e iridiscentes aguas, debido a la luz exterior. \
+    No hay otra salida que el este."
+
+    =secret_exit_loc
+
+    ret "Salida del paso secreto. \
+    Una gran estancia se abre hacia el oeste, \
+    y se estrecha hasta morir, \
+    al este, en una parte de agua."
+
+    =ruined_bridge_loc
+
+    ret "Puente semipodrido. \
+    La sala se abre en semioscuridad \
+    a un puente cubierto de podredumbre \
+    sobre el lecho de un canal, de este a oeste."
+
+    =cave_corner_loc
+
+    ret "Recodo de la cueva. \
+    La iridiscente cueva gira de este a sur."
+
+    =sand_passage_loc
+
+    ret "Pasaje arenoso. \
+    La gruta desciende de norte a sur sobre un lecho arenoso. \
+    Al este, un agujero del que llega claridad."
+
+    =water_passage_loc
+
+    ret "Pasaje del agua. \
+    Como un acueducto, \
+    el agua baja con gran fuerza de norte a este, \
+    aunque la salida practicable es la del oeste."
+
+    =stalactites_loc
+
+    ret "Estalactitas. \
+    Muchas estalactitas se agrupan encima de tu cabeza, \
+    y se abren cual arco de entrada hacia el este y sur."
+
+    =stone_bridge_loc
+
+    ret "Puente de piedra. \
+    Un arco de piedra se eleva, cual puente sobre la oscuridad, \
+    de este a oeste. En su mitad, un altar."
+
+    =channel_sand_corner_loc
+
+    ret "Recodo arenoso del canal. \
+    La furiosa corriente, de norte a este, \
+    impide el paso, excepto al oeste. \
+    Al fondo, se oye un gran estruendo."
+
+    =cave_strait_1_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar \
+    hacia el norte y el sur; un pasaje surge al este."
+
+    =cave_strait_2_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar \
+    de este a oeste; un pasaje surge al sur."
+
+    =cave_strait_3_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar \
+    de este a oeste; un pasaje surge al sur."
+
+    =cave_strait_4_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
+
+    =cave_strait_5_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar de este a norte."
+
+    =cave_strait_6_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
+    Al norte y al sur surgen pasajes."
+
+    =cave_strait_7_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
+    Al norte surge un pasaje."
+
+    =cave_strait_8_loc
+
+    ret "Un tramo de cueva estrecho te permite avanzar al oeste. \
+    Al norte surge un pasaje."
+
+    =refuge_loc
+
+    ret "Refugio. \
+    Una amplia estancia de norte a este, \
+    hace de albergue a refugiados: \
+    hay banderas de ambos bandos. \
+    Un hombre anciano te contempla. Los refugiados te rodean."
+
+    =spiral_loc
+
+    ret "Espiral. \
+    Cual escalera de caracol gigante, \
+    desciende a las profundidades, \
+    dejando a los refugiados al oeste."
+
+    =spiral_start_loc
+
+    ret "Inicio de la espiral. \
+    Se eleva en la penumbra. \
+    La caverna se estrecha ahora como para una sola persona, \
+    hacia el este."
+
+    =north_gate_loc
+
+    ret "Puerta norte. \
+    En este pasaje grandes rocas se encuentran entre las columnas \
+    de un arco de medio punto."
+
+    =precipice_loc
+
+    ret "Precipicio. \
+    El camino ahora no excede de dos palmos de cornisa \
+    sobre un abismo insondable. \
+    El soporte de roca gira en 'U' de oeste a sur."
+
+    =exit_passage_loc
+
+    ret "Pasaje de salida. \
+    El paso se va haciendo menos estrecho \
+    a medida que se avanza hacia el sur, \
+    para entonces comenzar hacia el este."
+
+    =gravel_passage_loc
+
+    ret "Pasaje de gravilla. \
+    El paso se anchea de oeste a norte, \
+    y guijarros mojados y mohosos tachonan el suelo de roca."
+
+    =bridge_over_aqueduct_loc
+
+    ret "Puente sobre el acueducto. \
+    Un puente se tiende de norte a sur sobre el curso del agua. \
+    Resbaladizas escaleras descienden hacia el oeste."
+
+    =pool_loc
+
+    ret "Remanso. \
+    Estruendosa corriente baja con el pasaje elevado desde el oeste, \
+    y forma un meandro arenoso. Unas escaleras suben al este."
+
+    =water_channel_loc
+
+    ret "Canal de agua. \
+    El agua baja del oeste con renovadas fuerzas, \
+    dejando un estrecho paso elevado \
+    lateral para avanzar a este o a oeste."
+
+    =big_waterfall_loc
+
+    ret "Gran cascada. \
+    Cae el agua hacia el este, \
+    descendiendo con gran fuerza hacia el canal, \
+    no sin antes embalsarse en un lago poco profundo."
+
+    =inside_waterfall_loc
+
+    ret "Interior de la cascada. \
+    Musgoso y rocoso, con la cortina de agua tras de ti, \
+    el nivel del agua ha crecido un poco en este curioso hueco."
+
+    =terrace_loc
+
+    ret "Explanada. \
+    Una gran explanada enlosetada \
+    contempla un bello panorama de estalactitas. \
+    Unos casi imperceptibles escalones conducen al este."
+
+    =idol_loc
+
+    ret "Ídolo. \
+    El ídolo parece un centinela siniestro \
+    de una gran roca que se encuentra al sur. \
+    Se puede volver a la explanada al oeste."
+
+    =strait_passage_loc
+
+    ret "Pasaje estrecho. \
+    Como un pasillo que corteja el canal de agua, \
+    a su lado, baja de norte a sur. \
+    Se aprecia un aumento de luz hacia el sur."
+
+    =snake_passage_loc
+
+    ret "Pasaje de la serpiente. \
+    El pasaje sigue de norte a sur."
+
+    =inner_lake_loc
+
+    ret "Lago interior. \
+    Unas escaleras dan paso a un hermoso lago interior, \
+    y siguen hacia el oeste. \
+    Al norte, un oscuro y estrecho pasaje sube."
+
+    =passage_crossing_loc
+
+    ret "Cruce de pasajes. \
+    Estrechos pasos permiten ir al oeste, \
+    al este (menos oscuro), y al sur, \
+    un lugar de gran luminosidad."
+
+    =ambrosios_home_loc
+
+    ret "Hogar de Ambrosio. \
+    Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
+
+    =cave_exit_loc
+
+    ret "Salida de la cueva. \
+    Por el oeste, una puerta impide, cuando cerrada, \
+    la salida de la cueva. Se adivina la luz diurna al otro lado."
+
+    =cave_exit_forest_loc
+
+    ret "Bosque a la entrada. \
+    Apenas se puede reconocer la entrada de la cueva, al este. \
+    El sendero sale del bosque hacia el oeste."
+
+    =forest_path_loc
+
+    ret "Sendero del bosque. \
+    El sendero recorre esta parte del bosque de este a oeste."
+
+    =north_road_loc
+
+    ret "Camino norte. \
+    El camino norte de Westmorland se interna hacia el bosque, \
+    al norte (en tu estado no puedes ir), y a Westmorland, al sur."
+
+    =westmorland_loc
+
+    ret "Westmorland. \
+    La villa bulle de actividad \
+    con el mercado en el centro de la plaza, \
+    donde se encuentra el castillo."
+
+  endsel
+
+enddef
 
 ' Map
 
@@ -2230,7 +2403,7 @@ data westmorland_loc,north_road_loc,nowhere,nowhere,nowhere,nowhere,nowhere
 
 ' Nouns
 
-' data: entity id, noun
+' data: entity, noun
 ' (for every entity id, the last noun listed will be the main one)
 label @nouns_start
 data ambrosio,"ambrosio"
@@ -2294,9 +2467,8 @@ rem XXX TMP -- to prevent labels clash
 
 ' Entities
 
-' data: id,location,type,description
+' data: entity,location,attribute,description
 label @entities_start
-' XXX TODO -- replace literals with constants
 data the_altar,stone_bridge_loc,untakeable_attr
 data "Justo en la mitad del puente, debe sostener algo importante."
 data ambrosio,channel_sand_corner_loc,person_attr
