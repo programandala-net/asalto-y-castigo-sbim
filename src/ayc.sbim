@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.19+201709151320" ' after http://semver.org
+let version$="0.2.0-dev.20+201709151320" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1748,109 +1748,119 @@ defproc init_the_constants
     la hoja de tu espada, mellada. No."
 
   ' Action ids
-  let to_go_down=1
-  let to_open=2
-  let to_go_up=3
-  let to_break=4
-  let to_help=5
-  let to_swim=6
-  let to_take=7
-  let to_drop=8
-  let to_go_east=9
-  let to_examine=10
-  let to_speak=11
-  let to_insert=12
-  let to_look=13
-  let to_go_north=14
-  let to_go_west=15
-  let to_go_south=16
-  let to_finish=17
-  let to_fling=18
-  let to_sharpen=19
-  let to_inventory=20
+
+  let next_enum=1
+
+  let to_go_down=enum
+  let to_open=enum
+  let to_go_up=enum
+  let to_break=enum
+  let to_help=enum
+  let to_swim=enum
+  let to_take=enum
+  let to_drop=enum
+  let to_go_east=enum
+  let to_examine=enum
+  let to_speak=enum
+  let to_insert=enum
+  let to_look=enum
+  let to_go_north=enum
+  let to_go_west=enum
+  let to_go_south=enum
+  let to_finish=enum
+  let to_fling=enum
+  let to_sharpen=enum
+  let to_inventory=enum
   ' XXX TODO calculate `actions` here
 
   ' Thing ids
+
   ' let nothing=0 ' XXX TODO
-  let ulfius=0
-  let the_altar=1
-  let ambrosio=2
-  let the_torch=3
-  let the_flags=4
-  let the_cloak=5
-  let the_waterfall=6
-  let the_fallen_away=7
-  let the_emerald=8
-  let the_sword=9
-  let the_rags=10
-  let the_thread=11
-  let the_man=12
-  let the_idol=13
-  let the_lake=14
-  let the_key=15
-  let the_flint=16
-  let the_stone=17
-  let the_door=18
-  let the_rocks=19
-  let the_snake=20
-  let the_log=21
-  let the_piece=22
-  let the_lock=23
+
+  let next_enum=0 ' XXX TODO 1
+
+  let ulfius=enum
+  let the_altar=enum
+  let ambrosio=enum
+  let the_torch=enum
+  let the_flags=enum
+  let the_cloak=enum
+  let the_waterfall=enum
+  let the_fallen_away=enum
+  let the_emerald=enum
+  let the_sword=enum
+  let the_rags=enum
+  let the_thread=enum
+  let the_man=enum
+  let the_idol=enum
+  let the_lake=enum
+  let the_key=enum
+  let the_flint=enum
+  let the_stone=enum
+  let the_door=enum
+  let the_rocks=enum
+  let the_snake=enum
+  let the_log=enum
+  let the_piece=enum
+  let the_lock=enum
 
   ' Location ids
 
   let nowhere=0
-  let saxon_village_loc=1
-  let on_the_hill_loc=2
-  let path_between_hills_loc=3
-  let paths_crossing_loc=4
-  let near_the_forest_loc=5
-  let forest_loc=6
-  let dog_passage_loc=7
-  let cave_entrance_loc=8
-  let fallen_away_loc=9
-  let cave_hall_loc=10
-  let big_lake_loc=11
-  let secret_exit_loc=12
-  let ruined_bridge_loc=13
-  let cave_corner_loc=14
-  let sand_passage_loc=15
-  let water_passage_loc=16
-  let stalactites_loc=17
-  let stone_bridge_loc=18
-  let channel_sand_corner_loc=19
-  let cave_strait_1_loc=20
-  let cave_strait_2_loc=21
-  let cave_strait_3_loc=22
-  let cave_strait_4_loc=23
-  let cave_strait_5_loc=24
-  let cave_strait_6_loc=25
-  let cave_strait_7_loc=26
-  let cave_strait_8_loc=27
-  let refuge_loc=28
-  let spiral_loc=29
-  let spiral_start_loc=30
-  let north_gate_loc=31
-  let precipice_loc=32
-  let exit_passage_loc=33
-  let gravel_passage_loc=34
-  let bridge_over_aqueduct_loc=35
-  let pool_loc=36
-  let water_channel_loc=37
-  let big_waterfall_loc=38
-  let inside_waterfall_loc=39
-  let terrace_loc=40
-  let idol_loc=41
-  let strait_passage_loc=42
-  let snake_passage_loc=43
-  let inner_lake_loc=44
-  let passage_crossing_loc=45
-  let ambrosios_home_loc=46
-  let cave_exit_loc=47
-  let cave_exit_forest_loc=48
-  let forest_path_loc=49
-  let north_road_loc=50
-  let westmorland_loc=51
+
+  let next_enum=1
+
+  let saxon_village_loc=enum
+  let on_the_hill_loc=enum
+  let path_between_hills_loc=enum
+  let paths_crossing_loc=enum
+  let near_the_forest_loc=enum
+  let forest_loc=enum
+  let dog_passage_loc=enum
+  let cave_entrance_loc=enum
+  let fallen_away_loc=enum
+  let cave_hall_loc=enum
+  let big_lake_loc=enum
+  let secret_exit_loc=enum
+  let ruined_bridge_loc=enum
+  let cave_corner_loc=enum
+  let sand_passage_loc=enum
+  let water_passage_loc=enum
+  let stalactites_loc=enum
+  let stone_bridge_loc=enum
+  let channel_sand_corner_loc=enum
+  let cave_strait_1_loc=enum
+  let cave_strait_2_loc=enum
+  let cave_strait_3_loc=enum
+  let cave_strait_4_loc=enum
+  let cave_strait_5_loc=enum
+  let cave_strait_6_loc=enum
+  let cave_strait_7_loc=enum
+  let cave_strait_8_loc=enum
+  let refuge_loc=enum
+  let spiral_loc=enum
+  let spiral_start_loc=enum
+  let north_gate_loc=enum
+  let precipice_loc=enum
+  let exit_passage_loc=enum
+  let gravel_passage_loc=enum
+  let bridge_over_aqueduct_loc=enum
+  let pool_loc=enum
+  let water_channel_loc=enum
+  let big_waterfall_loc=enum
+  let inside_waterfall_loc=enum
+  let terrace_loc=enum
+  let idol_loc=enum
+  let strait_passage_loc=enum
+  let snake_passage_loc=enum
+  let inner_lake_loc=enum
+  let passage_crossing_loc=enum
+  let ambrosios_home_loc=enum
+  let cave_exit_loc=enum
+  let cave_exit_forest_loc=enum
+  let forest_path_loc=enum
+  let north_road_loc=enum
+  let westmorland_loc=enum
 
   ' Direction ids
   let north=0
@@ -1866,6 +1876,13 @@ defproc init_the_constants
   let takeable_type=false
   let untakeable_type=true
   let person_type=2
+
+enddef
+
+deffn enum
+
+  let next_enum=next_enum+1
+  ret next_enum-1
 
 enddef
 

@@ -13,9 +13,8 @@
 - Init the exits with a procedure, not reading from data lines.
 - Check the discovery of the cave entrance. The entrance is not hidden
   anymore. It seems a recent bug.
-- Use an `enum` function to init the identifiers. Then make sure their
-  data can be in any order, adding the identifier itself as the first
-  datum.
+- Make sure the entities `data` lines can be in any order, adding the
+  identifier itself as the first datum.
 - Factor all possible meanings currently defined for `do_break`.
 - Add `nothing` identifier. Add to `sel`. Use in current `=false`.
 - Replace 1st person error messages (eg. "No conozco ese verbo") with
@@ -29,4 +28,5 @@
 - Split `location_plot` into actual plot, which must be executed only
   the first time a location is entered, and specific descriptions,
   which are shown every time the location is described.
-
+- Do not use `ulfius` identifier to take/drop. Write a wrapper.
+- Add `nothing` and set `ulfius` to 1.
