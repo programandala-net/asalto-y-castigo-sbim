@@ -4,7 +4,7 @@ rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
 rem Author: Marcos Cruz (programandala.net), 2011, 2015, 2017
 
-' Last modified 201709161859
+' Last modified 201709170054
 
 ' ==============================================================
 
@@ -34,7 +34,7 @@ print #0,"bmpcvt"
 ' Load and run the main program:
 lrun dev$&"ayc_bas"
 
-#include device.sbim
+#include device.bas
 
 defproc big_windows
 
@@ -52,3 +52,5 @@ defproc big_window(channel%)
   paper #channel%,0 ' black background
 
 enddef
+
+' vim: filetype=sbim:textwidth=70

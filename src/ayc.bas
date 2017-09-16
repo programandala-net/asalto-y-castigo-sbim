@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.37+201709170050" ' after http://semver.org
+let version$="0.2.0-dev.37+201709170054" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1576,7 +1576,7 @@ defproc first_time_init
 
 enddef
 
-#include device.sbim
+#include device.bas
 
 defproc game_init
 
@@ -2801,4 +2801,4 @@ defproc _debug(text$)
 
 enddef
 
-' vim: textwidth=70
+' vim: filetype=sbim:textwidth=70

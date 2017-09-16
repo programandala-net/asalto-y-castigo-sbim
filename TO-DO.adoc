@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-16
+:revdate: 2017-09-17
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -39,5 +39,3 @@
 - Improve: trap error when the splash screen file does not exist.
 - Adjust the text window to the splash screen, leaving a border.
 - Update <.gitattributes> with "vendored".
-- Replace the SBIM extension with standard BAS and add a Vim modeline
-  to the source files.

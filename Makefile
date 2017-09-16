@@ -3,7 +3,7 @@
 # This file is part of _Asalto y castigo_
 # (http://programandala.net/es.programa.asalto_y_castigo.superbasic.html)
 
-# Last modifed 201709161840
+# Last modified 201709170059
 # See change log at the end of the file
 
 # ==============================================================
@@ -36,10 +36,10 @@ all: target/boot target/ayc_bas images
 clean:
 	rm -f target/*_bas target/boot
 
-target/boot: src/boot.sbim
+target/boot: src/boot.bas
 	sbim $< $@
 
-target/ayc_bas: src/ayc.sbim
+target/ayc_bas: src/ayc.bas
 	sbim $< $@
 
 .PHONY: images
@@ -54,3 +54,5 @@ images: $(wildcard img/*.png)
 # 2017-09-12: Start.
 #
 # 2017-09-16: Convert PNG splash screens to BMP.
+#
+# 2017-09-17: Update SBIM extension to BAS.

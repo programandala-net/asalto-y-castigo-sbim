@@ -1,8 +1,9 @@
 rem device.sbim
 rem By Marcos Cruz (programandala.net), 2016, 2017
 
-// 2016-01-25: Extract from ce4_sbim.
-// 2017-09-12: Fix typo. Rename "_sbim" ".sbim".
+' 2016-01-25: Extract from ce4_sbim.
+' 2017-09-12: Fix typo. Rename "_sbim" ".sbim".
+' 2017-09-17: Rename ".sbim" ".bas".
 
 deffn device$(file$,devices$)
 
@@ -23,3 +24,5 @@ deffn device$(file$,devices$)
   ret dev$
 
 enddef
+
+' vim: filetype=sbim
