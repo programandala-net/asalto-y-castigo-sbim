@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.30+201709152030" ' after http://semver.org
+let version$="0.2.0-dev.31+201709161234" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -22,9 +22,6 @@ rem Locomotive BASIC (Amstrad CPC) and Blassic.
 
 ' From "DIY Toolkit", (C) Simon N. Goodwin:
 '   minimum, maximum, inarray%
-
-' From "Display toolkit", (C) Dilwyn Jones:
-'   flim_w, flim_h, dmode
 
 ' ==============================================================
 ' Main
@@ -1620,7 +1617,7 @@ defproc init_the_screen
   ' Init the screen. If needed, change its mode and colour scheme.
 
   loc screen_mode
-  let screen_mode=dmode
+  let screen_mode=disp_type
   sel on screen_mode
     =0:\
       mode 8:\
@@ -1630,8 +1627,6 @@ defproc init_the_screen
     =remainder:\
       init_pal_colours
   endsel
-  let scr_w=flim_w(#0)
-  let scr_h=flim_h(#0)
 
 enddef
 
@@ -1672,14 +1667,14 @@ defproc init_the_window
 
   ' Init the window, maximum size 800x600.
 
-  let csize_w=3-(scr_w=512)
-  let csize_h=scr_w>512
+  let csize_w=3-(scr_xlim=512)
+  let csize_h=scr_xlim>512
   let tw=fopen("con_")
   csize #tw,csize_w,csize_h
-  let tw_w=minimum(800,scr_w)
-  let tw_h=minimum(600,scr_h)
-  let tw_x=(scr_w-tw_w)/2
-  let tw_y=(scr_h-tw_h)/2
+  let tw_w=minimum(800,scr_xlim)
+  let tw_h=minimum(600,scr_ylim)
+  let tw_x=(scr_xlim-tw_w)/2
+  let tw_y=(scr_ylim-tw_h)/2
   window #tw,tw_w,tw_h,tw_x,tw_y
   paper #tw,black
   ink #tw,light_grey
@@ -1698,7 +1693,7 @@ enddef
 
 defproc splash_screen
 
-  if flim_w(#0)=512 and flim_h(#0)=256
+  if scr_xlim=512 and scr_ylim=256
     lbytes dev$&"img_ayc8_scr",address(#0)
   endif
 
