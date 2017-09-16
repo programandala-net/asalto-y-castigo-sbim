@@ -37,3 +37,7 @@
 - Improve: Compare `ex x` when `x` is not recognized and when `x` is
   not present.
 - Improve: trap error when the splash screen file does not exist.
+- Adjust the text window to the splash screen, leaving a border.
+- Update <.gitattributes> with "vendored".
+- Replace the SBIM extension with standard BAS and add a Vim modeline
+  to the source files.
