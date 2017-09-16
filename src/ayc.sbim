@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.33+201709161553" ' after http://semver.org
+let version$="0.2.0-dev.34+201709161642" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -40,7 +40,7 @@ defproc main
     rep your_turn
       plot
       command
-      if start_over:\
+      if start_over%:\
         exit your_turn
     endrep your_turn
   endrep game
@@ -56,18 +56,18 @@ defproc plot
 
   sel on true
 
-    =(current_location=cave_entrance_loc% \
-      and way_out(cave_entrance_loc%,north))
+    =(current_location%=cave_entrance_loc% \
+      and way_out%(cave_entrance_loc%,north%))
 
       ambush
 
-    =under_attack<>0
+    =under_attack%<>0
 
       battle
 
-    =(current_location=cave_strait_1_loc% \
-      and (not is_accessible(the_torch%) \
-      or not lit_the_torch))
+    =(current_location%=cave_strait_1_loc% \
+      and (not is_accessible%(the_torch%) \
+      or not lit_the_torch%))
 
       ' XXX TODO -- Why `>channel_sand_corner_loc%` in the
       ' original?  I put `=cave_strait_1_loc%`, which is the exit
@@ -79,7 +79,7 @@ defproc plot
 
       dark_cave_strait_1
 
-    =(current_location=westmorland_loc%) ' XXX TODO move to `location_plot`?
+    =(current_location%=westmorland_loc%) ' XXX TODO move to `location_plot`?
       arrive_in_westmorland
 
   endsel
@@ -88,8 +88,8 @@ enddef
 
 defproc ambush
 
-  let way_out(cave_entrance_loc%,north)=nowhere
-  let under_attack=1
+  let way_out%(cave_entrance_loc%,north%)=nowhere%
+  let under_attack%=1
   narrate "Una partida sajona aparece por el este. \
     Para cuando te vuelves al norte, ya no te queda ninguna duda: \
     era una trampa."
@@ -107,12 +107,12 @@ enddef
 
 defproc battle
 
-  let under_attack=under_attack+1
+  let under_attack%=under_attack%+1
   narrate "No sabes cuánto tiempo te queda..."
-  if under_attack>10 ' XXX TODO random
+  if under_attack%>10 ' XXX TODO random
     captured
   endif
-  if current_location<cave_hall_loc% ' XXX TODO `=` is enough?
+  if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?
     narrate "Tus hombres luchan con denuedo contra los sajones."
   endif
 
@@ -168,11 +168,11 @@ defproc location_plot
 
   ' Check the plot conditions related to the new location.
 
-  sel on current_location
+  sel on current_location%
     =big_lake_loc%,big_waterfall_loc%,inner_lake_loc%
       be_here the_lake%
     =saxon_village_loc% to fallen_away_loc%
-      if way_out(cave_entrance_loc%,north):\
+      if way_out%(cave_entrance_loc%,north%):\
         narrate "Tus hombres siguen tus pasos."
     =water_passage_loc%
       narrate "En la distancia, \
@@ -181,18 +181,18 @@ defproc location_plot
         los sajones tratan de buscar la salida \
         que encontraste por casualidad."
     =north_gate_loc%
-      if way_out(north_gate_loc%,north)
+      if way_out%(north_gate_loc%,north%)
         narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
       else
         narrate "Las rocas bloquean el camino."
       endif
     =refuge_loc%
-      let way_out(refuge_loc%,east)=nowhere
+      let way_out%(refuge_loc%,east%)=nowhere%
   endsel
 
-  if not is_vanished(ambrosio%) \
-    and is_takeable(the_key%) \
-    and (current_location=ambrosios_home_loc% or ambrosio_follows)
+  if not is_vanished%(ambrosio%) \
+    and is_takeable%(the_key%) \
+    and (current_location%=ambrosios_home_loc% or ambrosio_follows%)
     be_here ambrosio%
     narrate "Tu benefactor te sigue, esperanzado."
   endif
@@ -203,11 +203,11 @@ defproc rocks_and_log
 
   ' Action using the log with rocks.
 
-  if hacked_the_log
+  if hacked_the_log%
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
     vanish the_rocks%
-    let way_out(north_gate_loc%,north)=precipice_loc%
+    let way_out%(north_gate_loc%,north%)=precipice_loc%
   else
     narrate "Lo intentas con el tronco, \
       pero la punta es demasiado gruesa, \
@@ -230,7 +230,7 @@ defproc open_the_door
   vanish the_key%
   let description$(the_door%)="Entreabierta."
   let description$(the_lock%)="Abierto."
-  let way_out(cave_exit_loc%,west)=cave_exit_forest_loc%
+  let way_out%(cave_exit_loc%,west%)=cave_exit_forest_loc%
 
 enddef
 
@@ -241,23 +241,23 @@ defproc command
 
   ' Accept a command, analize it and execute it.
 
-  loc next_space,command$
+  loc next_space%,command$
 
-  let action=nothing
-  let object=nothing
-  let complement=nothing
+  let action%=nothing%
+  let object%=nothing%
+  let complement%=nothing%
   let command$=accept$
 
   rep find_word
-    let next_space=" " instr command$
-    parse_word command$(1 to next_space-1)
-    if next_space=len(command$):\
+    let next_space%=" " instr command$
+    parse_word command$(1 to next_space%-1)
+    if next_space%=len(command$):\
       exit find_word
-    let command$=command$(next_space+1 to)
+    let command$=command$(next_space%+1 to)
   endrep find_word
 
   if fine_command:\
-    do_action action
+    do_action action%
 
 enddef
 
@@ -265,40 +265,40 @@ defproc parse_word(word$)
 
   ' Analize the given word.
 
-  if not action
-    let action=parse_verb(word$)
+  if not action%
+    let action%=parse_verb%(word$)
   else
-    if not object
-      let object=parse_noun(word$)
+    if not object%
+      let object%=parse_noun%(word$)
     else
-      if not complement:\
-        complement=parse_noun(word$)
+      if not complement%:\
+        complement%=parse_noun%(word$)
     endif
   endif
 
 enddef
 
-deffn parse_verb(word$)
+deffn parse_verb%(word$)
 
   ' Analize the given word; it's supposed to be a verb.
 
-  loc found
-  let found=inarray%(verb$,0,word$)
-  if found<0:\
+  loc found%
+  let found%=inarray%(verb$,0,word$)
+  if found%<0:\
     ret 0
-  ret verb_action(found)
+  ret verb_action(found%)
 
 enddef
 
-deffn parse_noun(word$)
+deffn parse_noun%(word$)
 
   ' Analize the given word; it's supposed to be a noun.
 
-  loc found
-  let found=inarray%(noun$,0,word$)
-  if found<0:\
+  loc found%
+  let found%=inarray%(noun$,0,word$)
+  if found%<0:\
     ret 0
-  ret entity_of_noun(found)
+  ret entity_of_noun%(found%)
 
 enddef
 
@@ -308,26 +308,26 @@ deffn fine_command
   ' accesibility of the object and the complement, if present.
   ' Return `true` if it's right, or `false` otherwise.
 
-  if action
+  if action%
 
-    sel on syntax(action)
-      =object_needed
-        if not object:\
+    sel on syntax%(action%)
+      =object_needed%
+        if not object%:\
           narrate not_understood$:\
           ret false
-      =object_and_complement_needed
-        if (not object or not complement):\
+      =object_and_complement_needed%
+        if (not object% or not complement%):\
           narrate not_understood$:\
           ret false
     endsel
 
-    if object:\
-      if not is_accessible(object):\
+    if object%:\
+      if not is_accessible%(object%):\
          narrate not_seen$:\
          ret false
 
-    if complement:\
-      if not is_accessible(complement):\
+    if complement%:\
+      if not is_accessible%(complement%):\
         narrate not_seen$:\
         ret false
 
@@ -345,29 +345,29 @@ enddef
 ' ==============================================================
 ' Actions
 
-defproc do_action(action)
+defproc do_action(action%)
 
-  sel on action
-    =to_break:do_break
-    =to_drop:do_drop
-    =to_examine:do_examine
-    =to_finish:do_end
-    =to_fling:do_fling
-    =to_go_down:do_move down
-    =to_go_east:do_move east
-    =to_go_north:do_move north
-    =to_go_south:do_move south
-    =to_go_up:do_move up
-    =to_go_west:do_move west
-    =to_help:do_help
-    =to_insert:do_insert
-    =to_inventory:do_inventory
-    =to_look:do_look
-    =to_open:do_open
-    =to_sharpen:do_sharpen
-    =to_speak:do_speak
-    =to_swim:do_swim
-    =to_take:do_take
+  sel on action%
+    =to_break%:do_break
+    =to_drop%:do_drop
+    =to_examine%:do_examine
+    =to_finish%:do_end
+    =to_fling%:do_fling
+    =to_go_down%:do_move down%
+    =to_go_east%:do_move east%
+    =to_go_north%:do_move north%
+    =to_go_south%:do_move south%
+    =to_go_up%:do_move up%
+    =to_go_west%:do_move west%
+    =to_help%:do_help
+    =to_insert%:do_insert
+    =to_inventory%:do_inventory
+    =to_look%:do_look
+    =to_open%:do_open
+    =to_sharpen%:do_sharpen
+    =to_speak%:do_speak
+    =to_swim%:do_swim
+    =to_take%:do_take
     =remainder:narrate not_understood$
   endsel
 
@@ -391,7 +391,7 @@ enddef
 
 defproc do_examine
 
-  if object
+  if object%
     do_examine_object
   else
     do_look_around
@@ -401,8 +401,8 @@ enddef
 
 defproc do_examine_object
 
-  if is_accessible(object)
-    narrate description$(object)
+  if is_accessible%(object%)
+    narrate description$(object%)
   else
     narrate not_seen$
   endif
@@ -411,8 +411,8 @@ enddef
 
 defproc do_end
 
-  if yes("¿Quieres volver a intentarlo?")
-    let start_over=true
+  if yes%("¿Quieres volver a intentarlo?")
+    let start_over%=true
   else
     clear_screen:\
     stop
@@ -422,7 +422,7 @@ enddef
 
 defproc do_swim
 
-  if current_location=big_lake_loc%
+  if current_location%=big_lake_loc%
     clear_screen
     narrate "Caes hacia el fondo por el peso de tu coraza. \
       Como puedes, te desprendes de ella y buceas, \
@@ -432,7 +432,7 @@ defproc do_swim
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
     enter secret_exit_loc%
-    let under_attack=false
+    let under_attack%=false
   else
     narrate "No tiene sentido nadar ahora."
   endif
@@ -441,9 +441,9 @@ enddef
 
 defproc do_open
 
-  if current_location=cave_exit_loc%
-    if object=the_door% or object=the_lock%
-      if is_accessible(the_key%)
+  if current_location%=cave_exit_loc%
+    if object%=the_door% or object%=the_lock%
+      if is_accessible%(the_key%)
         open_the_door
       else
         narrate "El candado bloquea la puerta."
@@ -460,19 +460,19 @@ enddef
 defproc do_drop
 
   ' XXX TODO -- Remove these cases:
-  sel on object
+  sel on object%
     =the_sword%:\
-      if current_location<secret_exit_loc%:\
+      if current_location%<secret_exit_loc%:\
         narrate "No, es lo que queda de mi padre.":\
         ret
     =the_torch%:\
-      if lit_the_torch:\
+      if lit_the_torch%:\
         narrate "No, sin luz es imposible moverse por la caverna.":\
         ret
   endsel
 
-  if is_hold(object)
-    be_here object
+  if is_hold%(object%)
+    be_here object%
     narrate "Hecho."
   else
     narrate i_dont_have_it$
@@ -482,17 +482,17 @@ enddef
 
 defproc do_take
 
-  if is_hold(object)
+  if is_hold%(object%)
     narrate "Pero si ya lo tengo..."
   else
-    if is_untakeable(object)
-      if object=the_key%
+    if is_untakeable%(object%)
+      if object%=the_key%
         narrate "Ambrosio la retiene consigo."
       else
         narrate "No es algo que uno pueda llevar consigo."
       endif
     else
-      be_hold object:\
+      be_hold object%:\
       narrate "Hecho."
     endif
   endif
@@ -501,7 +501,7 @@ enddef
 
 defproc do_break
 
-  sel on object
+  sel on object%
 
     =the_log%:\
       do_break_the_log
@@ -516,12 +516,12 @@ defproc do_break
 
       ' XXX TODO move to the proper action
 
-      sel on complement
-        =nothing:\
+      sel on complement%
+        =nothing%:\
           narrate not_by_hand$
         =the_sword%
-          if is_accessible(the_torch%)
-            let lit_the_torch=true
+          if is_accessible%(the_torch%)
+            let lit_the_torch%=true
             let description$(the_torch%)=\
               "Ilumina perfectamente."
             narrate "Poderosas chispas salen \
@@ -539,13 +539,13 @@ defproc do_break
 
       ' XXX TODO move to the proper action
 
-      sel on complement
-        =nothing:\
+      sel on complement%
+        =nothing%:\
           narrate not_by_hand$
         =the_sword%
           narrate "Ante los amenazadores tajos, la serpiente huye."
           vanish the_snake%
-          let way_out(snake_passage_loc%,south)=inner_lake_loc%
+          let way_out%(snake_passage_loc%,south%)=inner_lake_loc%
         =remainder:\
           narrate not_with_that$
       endsel
@@ -558,8 +558,8 @@ defproc do_break
 enddef
 
 defproc do_break_the_log
-  sel on complement
-    =nothing
+  sel on complement%
+    =nothing%
       narrate not_by_hand$
     =the_sword%
       narrate not_by_sword$
@@ -569,8 +569,8 @@ defproc do_break_the_log
 enddef
 
 defproc do_break_the_cloak
-  sel on complement
-    =nothing
+  sel on complement%
+    =nothing%
       narrate not_by_hand$
     =the_sword%
       vanish the_cloak%
@@ -584,8 +584,8 @@ defproc do_break_the_cloak
 enddef
 
 defproc do_break_the_rocks
-  sel on complement
-    =nothing:\
+  sel on complement%
+    =nothing%:\
       narrate not_by_hand$
     =the_log%:\
       rocks_and_log
@@ -598,22 +598,22 @@ enddef
 
 defproc do_sharpen
 
-  sel on object
+  sel on object%
 
     =the_log%
 
-      ' XXX factor, reuse with `to_break`, `to_cut`...
+      ' XXX factor, reuse with `to_break%`, `to_cut%`...
 
-      if hacked_the_log
+      if hacked_the_log%
         narrate "La punta ya está suficientemente afilada."
       else
-        sel on complement
-          =nothing
+        sel on complement%
+          =nothing%
             narrate not_by_hand$
           =the_sword%
             narrate not_by_sword$
           =the_flint%
-            let hacked_the_log=true
+            let hacked_the_log%=true
             let description$(the_log%)=\
               description$(the_log%)&" Su punta está afilada."
             narrate "Con el pedernal, afilas la punta del tronco."
@@ -637,7 +637,7 @@ enddef
 
 defproc do_speak
 
-  sel on object
+  sel on object%
     =ambrosio%:\
       talk_to_ambrosio
     =the_man%:\
@@ -650,7 +650,7 @@ enddef
 
 defproc talk_to_ambrosio
 
-  if location(ambrosio%)=channel_sand_corner_loc%
+  if location%(ambrosio%)=channel_sand_corner_loc%
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
@@ -668,7 +668,7 @@ defproc talk_to_ambrosio
     be_hold the_flint%
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
-    let location(ambrosio%)=ambrosios_home_loc%
+    let location%(ambrosio%)=ambrosios_home_loc%
     narrate "Te das la vuelta \
       para ver si Ambrosio te sigue, \
       pero... ha desaparecido."
@@ -680,8 +680,8 @@ defproc talk_to_ambrosio
 
   else
 
-    if current_location=ambrosios_home_loc%
-      if not ambrosio_follows
+    if current_location%=ambrosios_home_loc%
+      if not ambrosio_follows%
         speak "La llave, Ambrosio, estaba ya en tu poder. \
           Y es obvio que conocéis un camino más corto."
         speak "Estoy atrapado en la cueva \
@@ -693,14 +693,14 @@ defproc talk_to_ambrosio
       endif
     endif
 
-    if current_location>=passage_crossing_loc% \
-      and current_location<=cave_exit_loc%
+    if current_location%>=passage_crossing_loc% \
+      and current_location%<=cave_exit_loc%
 
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
       be_hold the_key%
       be_takeable the_key%
-      let ambrosio_follows=true
+      let ambrosio_follows%=true
 
     endif
 
@@ -710,28 +710,28 @@ enddef
 
 defproc talk_to_the_man
 
-  if not talked_to_the_man
+  if not talked_to_the_man%
     speak "Me llamo Ulfius y..."
-    let talked_to_the_man=true
+    let talked_to_the_man%=true
     narrate "El hombre asiente, impaciente."
     speak "Somos refugiados de la gran guerra. Buscamos la paz."
     short_pause
   endif
-  if is_accessible(the_stone%)
+  if is_accessible%(the_stone%)
     narrate "El hombre se irrita."
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
     speak "La piedra debe ser devuelta a su lugar de encierro."
     narrate "Un hombre te arrebata la piedra y se la lleva."
-    let location(the_stone%)=stone_bridge_loc%
+    let location%(the_stone%)=stone_bridge_loc%
   else
-    if is_accessible(the_sword%)
+    if is_accessible%(the_sword%)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
       speak "Todo aquel que porte armas jamás podrá pasar."
     else
-      let way_out(refuge_loc%,east)=spiral_loc%
+      let way_out%(refuge_loc%,east%)=spiral_loc%
       narrate "El hombre, calmado, indica hacia el este y habla:"
       speak "Si vienes en paz, puedes ir en paz."
       narrate "Todos se apartan y permiten ahora el paso al este."
@@ -742,13 +742,13 @@ enddef
 
 defproc do_fling
 
-  sel on current_location
+  sel on current_location%
     =ruined_bridge_loc%,water_passage_loc%
       narrate "No hay suficiente profundidad."
     =channel_sand_corner_loc%
-      if (object=the_sword% or object=the_stone%) \
-        and talked_to_the_man
-        let location(object)=inside_waterfall_loc%
+      if (object%=the_sword% or object%=the_stone%) \
+        and talked_to_the_man%
+        let location%(object%)=inside_waterfall_loc%
         narrate "La corriente lo arrastra fuertemente, \
           hasta perderlo de vista."
       else
@@ -764,28 +764,28 @@ defproc do_insert
 
   ' XXX TODO rewrite, invert `sel` levels
 
-  sel on complement
+  sel on complement%
     =the_rocks%
-      if object=the_log%
+      if object%=the_log%
         rocks_and_log
       else
         narrate not_understood$
       endif
     =the_idol%
-      sel on object
+      sel on object%
         =the_emerald%,the_stone%
-          vanish object
+          vanish object%
           narrate "Encaja. Desaparece en su interior."
-          if is_vanished(the_stone%) \
-            and is_vanished(the_emerald%)
-            let way_out(idol_loc%,south)=strait_passage_loc%
+          if is_vanished%(the_stone%) \
+            and is_vanished%(the_emerald%)
+            let way_out%(idol_loc%,south%)=strait_passage_loc%
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
           narrate not_understood$
       endsel
     =the_lock%
-      if object=the_key%
+      if object%=the_key%
         narrate "La llave gira fácilmente dentro del candado."
         short_pause
         open_the_door
@@ -798,10 +798,10 @@ defproc do_insert
 
 enddef
 
-defproc do_move(direction)
+defproc do_move(direction%)
 
-  if way_out(current_location,direction)
-    enter way_out(current_location,direction)
+  if way_out%(current_location%,direction%)
+    enter way_out%(current_location%,direction%)
   else
     narrate "No es posible."
   endif
@@ -813,8 +813,8 @@ defproc do_inventory
   loc i%,list$
   let list$=""
 
-  for i%=1 to entities
-    if is_hold(i%):\
+  for i%=1 to entities%
+    if is_hold%(i%):\
       let list$=list$&"  - "&name$(i%)&nl$
   endfor i%
   if len(list$)
@@ -827,7 +827,7 @@ enddef
 
 defproc do_look
 
-  if object
+  if object%
     do_examine_object
   else
     do_look_around
@@ -835,9 +835,9 @@ defproc do_look
 
 enddef
 
-defproc enter(new_location)
+defproc enter(new_location%)
 
-  let current_location=new_location
+  let current_location%=new_location%
   do_look_around
 
 enddef
@@ -845,9 +845,9 @@ enddef
 defproc do_look_around
 
   clear_screen
-  ' narrate "["&current_location&"]" ' XXX INFORMER
+  ' narrate "["&current_location%&"]" ' XXX INFORMER
 
-  describe location_description$(current_location)
+  describe location_description$(current_location%)
 
   location_plot ' XXX FIXME only when entering the location
   list_present_entities
@@ -861,9 +861,9 @@ defproc list_present_entities
   loc i%,list$
 
   let list$=""
-  for i%=1 to entities
-    if is_here(i%)
-      if is_a_person(i%)
+  for i%=1 to entities%
+    if is_here%(i%)
+      if is_a_person%(i%)
         let list$=list$&"  - "&iso_upper_1$(name$(i%))&nl$
       else
         let list$=list$&"  - "&name$(i%)&nl$
@@ -879,77 +879,77 @@ enddef
 ' ==============================================================
 ' Data interface
 
-deffn is_a_person(entity)
+deffn is_a_person%(entity%)
 
-  ret attribute(entity)=person_attr
-
-enddef
-
-defproc be_takeable(entity)
-
-  let attribute(entity)=takeable_attr
+  ret attribute(entity%)=person_attr%
 
 enddef
 
-defproc be_untakeable(entity)
+defproc be_takeable(entity%)
+
+  let attribute(entity%)=takeable_attr%
+
+enddef
+
+defproc be_untakeable(entity%)
 
   ' XXX REMARK -- Not used.
 
-  let attribute(entity)=untakeable_attr
+  let attribute(entity%)=untakeable_attr%
 
 enddef
 
-deffn is_takeable(entity)
+deffn is_takeable%(entity%)
 
-  ret attribute(entity)=takeable_attr
-
-enddef
-
-deffn is_untakeable(entity)
-
-  ret attribute(entity)<>takeable_attr
+  ret attribute(entity%)=takeable_attr%
 
 enddef
 
-defproc be_here(entity)
+deffn is_untakeable%(entity%)
 
-  let location(entity)=current_location
-
-enddef
-
-deffn is_here(entity)
-
-  ret location(entity)=current_location
+  ret attribute(entity%)<>takeable_attr%
 
 enddef
 
-defproc be_hold(entity)
+defproc be_here(entity%)
 
-  let location(entity)=protagonist%
-
-enddef
-
-deffn is_hold(entity)
-
-  ret location(entity)=protagonist%
+  let location%(entity%)=current_location%
 
 enddef
 
-deffn is_accessible(entity)
+deffn is_here%(entity%)
 
-  ret is_hold(entity) or is_here(entity)
-
-enddef
-
-defproc vanish(entity)
-
-  let location(entity)=limbo
+  ret location%(entity%)=current_location%
 
 enddef
 
-deffn is_vanished(entity)
+defproc be_hold(entity%)
 
-  ret location(entity)=limbo
+  let location%(entity%)=protagonist%
+
+enddef
+
+deffn is_hold%(entity%)
+
+  ret location%(entity%)=protagonist%
+
+enddef
+
+deffn is_accessible%(entity%)
+
+  ret is_hold%(entity%) or is_here%(entity%)
+
+enddef
+
+defproc vanish(entity%)
+
+  let location%(entity%)=limbo%
+
+enddef
+
+deffn is_vanished%(entity%)
+
+  ret location%(entity%)=limbo%
 
 enddef
 
@@ -961,49 +961,49 @@ deffn accept$
   ' Return a new user command, formatted for the parsing.
 
   loc command$
-  ink #tw,yellow
-  print #tw,"> ";
-  let command$=iso_input$(#tw,0)
+  ink #tw%,yellow%
+  print #tw%,"> ";
+  let command$=iso_input$(#tw%,0)
   if command$(len(command$))<>" ":\
     let command$=command$&" "
-  ink #tw,light_grey
+  ink #tw%,light_grey%
   ret command$
 
 enddef
 
-deffn iso_input$(channel,max_chars)
+deffn iso_input$(channel%,max_chars%)
 
   ' Return a text typed by the user.
 
-  ' channel = Channel of the window to be used, at the current cursor
+  ' channel% = Channel of the window to be used, at the current cursor
   ' position.
   '
-  ' max_chars = Maximum length. If it's zero, it will be the maximum
+  ' max_chars% = Maximum length. If it's zero, it will be the maximum
   ' possible on the current line, with the current character size.
 
   ' Spanish chars are translated to ISO 8859-1; all letters are made
   ' lowercase.  Not allowed: starting or double spaces, digits and
   ' punctuation.
 
-  loc output$,key$,key,cursor_pos,cursor_x0,cursor_y0
+  loc output$,key$,key%,cursor_pos%,cursor_x0%,cursor_y0%
 
   let output$=""
-  let cursor_pos=1
-  let cursor_x0=pos_x(#channel)
-  let cursor_y0=pos_y(#channel)
-  if max_chars=0
-    let max_chars=char_x(#channel)-cursor_x0/char_w(#channel)-2
+  let cursor_pos%=1
+  let cursor_x0%=pos_x(#channel%)
+  let cursor_y0%=pos_y(#channel%)
+  if max_chars%=0
+    let max_chars%=char_x(#channel%)-cursor_x0%/char_w(#channel%)-2
   endif
-  cursen #channel
+  cursen #channel%
   rep typing
-    let key$=inkey$(#channel,-1)
-    let key=code(key$)
-    sel on key
-      =2:let mistype_bell_active=not mistype_bell_active ' Ctrl+B
+    let key$=inkey$(#channel%,-1)
+    let key%=code(key$)
+    sel on key%
+      =2:let mistype_bell_active%=not mistype_bell_active% ' Ctrl+B
       =9:tab 8 ' Tab
-      =nl:if len(output$):exit typing:else mistype_bell
-      =space:type_space
-      =65 to 90:type chr$(key+32)
+      =nl%:if len(output$):exit typing:else mistype_bell
+      =space%:type_space
+      =65 to 90:type chr$(key%+32)
       =97 to 122:type key$
       =131,163:type chr$(233) ' é/É
       =135,167:type chr$(252) ' ü/Ü
@@ -1025,8 +1025,8 @@ deffn iso_input$(channel,max_chars)
       =253:tab -8 ' Shift+Tab
     endsel
   endrep typing
-  curdis #channel
-  print #channel\\\:
+  curdis #channel%
+  print #channel%\\\:
   ret output$
 
 enddef
@@ -1036,16 +1036,16 @@ defproc type(char$)
   ' If possible, add the given character to the input line and
   ' display it.
 
-  if len(output$)<max_chars
-    sel on cursor_pos
+  if len(output$)<max_chars%
+    sel on cursor_pos%
     =len(output$)+1
       let output$=output$&char$
     =remainder
-      let output$=output$(1 to cursor_pos-1)\
+      let output$=output$(1 to cursor_pos%-1)\
         &char$\
-        &output$(cursor_pos to)
+        &output$(cursor_pos% to)
     endsel
-    let cursor_pos=cursor_pos+1
+    let cursor_pos%=cursor_pos%+1
     show_input
   else
     mistype_bell
@@ -1057,17 +1057,17 @@ defproc type_space
 
   ' If possible, add a space to the input line and display it.
 
-  if cursor_pos=1
+  if cursor_pos%=1
     mistype_bell
   else
-    if cursor_pos>len(output$)
-      if output$(cursor_pos-1)=" "
+    if cursor_pos%>len(output$)
+      if output$(cursor_pos%-1)=" "
         mistype_bell
       else
         type " "
       endif
     else
-      if output$(cursor_pos)=" " or output$(cursor_pos-1)=" "
+      if output$(cursor_pos%)=" " or output$(cursor_pos%-1)=" "
         mistype_bell
       else
         type " "
@@ -1077,18 +1077,18 @@ defproc type_space
 
 enddef
 
-defproc tab(offset)
+defproc tab(offset%)
 
   ' If possible, add the given offset to the cursor position.
 
-  if (offset<1 and cursor_pos=1) \
-    or (offset>0 and cursor_pos=len(output$)+1)
+  if (offset%<1 and cursor_pos%=1) \
+    or (offset%>0 and cursor_pos%=len(output$)+1)
     mistype_bell
   else
-    let cursor_pos=cursor_pos+offset
-    let cursor_pos=maximum(cursor_pos,1)
-    let cursor_pos=minimum(cursor_pos,len(output$)+1)
-    set_cursor cursor_pos
+    let cursor_pos%=cursor_pos%+offset%
+    let cursor_pos%=maximum(cursor_pos%,1)
+    let cursor_pos%=minimum(cursor_pos%,len(output$)+1)
+    set_cursor cursor_pos%
   endif
 
 enddef
@@ -1097,8 +1097,8 @@ defproc start_of_line
 
   ' Put the cursor at the start of the line.
 
-  let cursor_pos=1
-  set_cursor cursor_pos
+  let cursor_pos%=1
+  set_cursor cursor_pos%
 
 enddef
 
@@ -1106,8 +1106,8 @@ defproc end_of_line
 
   ' Put the cursor at the end of the line.
 
-  let cursor_pos=len(output$)+1
-  set_cursor cursor_pos
+  let cursor_pos%=len(output$)+1
+  set_cursor cursor_pos%
 
 enddef
 
@@ -1118,15 +1118,15 @@ defproc backspace_char
   loc original$
 
   if len(output$)
-    if cursor_pos=1
+    if cursor_pos%=1
         mistype_bell
     else
       let original$=output$
-      let output$=original$(1 to cursor_pos-2)
-      if cursor_pos<=len(original$)
-        let output$=output$&original$(cursor_pos to)
+      let output$=original$(1 to cursor_pos%-2)
+      if cursor_pos%<=len(original$)
+        let output$=output$&original$(cursor_pos% to)
       endif
-      let cursor_pos=cursor_pos-1
+      let cursor_pos%=cursor_pos%-1
       show_input
     endif
   else
@@ -1142,13 +1142,13 @@ defproc delete_char
   loc original$
 
   if len(output$)
-    if cursor_pos=len(output$)+1
+    if cursor_pos%=len(output$)+1
       mistype_bell
     else
       let original$=output$
-      let output$=original$(1 to cursor_pos-1)
-      if cursor_pos<len(original$)
-        let output$=output$&original$(cursor_pos+1 to)
+      let output$=original$(1 to cursor_pos%-1)
+      if cursor_pos%<len(original$)
+        let output$=output$&original$(cursor_pos%+1 to)
       endif
       show_input
     endif
@@ -1163,10 +1163,10 @@ defproc delete_line_right
   ' If possible, delete to end of line.
 
   if len(output$)
-    if cursor_pos=len(output$)+1
+    if cursor_pos%=len(output$)+1
       mistype_bell
     else
-      let output$=output$(1 to cursor_pos-1)
+      let output$=output$(1 to cursor_pos%-1)
       show_input
     endif
   else
@@ -1180,11 +1180,11 @@ defproc delete_line_left
   ' If possible, delete the character at the left of the cursor.
 
   if len(output$)
-    if cursor_pos=1
+    if cursor_pos%=1
         mistype_bell
     else
-      let output$=output$(cursor_pos to)
-      let cursor_pos=1
+      let output$=output$(cursor_pos% to)
+      let cursor_pos%=1
       show_input
     endif
   else
@@ -1197,11 +1197,11 @@ defproc cursor_left
 
   ' If possible, move the cursor one character left.
 
-  if cursor_pos>1
-    curdis #channel
-    let cursor_pos=cursor_pos-1
-    set_cursor cursor_pos
-    cursen #channel
+  if cursor_pos%>1
+    curdis #channel%
+    let cursor_pos%=cursor_pos%-1
+    set_cursor cursor_pos%
+    cursen #channel%
   else
     mistype_bell
   endif
@@ -1212,11 +1212,11 @@ defproc cursor_right
 
   ' If possible, move the cursor one character right.
 
-  if cursor_pos<len(output$)+1
-    curdis #channel
-    let cursor_pos=cursor_pos+1
-    set_cursor cursor_pos
-    cursen #channel
+  if cursor_pos%<len(output$)+1
+    curdis #channel%
+    let cursor_pos%=cursor_pos%+1
+    set_cursor cursor_pos%
+    cursen #channel%
   else
     mistype_bell
   endif
@@ -1227,33 +1227,33 @@ defproc previous_word
 
   ' If possible, move the cursor to the start of the previous word.
 
-  loc temp,from_char,to_char
+  loc temp%,from_char%,to_char%
 
-  if cursor_pos=1
+  if cursor_pos%=1
 
     mistype_bell
 
   else
 
-    let temp=0
-    let to_char=code(output$(cursor_pos-(cursor_pos>len(output$))))
-    let from_char=to_char
+    let temp%=0
+    let to_char%=code(output$(cursor_pos%-(cursor_pos%>len(output$))))
+    let from_char%=to_char%
 
     rep search
 
-      if not ((cursor_pos>1) \
-        and not(from_char<>space and to_char=space and temp>1)):\
+      if not ((cursor_pos%>1) \
+        and not(from_char%<>space% and to_char%=space% and temp%>1)):\
           exit search
 
-        let from_char=to_char
-        let cursor_pos=cursor_pos-1
-        let temp=temp+1
-        let to_char=code(output$(cursor_pos))
+        let from_char%=to_char%
+        let cursor_pos%=cursor_pos%-1
+        let temp%=temp%+1
+        let to_char%=code(output$(cursor_pos%))
 
     endrep search
 
-    let cursor_pos=cursor_pos+(cursor_pos<>1)
-    set_cursor cursor_pos
+    let cursor_pos%=cursor_pos%+(cursor_pos%<>1)
+    set_cursor cursor_pos%
     show_input
 
   endif
@@ -1265,28 +1265,28 @@ defproc next_word
   ' If possible, move the cursor to the start of the next word (or to
   ' the end of the last word).
 
-  loc from_char,to_char
+  loc from_char%,to_char%
 
-  if cursor_pos>len(output$)
+  if cursor_pos%>len(output$)
     mistype_bell
   else
-    let to_char=code(output$(cursor_pos))
-    let from_char=to_char
+    let to_char%=code(output$(cursor_pos%))
+    let from_char%=to_char%
 
     rep search
 
-      if not ((cursor_pos<len(output$)) \
-        and not(from_char=space and to_char<>space)):\
+      if not ((cursor_pos%<len(output$)) \
+        and not(from_char%=space% and to_char%<>space%)):\
           exit search
 
-      let from_char=to_char
-      let cursor_pos=cursor_pos+1
-      let to_char=code(output$(cursor_pos))
+      let from_char%=to_char%
+      let cursor_pos%=cursor_pos%+1
+      let to_char%=code(output$(cursor_pos%))
 
     endrep search
 
-    let cursor_pos=cursor_pos+(cursor_pos=len(output$))
-    set_cursor cursor_pos
+    let cursor_pos%=cursor_pos%+(cursor_pos%=len(output$))
+    set_cursor cursor_pos%
     show_input
   endif
 
@@ -1296,21 +1296,23 @@ defproc show_input
 
   ' Show the current text.
 
-  curdis #channel
+  curdis #channel%
   set_cursor 1
-  print #channel,output$;
-  cls #channel,4
-  set_cursor cursor_pos
-  cursen #channel
+  print #channel%,output$;
+  cls #channel%,4
+  set_cursor cursor_pos%
+  cursen #channel%
 
 enddef
 
-defproc set_cursor(column)
+defproc set_cursor(column%)
 
   ' Set the text cursor at the pixel position of the given column
   ' (which is relative to the typed text).
 
-  cursor #channel,cursor_x0+(column-1)*char_w(#channel),cursor_y0
+  cursor #channel%,\
+    cursor_x0%+(column%-1)*char_w(#channel%),\
+    cursor_y0%
 
 enddef
 
@@ -1318,29 +1320,29 @@ defproc mistype_bell
 
   ' Mistype sound.
 
-  if mistype_bell_active:\
+  if mistype_bell_active%:\
     beep 1000,0
 
 enddef
 
-deffn yes(question$)
+deffn yes%(question$)
 
   ' Show the given question and wait for S or N to be pressed
   ' (ignoring case).  Return 1 if S was pressed; 0 otherwise.
 
   loc answer$
 
-  cursen #tw
-  print #tw,question$!"(S/N)"!;
+  cursen #tw%
+  print #tw%,question$!"(S/N)"!;
   rep answer
-    let answer$=inkey$(#tw,-1)
+    let answer$=inkey$(#tw%,-1)
     if answer$ instr "sn"
       exit answer
     else
       mistype_bell
     endif
   endrep answer
-  curdis #tw
+  curdis #tw%
   ret answer$ instr "s"
 
 enddef
@@ -1349,8 +1351,8 @@ defproc end_of_scene
 
   ' Show a prompt and do a long pause.
 
-  ink #tw,dark_green
-  print #tw,"..."\\:
+  ink #tw%,dark_green%
+  print #tw%,"..."\\:
   long_pause
 
 enddef
@@ -1371,7 +1373,7 @@ defproc long_pause
 
 enddef
 
-defproc wait_for_key_press(seconds)
+defproc wait_for_key_press(seconds%)
 
   ' Wait the given seconds, or until a key is pressed.
 
@@ -1379,12 +1381,12 @@ defproc wait_for_key_press(seconds)
   let start_time=date
 
   rep dont_press_a_key
-    if inkey$(#tw)="" or date>start_time+seconds
+    if inkey$(#tw%)="" or date>start_time+seconds%
       exit dont_press_a_key
     endif
   endrep dont_press_a_key
   rep press_a_key
-    if inkey$(#tw)<>"" or date>start_time+seconds
+    if inkey$(#tw%)<>"" or date>start_time+seconds%
       exit press_a_key
     endif
   endrep press_a_key
@@ -1394,16 +1396,15 @@ enddef
 ' ==============================================================
 ' Strings
 
-deffn iso_upper(char)
+deffn iso_upper%(char%)
 
   ' Return the uppercase char code of the given ISO 8859-1 char.
 
-  loc c:let c=char ' XXX REMARK -- QDOS and Minerva need this
-  sel on c
+  sel on char%
     =97 to 122,224 to 246,248 to 254:\
-      ret c-32
+      ret char%-32
     =remainder:\
-      ret c
+      ret char%
   endsel
 
 enddef
@@ -1415,7 +1416,7 @@ deffn iso_upper$(text$)
   loc i%,upper_text$
   let upper_text$=text$
   for i%=1 to len(upper_text$)
-    let upper_text$(i%)=chr$(iso_upper(code(text$(i%))))
+    let upper_text$(i%)=chr$(iso_upper%(code(text$(i%))))
   endfor i%
   ret upper_text$
 
@@ -1435,8 +1436,8 @@ enddef
 
 defproc clear_screen
 
-  ink #tw,light_grey
-  cls #tw
+  ink #tw%,light_grey%
+  cls #tw%
 
 enddef
 
@@ -1447,14 +1448,14 @@ defproc speak(quote$)
 
   ' Print a dialog quote, with the proper quote chars.
 
-  loc last
-  ink #tw,yellow
+  loc last%
+  ink #tw%,yellow%
   if r_quote$ instr quote$ and not l_quote$ instr quote$
     tell l_quote$&quote$
   else
-    let last=len(quote$)
-    if quote$(last)="." and quote$(last-1)<>"."
-      tell l_quote$&quote$(1 to last-1)&r_quote$&"."
+    let last%=len(quote$)
+    if quote$(last%)="." and quote$(last%-1)<>"."
+      tell l_quote$&quote$(1 to last%-1)&r_quote$&"."
     else
       tell l_quote$&quote$&r_quote$
     endif
@@ -1466,7 +1467,7 @@ defproc describe(txt$)
 
   ' Print a location description.
 
-  ink #tw,dark_cyan:\
+  ink #tw%,dark_cyan%:\
   tell txt$
 
 enddef
@@ -1475,7 +1476,7 @@ defproc narrate(txt$)
 
   ' Print a narrative text.
 
-  ink #tw,light_grey:\
+  ink #tw%,light_grey%:\
   tell txt$
 
 enddef
@@ -1484,19 +1485,19 @@ defproc tell(txt$)
 
   ' Print a text, left justified.
 
-  loc text$,first,last%
+  loc text$,first%,last%
 
   if len(txt$)
     let text$=txt$&" "
-    let first=1
+    let first%=1
     for last%=1 to len(text$)
       if text$(last%)=" "
-        print #tw,!text$(first to last%-1);
-        let first=last%+1
+        print #tw%,!text$(first% to last%-1);
+        let first%=last%+1
       endif
     endfor last%
   endif
-  print #tw,\\:
+  print #tw%,\\:
 
 enddef
 
@@ -1508,18 +1509,18 @@ defproc about
   ' Show the credits.
 
   clear_screen
-  ink #tw,light_red:\
-  print #tw,"Asalto y castigo"
-  ink #tw,dark_cyan
-  print #tw,\"Por Baltasar el Arquero, 2009"
-  print #tw,"http://caad.es/baltasarq/"
-  print #tw,\"Reescrita en SuperBASIC para QL por"
-  print #tw,"Marcos Cruz (programandala.net), 2011, 2017"
-  print #tw,"http://programandala.net/"
-  print #tw,"Versión"!version$
-  ink #tw,light_grey
-  print #tw,\\"http://www.caad.es/"
-  print #tw,"http://www.sinclairql.es/"\\\:
+  ink #tw%,light_red%:\
+  print #tw%,"Asalto y castigo"
+  ink #tw%,dark_cyan%
+  print #tw%,\"Por Baltasar el Arquero, 2009"
+  print #tw%,"http://caad.es/baltasarq/"
+  print #tw%,\"Reescrita en SuperBASIC para QL por"
+  print #tw%,"Marcos Cruz (programandala.net), 2011, 2017"
+  print #tw%,"http://programandala.net/"
+  print #tw%,"Versión"!version$
+  ink #tw%,light_grey%
+  print #tw%,\\"http://www.caad.es/"
+  print #tw%,"http://www.sinclairql.es/"\\\:
 
 enddef
 
@@ -1571,14 +1572,14 @@ defproc game_init
 
   ' Init needed before every game.
 
-  loc y
-  let y=pos_y(#tw)
-  print #tw,"Preparando los datos..."
+  loc y%
+  let y%=pos_y(#tw%)
+  print #tw%,"Preparando los datos..."
   init_plot
   init_the_data
-  let current_location=saxon_village_loc%
-  cls #tw,3
-  cursor #tw,0,y
+  let current_location%=saxon_village_loc%
+  cls #tw%,3
+  cursor #tw%,0,y%
 
   ' Special init conditions for checking and debuging:
 
@@ -1599,14 +1600,14 @@ defproc init_the_keyboard
 
   ' If needed, load the Spanish SMSQ keybard table.
 
-  loc Spanish
-  let Spanish=34
+  loc spanish%
+  let spanish%=34
 
   if ver$="HBA"
-    if language<>Spanish
+    if language<>spanish%
       lrespr dev$&"qxl-es_kbt"
-      kbd_table Spanish
-      lang_use Spanish
+      kbd_table spanish%
+      lang_use spanish%
     endif
   endif
 
@@ -1616,9 +1617,7 @@ defproc init_the_screen
 
   ' Init the screen. If needed, change its mode and colour scheme.
 
-  loc screen_mode
-  let screen_mode=disp_type
-  sel on screen_mode
+  sel on disp_type
     =0:\
       mode 8:\
       init_ql_colours
@@ -1635,12 +1634,12 @@ defproc init_pal_colours
   ' Set the PAL colour mode and the needed colours.
 
   colour_pal
-  let black=0
-  let dark_cyan=7:palette_8 dark_cyan,rgb(0,139,139)
-  let dark_green=17
-  let light_grey=12
-  let light_red=1:palette_8 light_red,rgb(255,51,51)
-  let yellow=6
+  let black%=0
+  let dark_cyan%=7:palette_8 dark_cyan%,rgb(0,139,139)
+  let dark_green%=17
+  let light_grey%=12
+  let light_red%=1:palette_8 light_red%,rgb(255,51,51)
+  let yellow%=6
 
 enddef
 
@@ -1648,18 +1647,18 @@ defproc init_ql_colours
 
   ' Set colours used in QL colour mode.
 
-  let black=0
-  let dark_cyan=5
-  let dark_green=4
-  let light_grey=7
-  let light_red=2
-  let yellow=6
+  let black%=0
+  let dark_cyan%=5
+  let dark_green%=4
+  let light_grey%=7
+  let light_red%=2
+  let yellow%=6
 
 enddef
 
-deffn rgb(red,green,blue)
+deffn rgb(red%,green%,blue%)
 
-  ret red*65535+green*256+blue
+  ret red%*65535+green%*256+blue%
 
 enddef
 
@@ -1667,17 +1666,20 @@ defproc init_the_window
 
   ' Init the window, maximum size 800x600.
 
-  let csize_w=3-(scr_xlim=512)
-  let csize_h=scr_xlim>512
-  let tw=fopen("con_")
-  csize #tw,csize_w,csize_h
-  let tw_w=minimum(800,scr_xlim)
-  let tw_h=minimum(600,scr_ylim)
-  let tw_x=(scr_xlim-tw_w)/2
-  let tw_y=(scr_ylim-tw_h)/2
-  window #tw,tw_w,tw_h,tw_x,tw_y
-  paper #tw,black
-  ink #tw,light_grey
+  loc csize_w%,csize_h%
+  loc tw_w%,tw_h%,tw_x%,tw_y%
+
+  let csize_w%=3-(scr_xlim=512)
+  let csize_h%=scr_xlim>512
+  let tw%=fopen("con_")
+  csize #tw%,csize_w%,csize_h%
+  let tw_w%=minimum(800,scr_xlim)
+  let tw_h%=minimum(600,scr_ylim)
+  let tw_x%=(scr_xlim-tw_w%)/2
+  let tw_y%=(scr_ylim-tw_h%)/2
+  window #tw%,tw_w%,tw_h%,tw_x%,tw_y%
+  paper #tw%,black%
+  ink #tw%,light_grey%
   wipe_the_window
   init_the_font
 
@@ -1685,9 +1687,9 @@ enddef
 
 defproc wipe_the_window
 
-  border #tw,0
-  cls #tw
-  border #tw,8
+  border #tw%,0
+  cls #tw%
+  border #tw%,8
 
 enddef
 
@@ -1701,10 +1703,10 @@ enddef
 
 defproc init_the_font
 
-  loc font_size
+  loc font_size%
   let font$=dev$&"iso8859-1_font"
-  font_size=flen(\font$)
-  font_address=alchp(font_size)
+  font_size%=flen(\font$)
+  font_address=alchp(font_size%)
   lbytes font$,font_address
   iso_font
 
@@ -1724,7 +1726,7 @@ enddef
 
 defproc fonts(font_address)
 
-  char_use #tw,font_address,0
+  char_use #tw%,font_address,0
 
 enddef
 
@@ -1732,7 +1734,7 @@ defproc init_the_preferences
 
   ' Init the game preferences.
 
-  let mistype_bell_active=true
+  let mistype_bell_active%=true
 
 enddef
 
@@ -1742,17 +1744,17 @@ defproc init_the_constants
 
   ' Misc
 
-  let space=32     ' char code
-  let nl=10        ' char code of the enter key
-  let nl$=chr$(nl) ' new line
-  let l_quote$="«" ' castilian left quote
-  let r_quote$="»" ' castilian right quote
+  let space%=32     ' char code
+  let nl%=10        ' char code of the enter key
+  let nl$=chr$(nl%) ' new line
+  let l_quote$="«"  ' castilian left quote
+  let r_quote$="»"  ' castilian right quote
 
   ' Syntax flags
 
-  let no_object_needed=0
-  let object_needed=1
-  let object_and_complement_needed=2
+  let no_object_needed%=0
+  let object_needed%=1
+  let object_and_complement_needed%=2
 
   ' Error messages
 
@@ -1766,160 +1768,160 @@ defproc init_the_constants
 
   ' Generic identifiers
 
-  let nothing=0 ' action, object or complement
+  let nothing%=0 ' action, object or complement
 
   ' Action identifiers
 
-  let next_enum=1
+  let next_enum%=1
 
-  let to_go_down=enum
-  let to_open=enum
-  let to_go_up=enum
-  let to_break=enum
-  let to_help=enum
-  let to_swim=enum
-  let to_take=enum
-  let to_drop=enum
-  let to_go_east=enum
-  let to_examine=enum
-  let to_speak=enum
-  let to_insert=enum
-  let to_look=enum
-  let to_go_north=enum
-  let to_go_west=enum
-  let to_go_south=enum
-  let to_finish=enum
-  let to_fling=enum
-  let to_sharpen=enum
-  let to_inventory=enum
-  ' XXX TODO calculate `actions` here
+  let to_go_down%=enum%
+  let to_open%=enum%
+  let to_go_up%=enum%
+  let to_break%=enum%
+  let to_help%=enum%
+  let to_swim%=enum%
+  let to_take%=enum%
+  let to_drop%=enum%
+  let to_go_east%=enum%
+  let to_examine%=enum%
+  let to_speak%=enum%
+  let to_insert%=enum%
+  let to_look%=enum%
+  let to_go_north%=enum%
+  let to_go_west%=enum%
+  let to_go_south%=enum%
+  let to_finish%=enum%
+  let to_fling%=enum%
+  let to_sharpen%=enum%
+  let to_inventory%=enum%
+  ' XXX TODO calculate `actions%` here
 
   ' Entity identifiers
 
-  let next_enum=1
+  let next_enum%=1
 
   let protagonist%=-1 ' XXX TMP until locations are combined with the entities
 
-  let the_altar%=enum
-  let ambrosio%=enum
-  let the_torch%=enum
-  let the_flags%=enum
-  let the_cloak%=enum
-  let the_waterfall%=enum
-  let the_fallen_away%=enum
-  let the_emerald%=enum
-  let the_sword%=enum
-  let the_rags%=enum
-  let the_thread%=enum
-  let the_man%=enum
-  let the_idol%=enum
-  let the_lake%=enum
-  let the_key%=enum
-  let the_flint%=enum
-  let the_stone%=enum
-  let the_door%=enum
-  let the_rocks%=enum
-  let the_snake%=enum
-  let the_log%=enum
-  let the_piece%=enum
-  let the_lock%=enum
+  let the_altar%=enum%
+  let ambrosio%=enum%
+  let the_torch%=enum%
+  let the_flags%=enum%
+  let the_cloak%=enum%
+  let the_waterfall%=enum%
+  let the_fallen_away%=enum%
+  let the_emerald%=enum%
+  let the_sword%=enum%
+  let the_rags%=enum%
+  let the_thread%=enum%
+  let the_man%=enum%
+  let the_idol%=enum%
+  let the_lake%=enum%
+  let the_key%=enum%
+  let the_flint%=enum%
+  let the_stone%=enum%
+  let the_door%=enum%
+  let the_rocks%=enum%
+  let the_snake%=enum%
+  let the_log%=enum%
+  let the_piece%=enum%
+  let the_lock%=enum%
 
   ' Location identifiers
 
-  let nowhere=0
-  let limbo=255 ' location of vanished entities
+  let nowhere%=0
+  let limbo%=255 ' location of vanished entities
 
-  let next_enum=1
+  let next_enum%=1
 
-  let saxon_village_loc%=enum
-  let on_the_hill_loc%=enum
-  let path_between_hills_loc%=enum
-  let paths_crossing_loc%=enum
-  let near_the_forest_loc%=enum
-  let forest_loc%=enum
-  let dog_passage_loc%=enum
-  let cave_entrance_loc%=enum
-  let fallen_away_loc%=enum
-  let cave_hall_loc%=enum
-  let big_lake_loc%=enum
-  let secret_exit_loc%=enum
-  let ruined_bridge_loc%=enum
-  let cave_corner_loc%=enum
-  let sand_passage_loc%=enum
-  let water_passage_loc%=enum
-  let stalactites_loc%=enum
-  let stone_bridge_loc%=enum
-  let channel_sand_corner_loc%=enum
-  let cave_strait_1_loc%=enum
-  let cave_strait_2_loc%=enum
-  let cave_strait_3_loc%=enum
-  let cave_strait_4_loc%=enum
-  let cave_strait_5_loc%=enum
-  let cave_strait_6_loc%=enum
-  let cave_strait_7_loc%=enum
-  let cave_strait_8_loc%=enum
-  let refuge_loc%=enum
-  let spiral_loc%=enum
-  let spiral_start_loc%=enum
-  let north_gate_loc%=enum
-  let precipice_loc%=enum
-  let exit_passage_loc%=enum
-  let gravel_passage_loc%=enum
-  let bridge_over_aqueduct_loc%=enum
-  let pool_loc%=enum
-  let water_channel_loc%=enum
-  let big_waterfall_loc%=enum
-  let inside_waterfall_loc%=enum
-  let terrace_loc%=enum
-  let idol_loc%=enum
-  let strait_passage_loc%=enum
-  let snake_passage_loc%=enum
-  let inner_lake_loc%=enum
-  let passage_crossing_loc%=enum
-  let ambrosios_home_loc%=enum
-  let cave_exit_loc%=enum
-  let cave_exit_forest_loc%=enum
-  let forest_path_loc%=enum
-  let north_road_loc%=enum
-  let westmorland_loc%=enum
+  let saxon_village_loc%=enum%
+  let on_the_hill_loc%=enum%
+  let path_between_hills_loc%=enum%
+  let paths_crossing_loc%=enum%
+  let near_the_forest_loc%=enum%
+  let forest_loc%=enum%
+  let dog_passage_loc%=enum%
+  let cave_entrance_loc%=enum%
+  let fallen_away_loc%=enum%
+  let cave_hall_loc%=enum%
+  let big_lake_loc%=enum%
+  let secret_exit_loc%=enum%
+  let ruined_bridge_loc%=enum%
+  let cave_corner_loc%=enum%
+  let sand_passage_loc%=enum%
+  let water_passage_loc%=enum%
+  let stalactites_loc%=enum%
+  let stone_bridge_loc%=enum%
+  let channel_sand_corner_loc%=enum%
+  let cave_strait_1_loc%=enum%
+  let cave_strait_2_loc%=enum%
+  let cave_strait_3_loc%=enum%
+  let cave_strait_4_loc%=enum%
+  let cave_strait_5_loc%=enum%
+  let cave_strait_6_loc%=enum%
+  let cave_strait_7_loc%=enum%
+  let cave_strait_8_loc%=enum%
+  let refuge_loc%=enum%
+  let spiral_loc%=enum%
+  let spiral_start_loc%=enum%
+  let north_gate_loc%=enum%
+  let precipice_loc%=enum%
+  let exit_passage_loc%=enum%
+  let gravel_passage_loc%=enum%
+  let bridge_over_aqueduct_loc%=enum%
+  let pool_loc%=enum%
+  let water_channel_loc%=enum%
+  let big_waterfall_loc%=enum%
+  let inside_waterfall_loc%=enum%
+  let terrace_loc%=enum%
+  let idol_loc%=enum%
+  let strait_passage_loc%=enum%
+  let snake_passage_loc%=enum%
+  let inner_lake_loc%=enum%
+  let passage_crossing_loc%=enum%
+  let ambrosios_home_loc%=enum%
+  let cave_exit_loc%=enum%
+  let cave_exit_forest_loc%=enum%
+  let forest_path_loc%=enum%
+  let north_road_loc%=enum%
+  let westmorland_loc%=enum%
 
-  let locations=next_enum-1
+  let locations%=next_enum%-1
 
   ' Direction identifiers
   
-  let north=0
-  let south=1
-  let east=2
-  let west=3
-  let up=4
-  let down=5
-  let first_direction=north
-  let last_direction=down
+  let north%=0
+  let south%=1
+  let east%=2
+  let west%=3
+  let up%=4
+  let down%=5
+  let first_direction%=north%
+  let last_direction%=down%
 
   ' Entity attribute
 
   ' XXX TODO -- Use a bitmask.
-  let takeable_attr=false
-  let untakeable_attr=true
-  let person_attr=2
+  let takeable_attr%=false
+  let untakeable_attr%=true
+  let person_attr%=2
 
 enddef
 
-deffn enum
+deffn enum%
 
-  let next_enum=next_enum+1
-  ret next_enum-1
+  let next_enum%=next_enum%+1
+  ret next_enum%-1
 
 enddef
 
 defproc init_plot
 
-  let ambrosio_follows=false  ' Does Ambrosio follow me?
-  let under_attack=0          ' Battle counter
-  let talked_to_the_man=false ' Have I talked to the man?
-  let hacked_the_log=false    ' Did I hacked the log?
-  let lit_the_torch=false     ' Is the torch lit?
-  let start_over=false        ' Start a new game?
+  let ambrosio_follows%=false  ' Does Ambrosio follow me?
+  let under_attack%=0          ' Battle counter
+  let talked_to_the_man%=false ' Have I talked to the man?
+  let hacked_the_log%=false    ' Did I hacked the log?
+  let lit_the_torch%=false     ' Is the torch lit?
+  let start_over%=false        ' Start a new game?
 
 enddef
 
@@ -1928,61 +1930,58 @@ defproc init_the_data
   ' Init the data arrays. The first element (0) of the arrays is not
   ' used, except for the directions.
 
-  loc i%,max_word_lenght,action,from_location,to_location,entity
+  loc i%,max_word_lenght%,action%,from_location%,to_location%,entity%
 
-  let max_word_lenght=11 ' XXX TODO calculate
+  let max_word_lenght%=11 ' XXX TODO calculate
 
   restore
 
-  dim way_out(locations,last_direction)
+  dim way_out%(locations%,last_direction%)
   restore @map
-  for i%=1 to locations
-    read from_location
-    for to_location%=first_direction to last_direction
-      read way_out(from_location,to_location%)
+  for i%=1 to locations%
+    read from_location%
+    for to_location%=first_direction% to last_direction%
+      read way_out%(from_location%,to_location%)
     endfor to_location%
   endfor i%
 
-  let nouns=@nouns_end-@nouns_start
-  dim noun$(nouns,max_word_lenght)
-  dim entity_of_noun(nouns)
-  let entities=(@entities_end-@entities_start)/2
-  dim name$(entities,max_word_lenght)
+  let nouns%=@nouns_end-@nouns_start
+  dim noun$(nouns%,max_word_lenght%)
+  dim entity_of_noun%(nouns%)
+  let entities%=(@entities_end-@entities_start)/2
+  dim name$(entities%,max_word_lenght%)
 
   ' Note: The last synonym on the list will be the name of the entity.
   restore @nouns_start
-  for i%=1 to nouns
-    read entity_of_noun(i%),noun$(i%)
-    let name$(entity_of_noun(i%))=noun$(i%)
+  for i%=1 to nouns%
+    read entity_of_noun%(i%),noun$(i%)
+    let name$(entity_of_noun%(i%))=noun$(i%)
   endfor i%
 
-  dim location(entities)
-  dim attribute(entities)
-  dim description$(entities,128)
+  dim location%(entities%)
+  dim attribute(entities%)
+  dim description$(entities%,128)
   restore @entities_start
-  for i%=1 to entities
+  for i%=1 to entities%
     read \
-      entity,\
-      location(entity),\
-      attribute(entity),\
-      description$(entity)
-'    print entity,description$(entity):pause ' XXX INFORMER
+      entity%,\
+      location%(entity%),\
+      attribute(entity%),\
+      description$(entity%)
   endfor i%
-'  print "entities read!":pause ' XXX INFORMER
 
-  let actions=@actions_end-@actions_start
-  dim syntax(actions)
+  let actions%=@actions_end-@actions_start
+  dim syntax%(actions%)
   restore @actions_start
-  for i%=1 to actions
-    read action,syntax(action)
+  for i%=1 to actions%
+    read action%,syntax%(action%)
   endfor i%
 
-  let verbs=@verbs_end-@verbs_start
-  dim verb$(verbs,max_word_lenght)
-  dim verb_action(verbs)
-  let action=1
+  let verbs%=@verbs_end-@verbs_start
+  dim verb$(verbs%,max_word_lenght%)
+  dim verb_action(verbs%)
   restore @verbs_start
-  for i%=1 to verbs
+  for i%=1 to verbs%
     read verb_action(i%),verb$(i%)
   endfor i%
 
@@ -1993,7 +1992,7 @@ enddef
 
 ' Location descriptions
 
-deffn location_description$(a_location)
+deffn location_description$(a_location%)
 
   ' Return the description of the given location.
 
@@ -2016,7 +2015,7 @@ deffn location_description$(a_location)
   ' An added advantage of this method is the descriptions can be
   ' changed at run-time after the game conditions.
 
-  sel on a_location ' XXX TODO -- QDOS and Minerva need an intermedate variable.
+  sel on a_location%
 
     =saxon_village_loc%
 
@@ -2344,57 +2343,57 @@ enddef
 
 '  data: location,north,south,east,west,down,up
 label @map
-data saxon_village_loc%,nowhere,on_the_hill_loc%,nowhere,nowhere,nowhere,nowhere
-data on_the_hill_loc%,saxon_village_loc%,nowhere,nowhere,path_between_hills_loc%,nowhere,nowhere
-data path_between_hills_loc%,nowhere,nowhere,on_the_hill_loc%,paths_crossing_loc%,nowhere,nowhere
-data paths_crossing_loc%,near_the_forest_loc%,nowhere,path_between_hills_loc%,fallen_away_loc%,nowhere,nowhere
-data near_the_forest_loc%,nowhere,paths_crossing_loc%,nowhere,forest_loc%,nowhere,nowhere
-data forest_loc%,nowhere,nowhere,near_the_forest_loc%,dog_passage_loc%,nowhere,nowhere
-data dog_passage_loc%,nowhere,cave_entrance_loc%,forest_loc%,nowhere,nowhere,nowhere
-data cave_entrance_loc%,dog_passage_loc%,cave_hall_loc%,nowhere,nowhere,nowhere,nowhere
-data fallen_away_loc%,nowhere,nowhere,paths_crossing_loc%,nowhere,nowhere,nowhere
-data cave_hall_loc%,cave_entrance_loc%,nowhere,nowhere,big_lake_loc%,nowhere,nowhere
-data big_lake_loc%,nowhere,nowhere,cave_hall_loc%,nowhere,nowhere,nowhere
-data secret_exit_loc%,nowhere,nowhere,nowhere,ruined_bridge_loc%,nowhere,nowhere
-data ruined_bridge_loc%,nowhere,nowhere,secret_exit_loc%,cave_corner_loc%,nowhere,nowhere
-data cave_corner_loc%,nowhere,sand_passage_loc%,ruined_bridge_loc%,nowhere,nowhere,nowhere
-data sand_passage_loc%,cave_corner_loc%,stalactites_loc%,water_passage_loc%,nowhere,nowhere,nowhere
-data water_passage_loc%,nowhere,nowhere,nowhere,sand_passage_loc%,nowhere,nowhere
-data stalactites_loc%,sand_passage_loc%,cave_strait_1_loc%,stone_bridge_loc%,nowhere,nowhere,nowhere
-data stone_bridge_loc%,nowhere,nowhere,channel_sand_corner_loc%,stalactites_loc%,nowhere,nowhere
-data channel_sand_corner_loc%,nowhere,nowhere,nowhere,stone_bridge_loc%,nowhere,nowhere
-data cave_strait_1_loc%,stalactites_loc%,cave_strait_3_loc%,cave_strait_6_loc%,nowhere,nowhere,nowhere
-data cave_strait_2_loc%,nowhere,cave_strait_8_loc%,cave_strait_4_loc%,cave_strait_1_loc%,nowhere,nowhere
-data cave_strait_3_loc%,nowhere,cave_strait_5_loc%,cave_strait_8_loc%,cave_strait_3_loc%,nowhere,nowhere
-data cave_strait_4_loc%,nowhere,cave_strait_6_loc%,nowhere,cave_strait_2_loc%,nowhere,nowhere
-data cave_strait_5_loc%,cave_strait_3_loc%,nowhere,cave_strait_7_loc%,nowhere,nowhere,nowhere
-data cave_strait_6_loc%,cave_strait_3_loc%,refuge_loc%,cave_strait_4_loc%,cave_strait_2_loc%,nowhere,nowhere
-data cave_strait_7_loc%,cave_strait_7_loc%,nowhere,cave_strait_1_loc%,cave_strait_8_loc%,nowhere,nowhere
-data cave_strait_8_loc%,cave_strait_8_loc%,nowhere,nowhere,cave_strait_6_loc%,nowhere,nowhere
-data refuge_loc%,cave_strait_7_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
-data spiral_loc%,nowhere,nowhere,nowhere,refuge_loc%,nowhere,spiral_start_loc%
-data spiral_start_loc%,nowhere,nowhere,north_gate_loc%,nowhere,spiral_loc%,nowhere
-data north_gate_loc%,nowhere,nowhere,nowhere,spiral_start_loc%,nowhere,nowhere
-data precipice_loc%,nowhere,exit_passage_loc%,nowhere,north_gate_loc%,nowhere,nowhere
-data exit_passage_loc%,precipice_loc%,nowhere,gravel_passage_loc%,nowhere,nowhere,nowhere
-data gravel_passage_loc%,bridge_over_aqueduct_loc%,nowhere,nowhere,exit_passage_loc%,nowhere,nowhere
-data bridge_over_aqueduct_loc%,terrace_loc%,gravel_passage_loc%,nowhere,pool_loc%,nowhere,pool_loc%
-data pool_loc%,nowhere,nowhere,bridge_over_aqueduct_loc%,water_channel_loc%,bridge_over_aqueduct_loc%,nowhere
-data water_channel_loc%,nowhere,nowhere,pool_loc%,big_waterfall_loc%,nowhere,nowhere
-data big_waterfall_loc%,nowhere,nowhere,water_channel_loc%,inside_waterfall_loc%,nowhere,nowhere
-data inside_waterfall_loc%,nowhere,nowhere,big_waterfall_loc%,nowhere,nowhere,nowhere
-data terrace_loc%,nowhere,bridge_over_aqueduct_loc%,idol_loc%,nowhere,nowhere,nowhere
-data idol_loc%,nowhere,nowhere,nowhere,terrace_loc%,nowhere,nowhere
-data strait_passage_loc%,idol_loc%,snake_passage_loc%,nowhere,nowhere,nowhere,nowhere
-data snake_passage_loc%,strait_passage_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
-data inner_lake_loc%,snake_passage_loc%,nowhere,nowhere,passage_crossing_loc%,nowhere,nowhere
-data passage_crossing_loc%,nowhere,cave_exit_loc%,inner_lake_loc%,ambrosios_home_loc%,nowhere,nowhere
-data ambrosios_home_loc%,nowhere,nowhere,passage_crossing_loc%,nowhere,nowhere,nowhere
-data cave_exit_loc%,passage_crossing_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
-data cave_exit_forest_loc%,nowhere,nowhere,cave_exit_loc%,forest_path_loc%,nowhere,nowhere
-data forest_path_loc%,nowhere,nowhere,cave_exit_forest_loc%,north_road_loc%,nowhere,nowhere
-data north_road_loc%,nowhere,westmorland_loc%,forest_path_loc%,nowhere,nowhere,nowhere
-data westmorland_loc%,north_road_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
+data saxon_village_loc%,nowhere%,on_the_hill_loc%,nowhere%,nowhere%,nowhere%,nowhere%
+data on_the_hill_loc%,saxon_village_loc%,nowhere%,nowhere%,path_between_hills_loc%,nowhere%,nowhere%
+data path_between_hills_loc%,nowhere%,nowhere%,on_the_hill_loc%,paths_crossing_loc%,nowhere%,nowhere%
+data paths_crossing_loc%,near_the_forest_loc%,nowhere%,path_between_hills_loc%,fallen_away_loc%,nowhere%,nowhere%
+data near_the_forest_loc%,nowhere%,paths_crossing_loc%,nowhere%,forest_loc%,nowhere%,nowhere%
+data forest_loc%,nowhere%,nowhere%,near_the_forest_loc%,dog_passage_loc%,nowhere%,nowhere%
+data dog_passage_loc%,nowhere%,cave_entrance_loc%,forest_loc%,nowhere%,nowhere%,nowhere%
+data cave_entrance_loc%,dog_passage_loc%,cave_hall_loc%,nowhere%,nowhere%,nowhere%,nowhere%
+data fallen_away_loc%,nowhere%,nowhere%,paths_crossing_loc%,nowhere%,nowhere%,nowhere%
+data cave_hall_loc%,cave_entrance_loc%,nowhere%,nowhere%,big_lake_loc%,nowhere%,nowhere%
+data big_lake_loc%,nowhere%,nowhere%,cave_hall_loc%,nowhere%,nowhere%,nowhere%
+data secret_exit_loc%,nowhere%,nowhere%,nowhere%,ruined_bridge_loc%,nowhere%,nowhere%
+data ruined_bridge_loc%,nowhere%,nowhere%,secret_exit_loc%,cave_corner_loc%,nowhere%,nowhere%
+data cave_corner_loc%,nowhere%,sand_passage_loc%,ruined_bridge_loc%,nowhere%,nowhere%,nowhere%
+data sand_passage_loc%,cave_corner_loc%,stalactites_loc%,water_passage_loc%,nowhere%,nowhere%,nowhere%
+data water_passage_loc%,nowhere%,nowhere%,nowhere%,sand_passage_loc%,nowhere%,nowhere%
+data stalactites_loc%,sand_passage_loc%,cave_strait_1_loc%,stone_bridge_loc%,nowhere%,nowhere%,nowhere%
+data stone_bridge_loc%,nowhere%,nowhere%,channel_sand_corner_loc%,stalactites_loc%,nowhere%,nowhere%
+data channel_sand_corner_loc%,nowhere%,nowhere%,nowhere%,stone_bridge_loc%,nowhere%,nowhere%
+data cave_strait_1_loc%,stalactites_loc%,cave_strait_3_loc%,cave_strait_6_loc%,nowhere%,nowhere%,nowhere%
+data cave_strait_2_loc%,nowhere%,cave_strait_8_loc%,cave_strait_4_loc%,cave_strait_1_loc%,nowhere%,nowhere%
+data cave_strait_3_loc%,nowhere%,cave_strait_5_loc%,cave_strait_8_loc%,cave_strait_3_loc%,nowhere%,nowhere%
+data cave_strait_4_loc%,nowhere%,cave_strait_6_loc%,nowhere%,cave_strait_2_loc%,nowhere%,nowhere%
+data cave_strait_5_loc%,cave_strait_3_loc%,nowhere%,cave_strait_7_loc%,nowhere%,nowhere%,nowhere%
+data cave_strait_6_loc%,cave_strait_3_loc%,refuge_loc%,cave_strait_4_loc%,cave_strait_2_loc%,nowhere%,nowhere%
+data cave_strait_7_loc%,cave_strait_7_loc%,nowhere%,cave_strait_1_loc%,cave_strait_8_loc%,nowhere%,nowhere%
+data cave_strait_8_loc%,cave_strait_8_loc%,nowhere%,nowhere%,cave_strait_6_loc%,nowhere%,nowhere%
+data refuge_loc%,cave_strait_7_loc%,nowhere%,nowhere%,nowhere%,nowhere%,nowhere%
+data spiral_loc%,nowhere%,nowhere%,nowhere%,refuge_loc%,nowhere%,spiral_start_loc%
+data spiral_start_loc%,nowhere%,nowhere%,north_gate_loc%,nowhere%,spiral_loc%,nowhere%
+data north_gate_loc%,nowhere%,nowhere%,nowhere%,spiral_start_loc%,nowhere%,nowhere%
+data precipice_loc%,nowhere%,exit_passage_loc%,nowhere%,north_gate_loc%,nowhere%,nowhere%
+data exit_passage_loc%,precipice_loc%,nowhere%,gravel_passage_loc%,nowhere%,nowhere%,nowhere%
+data gravel_passage_loc%,bridge_over_aqueduct_loc%,nowhere%,nowhere%,exit_passage_loc%,nowhere%,nowhere%
+data bridge_over_aqueduct_loc%,terrace_loc%,gravel_passage_loc%,nowhere%,pool_loc%,nowhere%,pool_loc%
+data pool_loc%,nowhere%,nowhere%,bridge_over_aqueduct_loc%,water_channel_loc%,bridge_over_aqueduct_loc%,nowhere%
+data water_channel_loc%,nowhere%,nowhere%,pool_loc%,big_waterfall_loc%,nowhere%,nowhere%
+data big_waterfall_loc%,nowhere%,nowhere%,water_channel_loc%,inside_waterfall_loc%,nowhere%,nowhere%
+data inside_waterfall_loc%,nowhere%,nowhere%,big_waterfall_loc%,nowhere%,nowhere%,nowhere%
+data terrace_loc%,nowhere%,bridge_over_aqueduct_loc%,idol_loc%,nowhere%,nowhere%,nowhere%
+data idol_loc%,nowhere%,nowhere%,nowhere%,terrace_loc%,nowhere%,nowhere%
+data strait_passage_loc%,idol_loc%,snake_passage_loc%,nowhere%,nowhere%,nowhere%,nowhere%
+data snake_passage_loc%,strait_passage_loc%,nowhere%,nowhere%,nowhere%,nowhere%,nowhere%
+data inner_lake_loc%,snake_passage_loc%,nowhere%,nowhere%,passage_crossing_loc%,nowhere%,nowhere%
+data passage_crossing_loc%,nowhere%,cave_exit_loc%,inner_lake_loc%,ambrosios_home_loc%,nowhere%,nowhere%
+data ambrosios_home_loc%,nowhere%,nowhere%,passage_crossing_loc%,nowhere%,nowhere%,nowhere%
+data cave_exit_loc%,passage_crossing_loc%,nowhere%,nowhere%,nowhere%,nowhere%,nowhere%
+data cave_exit_forest_loc%,nowhere%,nowhere%,cave_exit_loc%,forest_path_loc%,nowhere%,nowhere%
+data forest_path_loc%,nowhere%,nowhere%,cave_exit_forest_loc%,north_road_loc%,nowhere%,nowhere%
+data north_road_loc%,nowhere%,westmorland_loc%,forest_path_loc%,nowhere%,nowhere%,nowhere%
+data westmorland_loc%,north_road_loc%,nowhere%,nowhere%,nowhere%,nowhere%,nowhere%
 
 ' Nouns
 
@@ -2464,55 +2463,55 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: entity,location,attribute,description
 label @entities_start
-data the_altar%,stone_bridge_loc%,untakeable_attr
+data the_altar%,stone_bridge_loc%,untakeable_attr%
 data "Justo en la mitad del puente, debe sostener algo importante."
-data ambrosio%,channel_sand_corner_loc%,person_attr
+data ambrosio%,channel_sand_corner_loc%,person_attr%
 data "Ambrosio es un hombre de mediana edad, que te mira afable." ' XXX FIXME text
-data the_torch%,limbo,takeable_attr
+data the_torch%,limbo%,takeable_attr%
 data "Está apagada."
-data the_flags%,refuge_loc%,untakeable_attr
+data the_flags%,refuge_loc%,untakeable_attr%
 data "Son las banderas britana y sajona: \
   dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
-data the_cloak%,protagonist%,takeable_attr
+data the_cloak%,protagonist%,takeable_attr%
 data "Tu capa de general, de fina lana tintada de negro."
-data the_waterfall%,big_waterfall_loc%,untakeable_attr
+data the_waterfall%,big_waterfall_loc%,untakeable_attr%
 data "No ves nada por la cortina de agua. \
   El lago es muy poco profundo."
-data the_fallen_away%,fallen_away_loc%,untakeable_attr
+data the_fallen_away%,fallen_away_loc%,untakeable_attr%
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
-data the_emerald%,inside_waterfall_loc%,takeable_attr
+data the_emerald%,inside_waterfall_loc%,takeable_attr%
 data "Es preciosa."
-data the_sword%,protagonist%,takeable_attr
+data the_sword%,protagonist%,takeable_attr%
 data "Legado de tu padre, fiel herramienta en mil batallas."
-data the_rags%,limbo,takeable_attr
+data the_rags%,limbo%,takeable_attr%
 data "Un trozo un poco grande de capa."
-data the_thread%,limbo,takeable_attr
+data the_thread%,limbo%,takeable_attr%
 data "Un hilo se ha desprendido al cortar la capa con la espada."
-data the_man%,refuge_loc%,untakeable_attr
+data the_man%,refuge_loc%,untakeable_attr%
 data "Es el jefe de los refugiados."
-data the_idol%,idol_loc%,untakeable_attr
+data the_idol%,idol_loc%,untakeable_attr%
 data "El ídolo tiene dos agujeros por ojos."
-data the_lake%,inner_lake_loc%,untakeable_attr
+data the_lake%,inner_lake_loc%,untakeable_attr%
 data "La luz entra por un resquicio, \
   y caprichosos reflejos te maravillan."
-data the_key%,ambrosios_home_loc%,untakeable_attr
+data the_key%,ambrosios_home_loc%,untakeable_attr%
 data "Una llave grande, de hierro herrumboso."
-data the_flint%,limbo,takeable_attr
+data the_flint%,limbo%,takeable_attr%
 data "Se trata de una dura y afilada piedra."
-data the_stone%,channel_sand_corner_loc%,takeable_attr
+data the_stone%,channel_sand_corner_loc%,takeable_attr%
 data "Recia y pesada, pero no muy grande, de forma piramidal."
-data the_door%,cave_exit_loc%,untakeable_attr
+data the_door%,cave_exit_loc%,untakeable_attr%
 data "Muy recia y con un gran candado."
-data the_rocks%,north_gate_loc%,untakeable_attr
+data the_rocks%,north_gate_loc%,untakeable_attr%
 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
-data the_snake%,snake_passage_loc%,untakeable_attr
+data the_snake%,snake_passage_loc%,untakeable_attr%
 data "Una serpiente bloquea el paso al sur, \
   corriendo a su lado el agua."
-data the_log%,sand_passage_loc%,takeable_attr
+data the_log%,sand_passage_loc%,takeable_attr%
 data "Es un tronco recio, pero de liviano peso."
-data the_piece%,limbo,takeable_attr
+data the_piece%,limbo%,takeable_attr%
 data "Es un poco de lo que antes era tu capa."
-data the_lock%,cave_exit_loc%,untakeable_attr
+data the_lock%,cave_exit_loc%,untakeable_attr%
 data "Está cerrado. Es muy grande y parece resistente."
 label @entities_end
 rem XXX TMP -- to prevent labels clash
@@ -2521,26 +2520,26 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: action id,syntax
 label @actions_start
-data to_break,object_needed
-data to_drop,object_needed
-data to_examine,no_object_needed
-data to_finish,no_object_needed
-data to_fling,object_needed
-data to_go_down,no_object_needed
-data to_go_east,no_object_needed
-data to_go_north,no_object_needed
-data to_go_south,no_object_needed
-data to_go_up,no_object_needed
-data to_go_west,no_object_needed
-data to_help,no_object_needed
-data to_insert,object_and_complement_needed
-data to_look,no_object_needed
-data to_open,object_needed
-data to_swim,no_object_needed
-data to_take,object_needed
-data to_speak,object_needed
-data to_sharpen,object_needed
-data to_inventory,no_object_needed
+data to_break%,object_needed%
+data to_drop%,object_needed%
+data to_examine%,no_object_needed%
+data to_finish%,no_object_needed%
+data to_fling%,object_needed%
+data to_go_down%,no_object_needed%
+data to_go_east%,no_object_needed%
+data to_go_north%,no_object_needed%
+data to_go_south%,no_object_needed%
+data to_go_up%,no_object_needed%
+data to_go_west%,no_object_needed%
+data to_help%,no_object_needed%
+data to_insert%,object_and_complement_needed%
+data to_look%,no_object_needed%
+data to_open%,object_needed%
+data to_swim%,no_object_needed%
+data to_take%,object_needed%
+data to_speak%,object_needed%
+data to_sharpen%,object_needed%
+data to_inventory%,no_object_needed%
 label @actions_end
 rem XXX TMP -- to prevent labels clash
 
@@ -2548,177 +2547,177 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: action id,verb or synonym
 label @verbs_start
-data to_break,"ataca"     ' XXX TODO to_attack
-data to_break,"atacar"    ' XXX TODO to_attack
-data to_break,"corta"     ' XXX TODO to_cut
-data to_break,"cortar"    ' XXX TODO to_cut
-data to_break,"destroza"
-data to_break,"destrozar"
-data to_break,"empuja"    ' XXX TODO to_push
-data to_break,"empujar"   ' XXX TODO to_push
-data to_break,"golpea"    ' XXX TODO to_hit
-data to_break,"golpear"   ' XXX TODO to_hit
-data to_break,"mata"      ' XXX TODO to_kill
-data to_break,"matar"     ' XXX TODO to_kill
-data to_break,"recorta"   ' XXX TODO to_cut
-data to_break,"recortar"  ' XXX TODO to_cut
-data to_break,"rompe"
-data to_break,"romper"
-data to_break,"sacude"    ' XXX TODO to_hit
-data to_break,"sacudir"   ' XXX TODO to_hit
-data to_drop,"deja"
-data to_drop,"dejar"
-data to_drop,"desprenderse"
-data to_drop,"despréndete"
-data to_drop,"soltar"
-data to_drop,"suelta"
-data to_examine,"ex"
-data to_examine,"examina"
-data to_examine,"examinar"
-data to_finish,"acaba"
-data to_finish,"acabar"
-data to_finish,"fin"
-data to_finish,"finaliza"
-data to_finish,"finalizar"
-data to_finish,"rendirse"
-data to_finish,"ríndete"
-data to_finish,"termina"
-data to_finish,"terminar"
-data to_fling,"arroja"
-data to_fling,"arrojar"
-data to_fling,"lanza"
-data to_fling,"lanzar"
-data to_fling,"tira"
-data to_fling,"tirar"
-data to_go_down,"abajo"
-data to_go_down,"b"
-data to_go_down,"baja"
-data to_go_down,"bajar"
-data to_go_down,"descender"
-data to_go_down,"desciende"
-data to_go_east,"e"
-data to_go_east,"este"
-data to_go_north,"n"
-data to_go_north,"norte"
-data to_go_south,"s"
-data to_go_south,"sur"
-data to_go_up,"a"
-data to_go_up,"arriba"
-data to_go_up,"ascender"
-data to_go_up,"asciende"
-data to_go_up,"sube"
-data to_go_up,"subir"
-data to_go_west,"o"
-data to_go_west,"oeste"
-data to_help,"auxilio"
-data to_help,"ayuda"
-data to_help,"ayudar"
-data to_help,"ayúdame"
-data to_help,"socorro"
-data to_insert,"coloca"
-data to_insert,"colocar"
-data to_insert,"colocarle"
-data to_insert,"colócale"
-data to_insert,"inserta"
-data to_insert,"insertar"
-data to_insert,"insertarle"
-data to_insert,"insértale"
-data to_insert,"introduce"
-data to_insert,"introducir"
-data to_insert,"introducirle"
-data to_insert,"introdúcele"
-data to_insert,"mete"
-data to_insert,"meter"
-data to_insert,"meterle"
-data to_insert,"métele"
-data to_insert,"pon"
-data to_insert,"poner"
-data to_insert,"ponerle"
-data to_insert,"ponle"
-data to_insert,"situar"
-data to_insert,"situarle"
-data to_insert,"sitúa"
-data to_inventory,"examinarte"
-data to_inventory,"examínate"
-data to_inventory,"i"
-data to_inventory,"inventario"
-data to_inventory,"mirarte"
-data to_inventory,"mírate"
-data to_look,"m"
-data to_look,"mira"
-data to_look,"mirar"
-data to_look,"ojea"
-data to_look,"ojear"
-data to_open,"abre"
-data to_open,"abrir"
-data to_sharpen,"afila"
-data to_sharpen,"afilar"
-data to_speak,"charla"
-data to_speak,"charlar"
-data to_speak,"comenta"
-data to_speak,"comentar"
-data to_speak,"comentarle"
-data to_speak,"comentarlo"
-data to_speak,"comentárselo"
-data to_speak,"comunica"
-data to_speak,"comunicar"
-data to_speak,"comunicarle"
-data to_speak,"comunicarlo"
-data to_speak,"comunicárselo"
-data to_speak,"comunícale"
-data to_speak,"comunícalo"
-data to_speak,"comunícate"
-data to_speak,"coméntale"
-data to_speak,"coméntalo"
-data to_speak,"coméntaselo"
-data to_speak,"conversa"
-data to_speak,"conversar"
-data to_speak,"decir"
-data to_speak,"decirle"
-data to_speak,"decirlo"
-data to_speak,"decírselo"
-data to_speak,"di"
-data to_speak,"dile"
-data to_speak,"dilo"
-data to_speak,"díselo"
-data to_speak,"habla"
-data to_speak,"hablar"
-data to_speak,"hablarle"
-data to_speak,"háblale"
-data to_speak,"háblalo"
-data to_speak,"platica"
-data to_speak,"platicar"
-data to_speak,"platicarle"
-data to_speak,"platicarlo"
-data to_speak,"platicárselo"
-data to_speak,"platícale"
-data to_speak,"platícalo"
-data to_speak,"pregunta"
-data to_speak,"preguntar"
-data to_speak,"preguntarle"
-data to_speak,"preguntarlo"
-data to_speak,"preguntárselo"
-data to_speak,"pregúntale"
-data to_speak,"pregúntalo"
-data to_swim,"bañar"
-data to_swim,"bañarse"
-data to_swim,"bañarte"
-data to_swim,"bucea"
-data to_swim,"bucear"
-data to_swim,"báñate"
-data to_swim,"nada"
-data to_swim,"nadar"
-data to_swim,"zambullirse"
-data to_swim,"zambullirte"
-data to_swim,"zambúllete"
-data to_take,"agarra"
-data to_take,"agarrar"
-data to_take,"coge"
-data to_take,"coger"
-data to_take,"recoge"
-data to_take,"recoger"
-data to_take,"toma"
-data to_take,"tomar"
+data to_break%,"ataca"     ' XXX TODO to_attack%
+data to_break%,"atacar"    ' XXX TODO to_attack%
+data to_break%,"corta"     ' XXX TODO to_cut%
+data to_break%,"cortar"    ' XXX TODO to_cut%
+data to_break%,"destroza"
+data to_break%,"destrozar"
+data to_break%,"empuja"    ' XXX TODO to_push%
+data to_break%,"empujar"   ' XXX TODO to_push%
+data to_break%,"golpea"    ' XXX TODO to_hit%
+data to_break%,"golpear"   ' XXX TODO to_hit%
+data to_break%,"mata"      ' XXX TODO to_kill%
+data to_break%,"matar"     ' XXX TODO to_kill%
+data to_break%,"recorta"   ' XXX TODO to_cut%
+data to_break%,"recortar"  ' XXX TODO to_cut%
+data to_break%,"rompe"
+data to_break%,"romper"
+data to_break%,"sacude"    ' XXX TODO to_hit%
+data to_break%,"sacudir"   ' XXX TODO to_hit%
+data to_drop%,"deja"
+data to_drop%,"dejar"
+data to_drop%,"desprenderse"
+data to_drop%,"despréndete"
+data to_drop%,"soltar"
+data to_drop%,"suelta"
+data to_examine%,"ex"
+data to_examine%,"examina"
+data to_examine%,"examinar"
+data to_finish%,"acaba"
+data to_finish%,"acabar"
+data to_finish%,"fin"
+data to_finish%,"finaliza"
+data to_finish%,"finalizar"
+data to_finish%,"rendirse"
+data to_finish%,"ríndete"
+data to_finish%,"termina"
+data to_finish%,"terminar"
+data to_fling%,"arroja"
+data to_fling%,"arrojar"
+data to_fling%,"lanza"
+data to_fling%,"lanzar"
+data to_fling%,"tira"
+data to_fling%,"tirar"
+data to_go_down%,"abajo"
+data to_go_down%,"b"
+data to_go_down%,"baja"
+data to_go_down%,"bajar"
+data to_go_down%,"descender"
+data to_go_down%,"desciende"
+data to_go_east%,"e"
+data to_go_east%,"este"
+data to_go_north%,"n"
+data to_go_north%,"norte"
+data to_go_south%,"s"
+data to_go_south%,"sur"
+data to_go_up%,"a"
+data to_go_up%,"arriba"
+data to_go_up%,"ascender"
+data to_go_up%,"asciende"
+data to_go_up%,"sube"
+data to_go_up%,"subir"
+data to_go_west%,"o"
+data to_go_west%,"oeste"
+data to_help%,"auxilio"
+data to_help%,"ayuda"
+data to_help%,"ayudar"
+data to_help%,"ayúdame"
+data to_help%,"socorro"
+data to_insert%,"coloca"
+data to_insert%,"colocar"
+data to_insert%,"colocarle"
+data to_insert%,"colócale"
+data to_insert%,"inserta"
+data to_insert%,"insertar"
+data to_insert%,"insertarle"
+data to_insert%,"insértale"
+data to_insert%,"introduce"
+data to_insert%,"introducir"
+data to_insert%,"introducirle"
+data to_insert%,"introdúcele"
+data to_insert%,"mete"
+data to_insert%,"meter"
+data to_insert%,"meterle"
+data to_insert%,"métele"
+data to_insert%,"pon"
+data to_insert%,"poner"
+data to_insert%,"ponerle"
+data to_insert%,"ponle"
+data to_insert%,"situar"
+data to_insert%,"situarle"
+data to_insert%,"sitúa"
+data to_inventory%,"examinarte"
+data to_inventory%,"examínate"
+data to_inventory%,"i"
+data to_inventory%,"inventario"
+data to_inventory%,"mirarte"
+data to_inventory%,"mírate"
+data to_look%,"m"
+data to_look%,"mira"
+data to_look%,"mirar"
+data to_look%,"ojea"
+data to_look%,"ojear"
+data to_open%,"abre"
+data to_open%,"abrir"
+data to_sharpen%,"afila"
+data to_sharpen%,"afilar"
+data to_speak%,"charla"
+data to_speak%,"charlar"
+data to_speak%,"comenta"
+data to_speak%,"comentar"
+data to_speak%,"comentarle"
+data to_speak%,"comentarlo"
+data to_speak%,"comentárselo"
+data to_speak%,"comunica"
+data to_speak%,"comunicar"
+data to_speak%,"comunicarle"
+data to_speak%,"comunicarlo"
+data to_speak%,"comunicárselo"
+data to_speak%,"comunícale"
+data to_speak%,"comunícalo"
+data to_speak%,"comunícate"
+data to_speak%,"coméntale"
+data to_speak%,"coméntalo"
+data to_speak%,"coméntaselo"
+data to_speak%,"conversa"
+data to_speak%,"conversar"
+data to_speak%,"decir"
+data to_speak%,"decirle"
+data to_speak%,"decirlo"
+data to_speak%,"decírselo"
+data to_speak%,"di"
+data to_speak%,"dile"
+data to_speak%,"dilo"
+data to_speak%,"díselo"
+data to_speak%,"habla"
+data to_speak%,"hablar"
+data to_speak%,"hablarle"
+data to_speak%,"háblale"
+data to_speak%,"háblalo"
+data to_speak%,"platica"
+data to_speak%,"platicar"
+data to_speak%,"platicarle"
+data to_speak%,"platicarlo"
+data to_speak%,"platicárselo"
+data to_speak%,"platícale"
+data to_speak%,"platícalo"
+data to_speak%,"pregunta"
+data to_speak%,"preguntar"
+data to_speak%,"preguntarle"
+data to_speak%,"preguntarlo"
+data to_speak%,"preguntárselo"
+data to_speak%,"pregúntale"
+data to_speak%,"pregúntalo"
+data to_swim%,"bañar"
+data to_swim%,"bañarse"
+data to_swim%,"bañarte"
+data to_swim%,"bucea"
+data to_swim%,"bucear"
+data to_swim%,"báñate"
+data to_swim%,"nada"
+data to_swim%,"nadar"
+data to_swim%,"zambullirse"
+data to_swim%,"zambullirte"
+data to_swim%,"zambúllete"
+data to_take%,"agarra"
+data to_take%,"agarrar"
+data to_take%,"coge"
+data to_take%,"coger"
+data to_take%,"recoge"
+data to_take%,"recoger"
+data to_take%,"toma"
+data to_take%,"tomar"
 label @verbs_end
 
 ' ==============================================================
@@ -2726,15 +2725,15 @@ label @verbs_end
 
 defproc fatal_error(message$)
 
-  ink #tw,red
-  print #tw,"Error fatal:"!message$
+  ink #tw%,light_red%
+  print #tw%,"Error fatal:"!message$
   stop
 
 enddef
 
 defproc _debug(text$)
 
-  print #tw,"Punto de depuración:"!text$
+  print #tw%,"Punto de depuración:"!text$
 
 enddef
 

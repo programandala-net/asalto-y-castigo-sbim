@@ -36,3 +36,5 @@
   conditions.
 - Add locations to the ordinary entities.
 - Finish abandoning compatibility with SuperBASIC.
+- Improve: Compare `ex x` when `x` is not recognized and when `x` is
+  not present.

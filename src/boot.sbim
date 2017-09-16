@@ -4,7 +4,7 @@ rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
 rem Author: Marcos Cruz (programandala.net), 2011, 2015, 2017
 
-' Last modified 201709161228
+' Last modified 201709161634
 
 ' ==============================================================
 
@@ -39,10 +39,10 @@ defproc big_windows
 
 enddef
 
-defproc big_window(channel)
+defproc big_window(channel%)
 
-  window #channel,scr_xlim,scr_ylim,0,0
-  csize #channel,3,1
-  paper #channel,0 ' black background
+  window #channel%,scr_xlim,scr_ylim,0,0
+  csize #channel%,3,1
+  paper #channel%,0 ' black background
 
 enddef
