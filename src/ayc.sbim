@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.34+201709161642" ' after http://semver.org
+let version$="0.2.0-dev.35+201709161857" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -22,6 +22,9 @@ rem Locomotive BASIC (Amstrad CPC) and Blassic.
 
 ' From "DIY Toolkit", (C) Simon N. Goodwin:
 '   minimum, maximum, inarray%
+
+' From "BMPCVT", (C) W. Lenerz 2002:
+'   wl_bmp8load
 
 ' ==============================================================
 ' Main
@@ -1556,12 +1559,12 @@ defproc first_time_init
   ' Init needed only once.
 
   let dev$=device$("ayc_bas","mdvflpwinsubdevdosnfasfafdk")
-  init_the_keyboard
-  init_the_screen
-  init_the_window
-  splash_screen
-  init_the_constants
-  init_the_preferences
+  init_keyboard
+  init_screen
+  init_windows
+  load_splash_screen
+  init_constants
+  init_preferences
   clear_screen
 
 enddef
@@ -1576,7 +1579,7 @@ defproc game_init
   let y%=pos_y(#tw%)
   print #tw%,"Preparando los datos..."
   init_plot
-  init_the_data
+  init_data
   let current_location%=saxon_village_loc%
   cls #tw%,3
   cursor #tw%,0,y%
@@ -1596,7 +1599,7 @@ defproc game_init
 
 enddef
 
-defproc init_the_keyboard
+defproc init_keyboard
 
   ' If needed, load the Spanish SMSQ keybard table.
 
@@ -1613,58 +1616,40 @@ defproc init_the_keyboard
 
 enddef
 
-defproc init_the_screen
+defproc init_screen
 
-  ' Init the screen. If needed, change its mode and colour scheme.
+  ' Set the screen mode and colours.
 
-  sel on disp_type
-    =0:\
-      mode 8:\
-      init_ql_colours
-    =8:\
-      init_ql_colours
-    =remainder:\
-      init_pal_colours
-  endsel
+  if disp_type<>32:\
+    mode 32
+  init_colours
 
 enddef
 
-defproc init_pal_colours
+defproc init_colours
 
   ' Set the PAL colour mode and the needed colours.
 
   colour_pal
   let black%=0
-  let dark_cyan%=7:palette_8 dark_cyan%,rgb(0,139,139)
+  let dark_cyan%=7:palette_8 dark_cyan%,$008B8B
   let dark_green%=17
   let light_grey%=12
-  let light_red%=1:palette_8 light_red%,rgb(255,51,51)
+  let light_red%=1:palette_8 light_red%,$FF3333
   let yellow%=6
 
 enddef
 
-defproc init_ql_colours
+defproc init_windows
 
-  ' Set colours used in QL colour mode.
-
-  let black%=0
-  let dark_cyan%=5
-  let dark_green%=4
-  let light_grey%=7
-  let light_red%=2
-  let yellow%=6
+  init_text_window
+  init_splash_screen_window
 
 enddef
 
-deffn rgb(red%,green%,blue%)
+defproc init_text_window
 
-  ret red%*65535+green%*256+blue%
-
-enddef
-
-defproc init_the_window
-
-  ' Init the window, maximum size 800x600.
+  ' XXX TMP -- Maximum size: 800x600.
 
   loc csize_w%,csize_h%
   loc tw_w%,tw_h%,tw_x%,tw_y%
@@ -1680,12 +1665,12 @@ defproc init_the_window
   window #tw%,tw_w%,tw_h%,tw_x%,tw_y%
   paper #tw%,black%
   ink #tw%,light_grey%
-  wipe_the_window
-  init_the_font
+  wipe_the_text_window
+  init_font
 
 enddef
 
-defproc wipe_the_window
+defproc wipe_the_text_window
 
   border #tw%,0
   cls #tw%
@@ -1693,15 +1678,62 @@ defproc wipe_the_window
 
 enddef
 
-defproc splash_screen
+defproc init_splash_screen_window
 
-  if scr_xlim=512 and scr_ylim=256
-    lbytes dev$&"img_ayc8_scr",address(#0)
-  endif
+  loc sw_w%,sw_h%,sw_x%,sw_y%
+
+  sel on true
+  =fits%(1110,800)
+    let sw_w%=1110
+    let sw_h%=800
+  =fits%(800,577)
+    let sw_w%=800
+    let sw_h%=577
+  =fits%(555,400)
+    let sw_w%=555
+    let sw_h%=400
+  =remainder
+    let sw_w%=355
+    let sw_h%=256
+  endsel
+
+  let splash_screen_file$="splash_screen_"&sw_w%&"x"&sw_h%&".bmp"
+
+  let sw_x%=(scr_xlim-sw_w%)/2
+  let sw_y%=(scr_ylim-sw_h%)/2
+  let sw%=fopen("scr_")
+  window #sw%,sw_w%,sw_h%,sw_x%,sw_y%
 
 enddef
 
-defproc init_the_font
+deffn fits%(width%,height%)
+
+  ret width%<=scr_xlim and height%<=scr_ylim
+
+enddef 
+
+defproc load_splash_screen
+
+  load_bmp sw%,splash_screen_file$
+  seconds 10
+
+enddef
+
+defproc seconds(n%)
+
+  ' Wait _n%_ seconds or until a key is pressed.
+
+  pause n%*50
+
+enddef
+
+defproc load_bmp(channel%,filename$)
+
+  wl_bmp8load #channel%,dev$&"img_"&filename$
+
+enddef
+
+defproc init_font
 
   loc font_size%
   let font$=dev$&"iso8859-1_font"
@@ -1730,7 +1762,7 @@ defproc fonts(font_address)
 
 enddef
 
-defproc init_the_preferences
+defproc init_preferences
 
   ' Init the game preferences.
 
@@ -1738,7 +1770,7 @@ defproc init_the_preferences
 
 enddef
 
-defproc init_the_constants
+defproc init_constants
 
   ' Init all the constants.
 
@@ -1925,7 +1957,7 @@ defproc init_plot
 
 enddef
 
-defproc init_the_data
+defproc init_data
 
   ' Init the data arrays. The first element (0) of the arrays is not
   ' used, except for the directions.

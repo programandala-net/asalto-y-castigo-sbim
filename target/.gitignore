@@ -7,8 +7,10 @@ boot
 *_bas
 
 # Ignore the images, extensions, keyboard table and fonts:
-img/
-ext/
+img/*
+!img/.gitignore
+ext/*
+!ext/.gitignore
 *_kbt
 *_font
 
