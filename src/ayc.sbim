@@ -2,17 +2,24 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.35+201709161857" ' after http://semver.org
+let version$="0.2.0-dev.35+201709162013" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
 
-rem This program is a Sinclair QL port/remake of:
-rem "Asalto y castigo"
+' ==============================================================
+' Credits
+
+rem Original version
+rem written in Sinclar BASIC (Sinclair ZX Spectrum),
+rem Locomotive BASIC (Amstrad CPC) and Blassic:
+
 rem Copyright (C) 2009 Baltasar el Arquero
 rem http://caad.es/baltasarq/
-rem Written in Sinclar BASIC (Sinclair ZX Spectrum),
-rem Locomotive BASIC (Amstrad CPC) and Blassic.
+
+rem The photo of the splash screen was extracted from the cassette
+rem inlay designed by Neil Parsons for the original ZX Spectrum
+rem version.
 
 ' ==============================================================
 ' Requirements
