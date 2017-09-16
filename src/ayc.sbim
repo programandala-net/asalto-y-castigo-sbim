@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.31+201709161234" ' after http://semver.org
+let version$="0.2.0-dev.32+201709161234" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -810,13 +810,13 @@ enddef
 
 defproc do_inventory
 
-  loc i,list$
+  loc i%,list$
   let list$=""
 
-  for i=1 to entities
-    if is_hold(i):\
-      let list$=list$&"  - "&name$(i)&nl$
-  endfor i
+  for i%=1 to entities
+    if is_hold(i%):\
+      let list$=list$&"  - "&name$(i%)&nl$
+  endfor i%
   if len(list$)
     narrate "Llevas contigo:"&nl$&list$
   else
@@ -858,18 +858,18 @@ defproc list_present_entities
 
   ' XXX TODO -- Improve with `item$` and "a"
 
-  loc i,list$
+  loc i%,list$
 
   let list$=""
-  for n=1 to entities
-    if is_here(n)
-      if is_a_person(n)
-        let list$=list$&"  - "&iso_upper_1$(name$(n))&nl$
+  for i%=1 to entities
+    if is_here(i%)
+      if is_a_person(i%)
+        let list$=list$&"  - "&iso_upper_1$(name$(i%))&nl$
       else
-        let list$=list$&"  - "&name$(n)&nl$
+        let list$=list$&"  - "&name$(i%)&nl$
       endif
     endif
-  endfor n
+  endfor i%
   if len(list$)
     narrate "Puedes ver:"&nl$&list$
   endif
@@ -1412,11 +1412,11 @@ deffn iso_upper$(text$)
 
   ' Return the given ISO 8859-1 text in uppercase.
 
-  loc i,upper_text$
+  loc i%,upper_text$
   let upper_text$=text$
-  for i=1 to len(upper_text$)
-    let upper_text$(i)=chr$(iso_upper(code(text$(i))))
-  endfor i
+  for i%=1 to len(upper_text$)
+    let upper_text$(i%)=chr$(iso_upper(code(text$(i%))))
+  endfor i%
   ret upper_text$
 
 enddef
@@ -1484,17 +1484,17 @@ defproc tell(txt$)
 
   ' Print a text, left justified.
 
-  loc text$,first,last
+  loc text$,first,last%
 
   if len(txt$)
     let text$=txt$&" "
     let first=1
-    for last=1 to len(text$)
-      if text$(last)=" "
-        print #tw,!text$(first to last-1);
-        let first=last+1
+    for last%=1 to len(text$)
+      if text$(last%)=" "
+        print #tw,!text$(first to last%-1);
+        let first=last%+1
       endif
-    endfor last
+    endfor last%
   endif
   print #tw,\\:
 
@@ -1928,7 +1928,7 @@ defproc init_the_data
   ' Init the data arrays. The first element (0) of the arrays is not
   ' used, except for the directions.
 
-  loc i,j,max_word_lenght,action,from_location,to_location,entity
+  loc i%,max_word_lenght,action,from_location,to_location,entity
 
   let max_word_lenght=11 ' XXX TODO calculate
 
@@ -1936,12 +1936,12 @@ defproc init_the_data
 
   dim way_out(locations,last_direction)
   restore @map
-  for i=1 to locations
+  for i%=1 to locations
     read from_location
-    for to_location=first_direction to last_direction
-      read way_out(from_location,to_location)
-    endfor to_location
-  endfor i
+    for to_location%=first_direction to last_direction
+      read way_out(from_location,to_location%)
+    endfor to_location%
+  endfor i%
 
   let nouns=@nouns_end-@nouns_start
   dim noun$(nouns,max_word_lenght)
@@ -1951,40 +1951,40 @@ defproc init_the_data
 
   ' Note: The last synonym on the list will be the name of the entity.
   restore @nouns_start
-  for i=1 to nouns
-    read entity_of_noun(i),noun$(i)
-    let name$(entity_of_noun(i))=noun$(i)
-  endfor i
+  for i%=1 to nouns
+    read entity_of_noun(i%),noun$(i%)
+    let name$(entity_of_noun(i%))=noun$(i%)
+  endfor i%
 
   dim location(entities)
   dim attribute(entities)
   dim description$(entities,128)
   restore @entities_start
-  for i=1 to entities
+  for i%=1 to entities
     read \
       entity,\
       location(entity),\
       attribute(entity),\
       description$(entity)
 '    print entity,description$(entity):pause ' XXX INFORMER
-  endfor i
+  endfor i%
 '  print "entities read!":pause ' XXX INFORMER
 
   let actions=@actions_end-@actions_start
   dim syntax(actions)
   restore @actions_start
-  for i=1 to actions
+  for i%=1 to actions
     read action,syntax(action)
-  endfor i
+  endfor i%
 
   let verbs=@verbs_end-@verbs_start
   dim verb$(verbs,max_word_lenght)
   dim the_action(verbs)
   let action=1
   restore @verbs_start
-  for i=1 to verbs
-    read the_action(i),verb$(i)
-  endfor i
+  for i%=1 to verbs
+    read the_action(i%),verb$(i%)
+  endfor i%
 
 enddef
 
