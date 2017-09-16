@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-15
+:revdate: 2017-09-16
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -15,7 +15,6 @@
 - Fix: "stone" is used in the description of the flint, but it's not a
   synonym.
 - Improve the general syntax checker.
-- Add "exits/x" action.
 - Split `location_plot` into actual plot, which must be executed only
   the first time a location is entered, and specific descriptions,
   which are shown every time the location is described.
@@ -34,7 +33,7 @@
   solution is creating two entities with identical name and a layer to
   choose the right one depending on the current location or other
   conditions.
-- Add locations to the ordinary entities.
-- Finish abandoning compatibility with SuperBASIC.
+- Combine locations and ordinary entities into one array.
 - Improve: Compare `ex x` when `x` is not recognized and when `x` is
   not present.
+- Improve: trap error when the splash screen file does not exist.
