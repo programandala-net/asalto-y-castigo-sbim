@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.32+201709161234" ' after http://semver.org
+let version$="0.2.0-dev.33+201709161553" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -56,8 +56,8 @@ defproc plot
 
   sel on true
 
-    =(current_location=cave_entrance_loc \
-      and way_out(cave_entrance_loc,north))
+    =(current_location=cave_entrance_loc% \
+      and way_out(cave_entrance_loc%,north))
 
       ambush
 
@@ -65,21 +65,21 @@ defproc plot
 
       battle
 
-    =(current_location=cave_strait_1_loc \
-      and (not is_accessible(the_torch) \
+    =(current_location=cave_strait_1_loc% \
+      and (not is_accessible(the_torch%) \
       or not lit_the_torch))
 
-      ' XXX TODO -- Why `>channel_sand_corner_loc` in the
-      ' original?  I put `=cave_strait_1_loc`, which is the exit
-      ' from `stalactites_loc`
+      ' XXX TODO -- Why `>channel_sand_corner_loc%` in the
+      ' original?  I put `=cave_strait_1_loc%`, which is the exit
+      ' from `stalactites_loc%`
       '
-      ' XXX TODO -2 Check if `stalactites_loc` can be accessed
+      ' XXX TODO -2 Check if `stalactites_loc%` can be accessed
       ' from other exit. If so, the previous location should be
       ' checked here.
 
       dark_cave_strait_1
 
-    =(current_location=westmorland_loc) ' XXX TODO move to `location_plot`?
+    =(current_location=westmorland_loc%) ' XXX TODO move to `location_plot`?
       arrive_in_westmorland
 
   endsel
@@ -88,7 +88,7 @@ enddef
 
 defproc ambush
 
-  let way_out(cave_entrance_loc,north)=nowhere
+  let way_out(cave_entrance_loc%,north)=nowhere
   let under_attack=1
   narrate "Una partida sajona aparece por el este. \
     Para cuando te vuelves al norte, ya no te queda ninguna duda: \
@@ -112,7 +112,7 @@ defproc battle
   if under_attack>10 ' XXX TODO random
     captured
   endif
-  if current_location<cave_hall_loc ' XXX TODO `=` is enough?
+  if current_location<cave_hall_loc% ' XXX TODO `=` is enough?
     narrate "Tus hombres luchan con denuedo contra los sajones."
   endif
 
@@ -135,7 +135,7 @@ defproc dark_cave_strait_1
   narrate "Ante la reinante e intimidante oscuridad, \
     retrocedes a donde puedes ver."
   short_pause
-  enter stalactites_loc
+  enter stalactites_loc%
 
 enddef
 
@@ -169,31 +169,31 @@ defproc location_plot
   ' Check the plot conditions related to the new location.
 
   sel on current_location
-    =big_lake_loc,big_waterfall_loc,inner_lake_loc
-      be_here the_lake
-    =saxon_village_loc to fallen_away_loc
-      if way_out(cave_entrance_loc,north):\
+    =big_lake_loc%,big_waterfall_loc%,inner_lake_loc%
+      be_here the_lake%
+    =saxon_village_loc% to fallen_away_loc%
+      if way_out(cave_entrance_loc%,north):\
         narrate "Tus hombres siguen tus pasos."
-    =water_passage_loc
+    =water_passage_loc%
       narrate "En la distancia, \
         por entre los resquicios de las rocas, \
         y allende el canal de agua, \
         los sajones tratan de buscar la salida \
         que encontraste por casualidad."
-    =north_gate_loc
-      if way_out(north_gate_loc,north)
+    =north_gate_loc%
+      if way_out(north_gate_loc%,north)
         narrate "Las rocas yacen desmoronadas a lo largo del pasaje."
       else
         narrate "Las rocas bloquean el camino."
       endif
-    =refuge_loc
-      let way_out(refuge_loc,east)=nowhere
+    =refuge_loc%
+      let way_out(refuge_loc%,east)=nowhere
   endsel
 
-  if not is_vanished(ambrosio) \
-    and is_takeable(the_key) \
-    and (current_location=ambrosios_home_loc or ambrosio_follows)
-    be_here ambrosio
+  if not is_vanished(ambrosio%) \
+    and is_takeable(the_key%) \
+    and (current_location=ambrosios_home_loc% or ambrosio_follows)
+    be_here ambrosio%
     narrate "Tu benefactor te sigue, esperanzado."
   endif
 
@@ -206,8 +206,8 @@ defproc rocks_and_log
   if hacked_the_log
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
-    vanish the_rocks
-    let way_out(north_gate_loc,north)=precipice_loc
+    vanish the_rocks%
+    let way_out(north_gate_loc%,north)=precipice_loc%
   else
     narrate "Lo intentas con el tronco, \
       pero la punta es demasiado gruesa, \
@@ -226,11 +226,11 @@ defproc open_the_door
   narrate "Ambrosio, alegre, se despide de ti."
   speak "Estoy seguro de que volveremos a vernos"&r_quote$&", dice."
   narrate "Se ha ido."
-  vanish ambrosio
-  vanish the_key
-  let description$(the_door)="Entreabierta."
-  let description$(the_lock)="Abierto."
-  let way_out(cave_exit_loc,west)=cave_exit_forest_loc
+  vanish ambrosio%
+  vanish the_key%
+  let description$(the_door%)="Entreabierta."
+  let description$(the_lock%)="Abierto."
+  let way_out(cave_exit_loc%,west)=cave_exit_forest_loc%
 
 enddef
 
@@ -286,7 +286,7 @@ deffn parse_verb(word$)
   let found=inarray%(verb$,0,word$)
   if found<0:\
     ret 0
-  ret the_action(found)
+  ret verb_action(found)
 
 enddef
 
@@ -422,7 +422,7 @@ enddef
 
 defproc do_swim
 
-  if current_location=big_lake_loc
+  if current_location=big_lake_loc%
     clear_screen
     narrate "Caes hacia el fondo por el peso de tu coraza. \
       Como puedes, te desprendes de ella y buceas, \
@@ -431,7 +431,7 @@ defproc do_swim
     narrate "Consigues emerger, \
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
-    enter secret_exit_loc
+    enter secret_exit_loc%
     let under_attack=false
   else
     narrate "No tiene sentido nadar ahora."
@@ -441,9 +441,9 @@ enddef
 
 defproc do_open
 
-  if current_location=cave_exit_loc
-    if object=the_door or object=the_lock
-      if is_accessible(the_key)
+  if current_location=cave_exit_loc%
+    if object=the_door% or object=the_lock%
+      if is_accessible(the_key%)
         open_the_door
       else
         narrate "El candado bloquea la puerta."
@@ -461,11 +461,11 @@ defproc do_drop
 
   ' XXX TODO -- Remove these cases:
   sel on object
-    =the_sword:\
-      if current_location<secret_exit_loc:\
+    =the_sword%:\
+      if current_location<secret_exit_loc%:\
         narrate "No, es lo que queda de mi padre.":\
         ret
-    =the_torch:\
+    =the_torch%:\
       if lit_the_torch:\
         narrate "No, sin luz es imposible moverse por la caverna.":\
         ret
@@ -486,7 +486,7 @@ defproc do_take
     narrate "Pero si ya lo tengo..."
   else
     if is_untakeable(object)
-      if object=the_key
+      if object=the_key%
         narrate "Ambrosio la retiene consigo."
       else
         narrate "No es algo que uno pueda llevar consigo."
@@ -503,26 +503,26 @@ defproc do_break
 
   sel on object
 
-    =the_log:\
+    =the_log%:\
       do_break_the_log
 
-    =the_cloak:\
+    =the_cloak%:\
       do_break_the_cloack
 
-    =the_rocks:\
+    =the_rocks%:\
       do_break_the_rocks
 
-    =the_flint
+    =the_flint%
 
       ' XXX TODO move to the proper action
 
       sel on complement
         =nothing:\
           narrate not_by_hand$
-        =the_sword
-          if is_accessible(the_torch)
+        =the_sword%
+          if is_accessible(the_torch%)
             let lit_the_torch=true
-            let description$(the_torch)=\
+            let description$(the_torch%)=\
               "Ilumina perfectamente."
             narrate "Poderosas chispas salen \
               del choque entre espada y pedernal, \
@@ -535,17 +535,17 @@ defproc do_break
           narrate not_with_that$
       endsel
 
-    =the_snake
+    =the_snake%
 
       ' XXX TODO move to the proper action
 
       sel on complement
         =nothing:\
           narrate not_by_hand$
-        =the_sword
+        =the_sword%
           narrate "Ante los amenazadores tajos, la serpiente huye."
-          vanish the_snake
-          let way_out(snake_passage_loc,south)=inner_lake_loc
+          vanish the_snake%
+          let way_out(snake_passage_loc%,south)=inner_lake_loc%
         =remainder:\
           narrate not_with_that$
       endsel
@@ -561,7 +561,7 @@ defproc do_break_the_log
   sel on complement
     =nothing
       narrate not_by_hand$
-    =the_sword
+    =the_sword%
       narrate not_by_sword$
     =remainder
       narrate not_understood$
@@ -572,11 +572,11 @@ defproc do_break_the_cloak
   sel on complement
     =nothing
       narrate not_by_hand$
-    =the_sword
-      vanish the_cloak
-      be_hold the_rags
-      be_hold the_thread
-      be_hold the_piece
+    =the_sword%
+      vanish the_cloak%
+      be_hold the_rags%
+      be_hold the_thread%
+      be_hold the_piece%
       narrate "Rasgas la capa, como buenamente puedes."
     =remainder
       narrate not_with_that$
@@ -587,9 +587,9 @@ defproc do_break_the_rocks
   sel on complement
     =nothing:\
       narrate not_by_hand$
-    =the_log:\
+    =the_log%:\
       rocks_and_log
-    =the_sword:\
+    =the_sword%:\
       narrate "Tu espada no hace nada." ' XXX TODO Improve.
     =remainder:\
       narrate not_with_that$
@@ -600,7 +600,7 @@ defproc do_sharpen
 
   sel on object
 
-    =the_log
+    =the_log%
 
       ' XXX factor, reuse with `to_break`, `to_cut`...
 
@@ -610,12 +610,12 @@ defproc do_sharpen
         sel on complement
           =nothing
             narrate not_by_hand$
-          =the_sword
+          =the_sword%
             narrate not_by_sword$
-          =the_flint
+          =the_flint%
             let hacked_the_log=true
-            let description$(the_log)=\
-              description$(the_log)&" Su punta está afilada."
+            let description$(the_log%)=\
+              description$(the_log%)&" Su punta está afilada."
             narrate "Con el pedernal, afilas la punta del tronco."
           =remainder
             ' XXX TODO factor
@@ -625,7 +625,7 @@ defproc do_sharpen
 
       endif
 
-    =the_sword
+    =the_sword%
       narrate "La espada ya está suficientemente afilada."
 
     =remainder:\
@@ -638,9 +638,9 @@ enddef
 defproc do_speak
 
   sel on object
-    =ambrosio:\
+    =ambrosio%:\
       talk_to_ambrosio
-    =the_man:\
+    =the_man%:\
       talk_to_the_man
     =remainder:\
       narrate "No tiene sentido hablar con eso." ' XXX TODO generalize
@@ -650,7 +650,7 @@ enddef
 
 defproc talk_to_ambrosio
 
-  if location(ambrosio)=channel_sand_corner_loc
+  if location(ambrosio%)=channel_sand_corner_loc%
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
@@ -664,11 +664,11 @@ defproc talk_to_ambrosio
     narrate "Ambrosio te propone un trato, que aceptas: \
       por ayudarle a salir de la cueva, \
       objetos, vitales para la empresa, te son entregados."
-    be_hold the_torch
-    be_hold the_flint
+    be_hold the_torch%
+    be_hold the_flint%
     short_pause
     speak "Bien, Ambrosio, emprendamos la marcha."
-    let location(ambrosio)=ambrosios_home_loc
+    let location(ambrosio%)=ambrosios_home_loc%
     narrate "Te das la vuelta \
       para ver si Ambrosio te sigue, \
       pero... ha desaparecido."
@@ -680,7 +680,7 @@ defproc talk_to_ambrosio
 
   else
 
-    if current_location=ambrosios_home_loc
+    if current_location=ambrosios_home_loc%
       if not ambrosio_follows
         speak "La llave, Ambrosio, estaba ya en tu poder. \
           Y es obvio que conocéis un camino más corto."
@@ -693,13 +693,13 @@ defproc talk_to_ambrosio
       endif
     endif
 
-    if current_location>=passage_crossing_loc \
-      and current_location<=cave_exit_loc
+    if current_location>=passage_crossing_loc% \
+      and current_location<=cave_exit_loc%
 
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
-      be_hold the_key
-      be_takeable the_key
+      be_hold the_key%
+      be_takeable the_key%
       let ambrosio_follows=true
 
     endif
@@ -717,21 +717,21 @@ defproc talk_to_the_man
     speak "Somos refugiados de la gran guerra. Buscamos la paz."
     short_pause
   endif
-  if is_accessible(the_stone)
+  if is_accessible(the_stone%)
     narrate "El hombre se irrita."
     speak "No podemos permitiros huir con la piedra del druida."
     narrate "Hace un gesto..."
     short_pause
     speak "La piedra debe ser devuelta a su lugar de encierro."
     narrate "Un hombre te arrebata la piedra y se la lleva."
-    let location(the_stone)=stone_bridge_loc
+    let location(the_stone%)=stone_bridge_loc%
   else
-    if is_accessible(the_sword)
+    if is_accessible(the_sword%)
       narrate "El hombre se enfurece, \
         y alza su mano indicando al norte."
       speak "Todo aquel que porte armas jamás podrá pasar."
     else
-      let way_out(refuge_loc,east)=spiral_loc
+      let way_out(refuge_loc%,east)=spiral_loc%
       narrate "El hombre, calmado, indica hacia el este y habla:"
       speak "Si vienes en paz, puedes ir en paz."
       narrate "Todos se apartan y permiten ahora el paso al este."
@@ -743,12 +743,12 @@ enddef
 defproc do_fling
 
   sel on current_location
-    =ruined_bridge_loc,water_passage_loc
+    =ruined_bridge_loc%,water_passage_loc%
       narrate "No hay suficiente profundidad."
-    =channel_sand_corner_loc
-      if (object=the_sword or object=the_stone) \
+    =channel_sand_corner_loc%
+      if (object=the_sword% or object=the_stone%) \
         and talked_to_the_man
-        let location(object)=inside_waterfall_loc
+        let location(object)=inside_waterfall_loc%
         narrate "La corriente lo arrastra fuertemente, \
           hasta perderlo de vista."
       else
@@ -765,27 +765,27 @@ defproc do_insert
   ' XXX TODO rewrite, invert `sel` levels
 
   sel on complement
-    =the_rocks
-      if object=the_log
+    =the_rocks%
+      if object=the_log%
         rocks_and_log
       else
         narrate not_understood$
       endif
-    =the_idol
+    =the_idol%
       sel on object
-        =the_emerald,the_stone
+        =the_emerald%,the_stone%
           vanish object
           narrate "Encaja. Desaparece en su interior."
-          if is_vanished(the_stone) \
-            and is_vanished(the_emerald)
-            let way_out(idol_loc,south)=strait_passage_loc
+          if is_vanished(the_stone%) \
+            and is_vanished(the_emerald%)
+            let way_out(idol_loc%,south)=strait_passage_loc%
             narrate "La gran roca se desplaza y deja el paso libre."
           endif
         =remainder
           narrate not_understood$
       endsel
-    =the_lock
-      if object=the_key
+    =the_lock%
+      if object=the_key%
         narrate "La llave gira fácilmente dentro del candado."
         short_pause
         open_the_door
@@ -925,13 +925,13 @@ enddef
 
 defproc be_hold(entity)
 
-  let location(entity)=protagonist
+  let location(entity)=protagonist%
 
 enddef
 
 deffn is_hold(entity)
 
-  ret location(entity)=protagonist
+  ret location(entity)=protagonist%
 
 enddef
 
@@ -1576,7 +1576,7 @@ defproc game_init
   print #tw,"Preparando los datos..."
   init_plot
   init_the_data
-  let current_location=saxon_village_loc
+  let current_location=saxon_village_loc%
   cls #tw,3
   cursor #tw,0,y
 
@@ -1588,8 +1588,8 @@ defproc game_init
 
       ' Check "to sharpen"
 
-      be_here the_log
-      be_here the_flint
+      be_here the_log%
+      be_here the_flint%
 
   endsel
 
@@ -1798,31 +1798,31 @@ defproc init_the_constants
 
   let next_enum=1
 
-  let protagonist=-1 ' XXX TMP until locations are combined with the entities
+  let protagonist%=-1 ' XXX TMP until locations are combined with the entities
 
-  let the_altar=enum
-  let ambrosio=enum
-  let the_torch=enum
-  let the_flags=enum
-  let the_cloak=enum
-  let the_waterfall=enum
-  let the_fallen_away=enum
-  let the_emerald=enum
-  let the_sword=enum
-  let the_rags=enum
-  let the_thread=enum
-  let the_man=enum
-  let the_idol=enum
-  let the_lake=enum
-  let the_key=enum
-  let the_flint=enum
-  let the_stone=enum
-  let the_door=enum
-  let the_rocks=enum
-  let the_snake=enum
-  let the_log=enum
-  let the_piece=enum
-  let the_lock=enum
+  let the_altar%=enum
+  let ambrosio%=enum
+  let the_torch%=enum
+  let the_flags%=enum
+  let the_cloak%=enum
+  let the_waterfall%=enum
+  let the_fallen_away%=enum
+  let the_emerald%=enum
+  let the_sword%=enum
+  let the_rags%=enum
+  let the_thread%=enum
+  let the_man%=enum
+  let the_idol%=enum
+  let the_lake%=enum
+  let the_key%=enum
+  let the_flint%=enum
+  let the_stone%=enum
+  let the_door%=enum
+  let the_rocks%=enum
+  let the_snake%=enum
+  let the_log%=enum
+  let the_piece%=enum
+  let the_lock%=enum
 
   ' Location identifiers
 
@@ -1831,57 +1831,57 @@ defproc init_the_constants
 
   let next_enum=1
 
-  let saxon_village_loc=enum
-  let on_the_hill_loc=enum
-  let path_between_hills_loc=enum
-  let paths_crossing_loc=enum
-  let near_the_forest_loc=enum
-  let forest_loc=enum
-  let dog_passage_loc=enum
-  let cave_entrance_loc=enum
-  let fallen_away_loc=enum
-  let cave_hall_loc=enum
-  let big_lake_loc=enum
-  let secret_exit_loc=enum
-  let ruined_bridge_loc=enum
-  let cave_corner_loc=enum
-  let sand_passage_loc=enum
-  let water_passage_loc=enum
-  let stalactites_loc=enum
-  let stone_bridge_loc=enum
-  let channel_sand_corner_loc=enum
-  let cave_strait_1_loc=enum
-  let cave_strait_2_loc=enum
-  let cave_strait_3_loc=enum
-  let cave_strait_4_loc=enum
-  let cave_strait_5_loc=enum
-  let cave_strait_6_loc=enum
-  let cave_strait_7_loc=enum
-  let cave_strait_8_loc=enum
-  let refuge_loc=enum
-  let spiral_loc=enum
-  let spiral_start_loc=enum
-  let north_gate_loc=enum
-  let precipice_loc=enum
-  let exit_passage_loc=enum
-  let gravel_passage_loc=enum
-  let bridge_over_aqueduct_loc=enum
-  let pool_loc=enum
-  let water_channel_loc=enum
-  let big_waterfall_loc=enum
-  let inside_waterfall_loc=enum
-  let terrace_loc=enum
-  let idol_loc=enum
-  let strait_passage_loc=enum
-  let snake_passage_loc=enum
-  let inner_lake_loc=enum
-  let passage_crossing_loc=enum
-  let ambrosios_home_loc=enum
-  let cave_exit_loc=enum
-  let cave_exit_forest_loc=enum
-  let forest_path_loc=enum
-  let north_road_loc=enum
-  let westmorland_loc=enum
+  let saxon_village_loc%=enum
+  let on_the_hill_loc%=enum
+  let path_between_hills_loc%=enum
+  let paths_crossing_loc%=enum
+  let near_the_forest_loc%=enum
+  let forest_loc%=enum
+  let dog_passage_loc%=enum
+  let cave_entrance_loc%=enum
+  let fallen_away_loc%=enum
+  let cave_hall_loc%=enum
+  let big_lake_loc%=enum
+  let secret_exit_loc%=enum
+  let ruined_bridge_loc%=enum
+  let cave_corner_loc%=enum
+  let sand_passage_loc%=enum
+  let water_passage_loc%=enum
+  let stalactites_loc%=enum
+  let stone_bridge_loc%=enum
+  let channel_sand_corner_loc%=enum
+  let cave_strait_1_loc%=enum
+  let cave_strait_2_loc%=enum
+  let cave_strait_3_loc%=enum
+  let cave_strait_4_loc%=enum
+  let cave_strait_5_loc%=enum
+  let cave_strait_6_loc%=enum
+  let cave_strait_7_loc%=enum
+  let cave_strait_8_loc%=enum
+  let refuge_loc%=enum
+  let spiral_loc%=enum
+  let spiral_start_loc%=enum
+  let north_gate_loc%=enum
+  let precipice_loc%=enum
+  let exit_passage_loc%=enum
+  let gravel_passage_loc%=enum
+  let bridge_over_aqueduct_loc%=enum
+  let pool_loc%=enum
+  let water_channel_loc%=enum
+  let big_waterfall_loc%=enum
+  let inside_waterfall_loc%=enum
+  let terrace_loc%=enum
+  let idol_loc%=enum
+  let strait_passage_loc%=enum
+  let snake_passage_loc%=enum
+  let inner_lake_loc%=enum
+  let passage_crossing_loc%=enum
+  let ambrosios_home_loc%=enum
+  let cave_exit_loc%=enum
+  let cave_exit_forest_loc%=enum
+  let forest_path_loc%=enum
+  let north_road_loc%=enum
+  let westmorland_loc%=enum
 
   let locations=next_enum-1
 
@@ -1979,11 +1979,11 @@ defproc init_the_data
 
   let verbs=@verbs_end-@verbs_start
   dim verb$(verbs,max_word_lenght)
-  dim the_action(verbs)
+  dim verb_action(verbs)
   let action=1
   restore @verbs_start
   for i%=1 to verbs
-    read the_action(i%),verb$(i%)
+    read verb_action(i%),verb$(i%)
   endfor i%
 
 enddef
@@ -2018,26 +2018,26 @@ deffn location_description$(a_location)
 
   sel on a_location ' XXX TODO -- QDOS and Minerva need an intermedate variable.
 
-    =saxon_village_loc
+    =saxon_village_loc%
 
     ret "Aldea Sajona. \
     No ha quedado nada en pie, ni piedra sobre piedra. \
     El entorno es desolador. \
     Solo resta volver al sur, a casa."
 
-    =on_the_hill_loc
+    =on_the_hill_loc%
 
     ret "Sobre la colina, \
     casi sobre la niebla de la aldea sajona arrasada al norte, \
     a tus pies. El camino desciende hacia el oeste."
 
-    =path_between_hills_loc
+    =path_between_hills_loc%
 
     ret "Camino entre colinas. \
     El camino avanza por el valle, desde la parte alta, \
     al este, a una zona harto boscosa, al oeste."
 
-    =paths_crossing_loc
+    =paths_crossing_loc%
 
     ret "Cruce de caminos. \
     Una senda parte al oeste, \
@@ -2045,143 +2045,143 @@ deffn location_description$(a_location)
     y otra hacia el norte, \
     por un frondoso bosque que la rodea."
 
-    =near_the_forest_loc
+    =near_the_forest_loc%
 
     ret "Desde la linde, al sur, \
     hacia el oeste se extiende \
     frondoso el bosque que rodea la sierra. \
     La salida se abre hacia el sur."
 
-    =forest_loc
+    =forest_loc%
 
     ret "Bosque. \
     Jirones de niebla se enzarcen en frondosas ramas y arbustos. \
     La senda serpentea entre raíces, \
     de un luminoso este al oeste."
 
-    =dog_passage_loc
+    =dog_passage_loc%
 
     ret "Paso del Perro. \
     Abruptamente, del bosque se pasa \
     a un estrecho camino entre altas rocas. \
     El inquietante desfiladero tuerce de este a sur."
 
-    =cave_entrance_loc
+    =cave_entrance_loc%
 
     ret "Entrada a la cueva. \
     El paso entre el desfiladero sigue de norte a este. \
     La entrada a una cueva se abre al sur en la pared de roca."
 
-    =fallen_away_loc
+    =fallen_away_loc%
 
     ret "Derrumbe. \
     El camino desciende hacia la agreste sierra, al oeste, \
     desde los verdes valles al este. \
     Pero un gran derrumbe bloquea la sierra."
 
-    =cave_hall_loc
+    =cave_hall_loc%
 
     ret "Gruta de entrada. \
     El estrecho paso se adentra hacia el oeste, \
     desde la boca, al norte. "
 
-    =big_lake_loc
+    =big_lake_loc%
 
     ret "Gran lago. \
     Una gran estancia alberga un lago \
     de profundas e iridiscentes aguas, debido a la luz exterior. \
     No hay otra salida que el este."
 
-    =secret_exit_loc
+    =secret_exit_loc%
 
     ret "Salida del paso secreto. \
     Una gran estancia se abre hacia el oeste, \
     y se estrecha hasta morir, \
     al este, en una parte de agua."
 
-    =ruined_bridge_loc
+    =ruined_bridge_loc%
 
     ret "Puente semipodrido. \
     La sala se abre en semioscuridad \
     a un puente cubierto de podredumbre \
     sobre el lecho de un canal, de este a oeste."
 
-    =cave_corner_loc
+    =cave_corner_loc%
 
     ret "Recodo de la cueva. \
     La iridiscente cueva gira de este a sur."
 
-    =sand_passage_loc
+    =sand_passage_loc%
 
     ret "Pasaje arenoso. \
     La gruta desciende de norte a sur sobre un lecho arenoso. \
     Al este, un agujero del que llega claridad."
 
-    =water_passage_loc
+    =water_passage_loc%
 
     ret "Pasaje del agua. \
     Como un acueducto, \
     el agua baja con gran fuerza de norte a este, \
     aunque la salida practicable es la del oeste."
 
-    =stalactites_loc
+    =stalactites_loc%
 
     ret "Estalactitas. \
     Muchas estalactitas se agrupan encima de tu cabeza, \
     y se abren cual arco de entrada hacia el este y sur."
 
-    =stone_bridge_loc
+    =stone_bridge_loc%
 
     ret "Puente de piedra. \
     Un arco de piedra se eleva, cual puente sobre la oscuridad, \
     de este a oeste. En su mitad, un altar."
 
-    =channel_sand_corner_loc
+    =channel_sand_corner_loc%
 
     ret "Recodo arenoso del canal. \
     La furiosa corriente, de norte a este, \
     impide el paso, excepto al oeste. \
     Al fondo, se oye un gran estruendo."
 
-    =cave_strait_1_loc
+    =cave_strait_1_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar \
     hacia el norte y el sur; un pasaje surge al este."
 
-    =cave_strait_2_loc
+    =cave_strait_2_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar \
     de este a oeste; un pasaje surge al sur."
 
-    =cave_strait_3_loc
+    =cave_strait_3_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar \
     de este a oeste; un pasaje surge al sur."
 
-    =cave_strait_4_loc
+    =cave_strait_4_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar de oeste a sur."
 
-    =cave_strait_5_loc
+    =cave_strait_5_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar de este a norte."
 
-    =cave_strait_6_loc
+    =cave_strait_6_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
     Al norte y al sur surgen pasajes."
 
-    =cave_strait_7_loc
+    =cave_strait_7_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar de este a oeste. \
     Al norte surge un pasaje."
 
-    =cave_strait_8_loc
+    =cave_strait_8_loc%
 
     ret "Un tramo de cueva estrecho te permite avanzar al oeste. \
     Al norte surge un pasaje."
 
-    =refuge_loc
+    =refuge_loc%
 
     ret "Refugio. \
     Una amplia estancia de norte a este, \
@@ -2189,147 +2189,147 @@ deffn location_description$(a_location)
     hay banderas de ambos bandos. \
     Un hombre anciano te contempla. Los refugiados te rodean."
 
-    =spiral_loc
+    =spiral_loc%
 
     ret "Espiral. \
     Cual escalera de caracol gigante, \
     desciende a las profundidades, \
     dejando a los refugiados al oeste."
 
-    =spiral_start_loc
+    =spiral_start_loc%
 
     ret "Inicio de la espiral. \
     Se eleva en la penumbra. \
     La caverna se estrecha ahora como para una sola persona, \
     hacia el este."
 
-    =north_gate_loc
+    =north_gate_loc%
 
     ret "Puerta norte. \
     En este pasaje grandes rocas se encuentran entre las columnas \
     de un arco de medio punto."
 
-    =precipice_loc
+    =precipice_loc%
 
     ret "Precipicio. \
     El camino ahora no excede de dos palmos de cornisa \
     sobre un abismo insondable. \
     El soporte de roca gira en 'U' de oeste a sur."
 
-    =exit_passage_loc
+    =exit_passage_loc%
 
     ret "Pasaje de salida. \
     El paso se va haciendo menos estrecho \
     a medida que se avanza hacia el sur, \
     para entonces comenzar hacia el este."
 
-    =gravel_passage_loc
+    =gravel_passage_loc%
 
     ret "Pasaje de gravilla. \
     El paso se anchea de oeste a norte, \
     y guijarros mojados y mohosos tachonan el suelo de roca."
 
-    =bridge_over_aqueduct_loc
+    =bridge_over_aqueduct_loc%
 
     ret "Puente sobre el acueducto. \
     Un puente se tiende de norte a sur sobre el curso del agua. \
     Resbaladizas escaleras descienden hacia el oeste."
 
-    =pool_loc
+    =pool_loc%
 
     ret "Remanso. \
     Estruendosa corriente baja con el pasaje elevado desde el oeste, \
     y forma un meandro arenoso. Unas escaleras suben al este."
 
-    =water_channel_loc
+    =water_channel_loc%
 
     ret "Canal de agua. \
     El agua baja del oeste con renovadas fuerzas, \
     dejando un estrecho paso elevado \
     lateral para avanzar a este o a oeste."
 
-    =big_waterfall_loc
+    =big_waterfall_loc%
 
     ret "Gran cascada. \
     Cae el agua hacia el este, \
     descendiendo con gran fuerza hacia el canal, \
     no sin antes embalsarse en un lago poco profundo."
 
-    =inside_waterfall_loc
+    =inside_waterfall_loc%
 
     ret "Interior de la cascada. \
     Musgoso y rocoso, con la cortina de agua tras de ti, \
     el nivel del agua ha crecido un poco en este curioso hueco."
 
-    =terrace_loc
+    =terrace_loc%
 
     ret "Explanada. \
     Una gran explanada enlosetada \
     contempla un bello panorama de estalactitas. \
     Unos casi imperceptibles escalones conducen al este."
 
-    =idol_loc
+    =idol_loc%
 
     ret "Ídolo. \
     El ídolo parece un centinela siniestro \
     de una gran roca que se encuentra al sur. \
     Se puede volver a la explanada al oeste."
 
-    =strait_passage_loc
+    =strait_passage_loc%
 
     ret "Pasaje estrecho. \
     Como un pasillo que corteja el canal de agua, \
     a su lado, baja de norte a sur. \
     Se aprecia un aumento de luz hacia el sur."
 
-    =snake_passage_loc
+    =snake_passage_loc%
 
     ret "Pasaje de la serpiente. \
     El pasaje sigue de norte a sur."
 
-    =inner_lake_loc
+    =inner_lake_loc%
 
     ret "Lago interior. \
     Unas escaleras dan paso a un hermoso lago interior, \
     y siguen hacia el oeste. \
     Al norte, un oscuro y estrecho pasaje sube."
 
-    =passage_crossing_loc
+    =passage_crossing_loc%
 
     ret "Cruce de pasajes. \
     Estrechos pasos permiten ir al oeste, \
     al este (menos oscuro), y al sur, \
     un lugar de gran luminosidad."
 
-    =ambrosios_home_loc
+    =ambrosios_home_loc%
 
     ret "Hogar de Ambrosio. \
     Un catre, algunas velas y una mesa es todo lo que tiene Ambrosio."
 
-    =cave_exit_loc
+    =cave_exit_loc%
 
     ret "Salida de la cueva. \
     Por el oeste, una puerta impide, cuando cerrada, \
     la salida de la cueva. Se adivina la luz diurna al otro lado."
 
-    =cave_exit_forest_loc
+    =cave_exit_forest_loc%
 
     ret "Bosque a la entrada. \
     Apenas se puede reconocer la entrada de la cueva, al este. \
     El sendero sale del bosque hacia el oeste."
 
-    =forest_path_loc
+    =forest_path_loc%
 
     ret "Sendero del bosque. \
     El sendero recorre esta parte del bosque de este a oeste."
 
-    =north_road_loc
+    =north_road_loc%
 
     ret "Camino norte. \
     El camino norte de Westmorland se interna hacia el bosque, \
     al norte (en tu estado no puedes ir), y a Westmorland, al sur."
 
-    =westmorland_loc
+    =westmorland_loc%
 
     ret "Westmorland. \
     La villa bulle de actividad \
@@ -2344,119 +2344,119 @@ enddef
 
 '  data: location,north,south,east,west,down,up
 label @map
-data saxon_village_loc,nowhere,on_the_hill_loc,nowhere,nowhere,nowhere,nowhere
-data on_the_hill_loc,saxon_village_loc,nowhere,nowhere,path_between_hills_loc,nowhere,nowhere
-data path_between_hills_loc,nowhere,nowhere,on_the_hill_loc,paths_crossing_loc,nowhere,nowhere
-data paths_crossing_loc,near_the_forest_loc,nowhere,path_between_hills_loc,fallen_away_loc,nowhere,nowhere
-data near_the_forest_loc,nowhere,paths_crossing_loc,nowhere,forest_loc,nowhere,nowhere
-data forest_loc,nowhere,nowhere,near_the_forest_loc,dog_passage_loc,nowhere,nowhere
-data dog_passage_loc,nowhere,cave_entrance_loc,forest_loc,nowhere,nowhere,nowhere
-data cave_entrance_loc,dog_passage_loc,cave_hall_loc,nowhere,nowhere,nowhere,nowhere
-data fallen_away_loc,nowhere,nowhere,paths_crossing_loc,nowhere,nowhere,nowhere
-data cave_hall_loc,cave_entrance_loc,nowhere,nowhere,big_lake_loc,nowhere,nowhere
-data big_lake_loc,nowhere,nowhere,cave_hall_loc,nowhere,nowhere,nowhere
-data secret_exit_loc,nowhere,nowhere,nowhere,ruined_bridge_loc,nowhere,nowhere
-data ruined_bridge_loc,nowhere,nowhere,secret_exit_loc,cave_corner_loc,nowhere,nowhere
-data cave_corner_loc,nowhere,sand_passage_loc,ruined_bridge_loc,nowhere,nowhere,nowhere
-data sand_passage_loc,cave_corner_loc,stalactites_loc,water_passage_loc,nowhere,nowhere,nowhere
-data water_passage_loc,nowhere,nowhere,nowhere,sand_passage_loc,nowhere,nowhere
-data stalactites_loc,sand_passage_loc,cave_strait_1_loc,stone_bridge_loc,nowhere,nowhere,nowhere
-data stone_bridge_loc,nowhere,nowhere,channel_sand_corner_loc,stalactites_loc,nowhere,nowhere
-data channel_sand_corner_loc,nowhere,nowhere,nowhere,stone_bridge_loc,nowhere,nowhere
-data cave_strait_1_loc,stalactites_loc,cave_strait_3_loc,cave_strait_6_loc,nowhere,nowhere,nowhere
-data cave_strait_2_loc,nowhere,cave_strait_8_loc,cave_strait_4_loc,cave_strait_1_loc,nowhere,nowhere
-data cave_strait_3_loc,nowhere,cave_strait_5_loc,cave_strait_8_loc,cave_strait_3_loc,nowhere,nowhere
-data cave_strait_4_loc,nowhere,cave_strait_6_loc,nowhere,cave_strait_2_loc,nowhere,nowhere
-data cave_strait_5_loc,cave_strait_3_loc,nowhere,cave_strait_7_loc,nowhere,nowhere,nowhere
-data cave_strait_6_loc,cave_strait_3_loc,refuge_loc,cave_strait_4_loc,cave_strait_2_loc,nowhere,nowhere
-data cave_strait_7_loc,cave_strait_7_loc,nowhere,cave_strait_1_loc,cave_strait_8_loc,nowhere,nowhere
-data cave_strait_8_loc,cave_strait_8_loc,nowhere,nowhere,cave_strait_6_loc,nowhere,nowhere
-data refuge_loc,cave_strait_7_loc,nowhere,nowhere,nowhere,nowhere,nowhere
-data spiral_loc,nowhere,nowhere,nowhere,refuge_loc,nowhere,spiral_start_loc
-data spiral_start_loc,nowhere,nowhere,north_gate_loc,nowhere,spiral_loc,nowhere
-data north_gate_loc,nowhere,nowhere,nowhere,spiral_start_loc,nowhere,nowhere
-data precipice_loc,nowhere,exit_passage_loc,nowhere,north_gate_loc,nowhere,nowhere
-data exit_passage_loc,precipice_loc,nowhere,gravel_passage_loc,nowhere,nowhere,nowhere
-data gravel_passage_loc,bridge_over_aqueduct_loc,nowhere,nowhere,exit_passage_loc,nowhere,nowhere
-data bridge_over_aqueduct_loc,terrace_loc,gravel_passage_loc,nowhere,pool_loc,nowhere,pool_loc
-data pool_loc,nowhere,nowhere,bridge_over_aqueduct_loc,water_channel_loc,bridge_over_aqueduct_loc,nowhere
-data water_channel_loc,nowhere,nowhere,pool_loc,big_waterfall_loc,nowhere,nowhere
-data big_waterfall_loc,nowhere,nowhere,water_channel_loc,inside_waterfall_loc,nowhere,nowhere
-data inside_waterfall_loc,nowhere,nowhere,big_waterfall_loc,nowhere,nowhere,nowhere
-data terrace_loc,nowhere,bridge_over_aqueduct_loc,idol_loc,nowhere,nowhere,nowhere
-data idol_loc,nowhere,nowhere,nowhere,terrace_loc,nowhere,nowhere
-data strait_passage_loc,idol_loc,snake_passage_loc,nowhere,nowhere,nowhere,nowhere
-data snake_passage_loc,strait_passage_loc,nowhere,nowhere,nowhere,nowhere,nowhere
-data inner_lake_loc,snake_passage_loc,nowhere,nowhere,passage_crossing_loc,nowhere,nowhere
-data passage_crossing_loc,nowhere,cave_exit_loc,inner_lake_loc,ambrosios_home_loc,nowhere,nowhere
-data ambrosios_home_loc,nowhere,nowhere,passage_crossing_loc,nowhere,nowhere,nowhere
-data cave_exit_loc,passage_crossing_loc,nowhere,nowhere,nowhere,nowhere,nowhere
-data cave_exit_forest_loc,nowhere,nowhere,cave_exit_loc,forest_path_loc,nowhere,nowhere
-data forest_path_loc,nowhere,nowhere,cave_exit_forest_loc,north_road_loc,nowhere,nowhere
-data north_road_loc,nowhere,westmorland_loc,forest_path_loc,nowhere,nowhere,nowhere
-data westmorland_loc,north_road_loc,nowhere,nowhere,nowhere,nowhere,nowhere
+data saxon_village_loc%,nowhere,on_the_hill_loc%,nowhere,nowhere,nowhere,nowhere
+data on_the_hill_loc%,saxon_village_loc%,nowhere,nowhere,path_between_hills_loc%,nowhere,nowhere
+data path_between_hills_loc%,nowhere,nowhere,on_the_hill_loc%,paths_crossing_loc%,nowhere,nowhere
+data paths_crossing_loc%,near_the_forest_loc%,nowhere,path_between_hills_loc%,fallen_away_loc%,nowhere,nowhere
+data near_the_forest_loc%,nowhere,paths_crossing_loc%,nowhere,forest_loc%,nowhere,nowhere
+data forest_loc%,nowhere,nowhere,near_the_forest_loc%,dog_passage_loc%,nowhere,nowhere
+data dog_passage_loc%,nowhere,cave_entrance_loc%,forest_loc%,nowhere,nowhere,nowhere
+data cave_entrance_loc%,dog_passage_loc%,cave_hall_loc%,nowhere,nowhere,nowhere,nowhere
+data fallen_away_loc%,nowhere,nowhere,paths_crossing_loc%,nowhere,nowhere,nowhere
+data cave_hall_loc%,cave_entrance_loc%,nowhere,nowhere,big_lake_loc%,nowhere,nowhere
+data big_lake_loc%,nowhere,nowhere,cave_hall_loc%,nowhere,nowhere,nowhere
+data secret_exit_loc%,nowhere,nowhere,nowhere,ruined_bridge_loc%,nowhere,nowhere
+data ruined_bridge_loc%,nowhere,nowhere,secret_exit_loc%,cave_corner_loc%,nowhere,nowhere
+data cave_corner_loc%,nowhere,sand_passage_loc%,ruined_bridge_loc%,nowhere,nowhere,nowhere
+data sand_passage_loc%,cave_corner_loc%,stalactites_loc%,water_passage_loc%,nowhere,nowhere,nowhere
+data water_passage_loc%,nowhere,nowhere,nowhere,sand_passage_loc%,nowhere,nowhere
+data stalactites_loc%,sand_passage_loc%,cave_strait_1_loc%,stone_bridge_loc%,nowhere,nowhere,nowhere
+data stone_bridge_loc%,nowhere,nowhere,channel_sand_corner_loc%,stalactites_loc%,nowhere,nowhere
+data channel_sand_corner_loc%,nowhere,nowhere,nowhere,stone_bridge_loc%,nowhere,nowhere
+data cave_strait_1_loc%,stalactites_loc%,cave_strait_3_loc%,cave_strait_6_loc%,nowhere,nowhere,nowhere
+data cave_strait_2_loc%,nowhere,cave_strait_8_loc%,cave_strait_4_loc%,cave_strait_1_loc%,nowhere,nowhere
+data cave_strait_3_loc%,nowhere,cave_strait_5_loc%,cave_strait_8_loc%,cave_strait_3_loc%,nowhere,nowhere
+data cave_strait_4_loc%,nowhere,cave_strait_6_loc%,nowhere,cave_strait_2_loc%,nowhere,nowhere
+data cave_strait_5_loc%,cave_strait_3_loc%,nowhere,cave_strait_7_loc%,nowhere,nowhere,nowhere
+data cave_strait_6_loc%,cave_strait_3_loc%,refuge_loc%,cave_strait_4_loc%,cave_strait_2_loc%,nowhere,nowhere
+data cave_strait_7_loc%,cave_strait_7_loc%,nowhere,cave_strait_1_loc%,cave_strait_8_loc%,nowhere,nowhere
+data cave_strait_8_loc%,cave_strait_8_loc%,nowhere,nowhere,cave_strait_6_loc%,nowhere,nowhere
+data refuge_loc%,cave_strait_7_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
+data spiral_loc%,nowhere,nowhere,nowhere,refuge_loc%,nowhere,spiral_start_loc%
+data spiral_start_loc%,nowhere,nowhere,north_gate_loc%,nowhere,spiral_loc%,nowhere
+data north_gate_loc%,nowhere,nowhere,nowhere,spiral_start_loc%,nowhere,nowhere
+data precipice_loc%,nowhere,exit_passage_loc%,nowhere,north_gate_loc%,nowhere,nowhere
+data exit_passage_loc%,precipice_loc%,nowhere,gravel_passage_loc%,nowhere,nowhere,nowhere
+data gravel_passage_loc%,bridge_over_aqueduct_loc%,nowhere,nowhere,exit_passage_loc%,nowhere,nowhere
+data bridge_over_aqueduct_loc%,terrace_loc%,gravel_passage_loc%,nowhere,pool_loc%,nowhere,pool_loc%
+data pool_loc%,nowhere,nowhere,bridge_over_aqueduct_loc%,water_channel_loc%,bridge_over_aqueduct_loc%,nowhere
+data water_channel_loc%,nowhere,nowhere,pool_loc%,big_waterfall_loc%,nowhere,nowhere
+data big_waterfall_loc%,nowhere,nowhere,water_channel_loc%,inside_waterfall_loc%,nowhere,nowhere
+data inside_waterfall_loc%,nowhere,nowhere,big_waterfall_loc%,nowhere,nowhere,nowhere
+data terrace_loc%,nowhere,bridge_over_aqueduct_loc%,idol_loc%,nowhere,nowhere,nowhere
+data idol_loc%,nowhere,nowhere,nowhere,terrace_loc%,nowhere,nowhere
+data strait_passage_loc%,idol_loc%,snake_passage_loc%,nowhere,nowhere,nowhere,nowhere
+data snake_passage_loc%,strait_passage_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
+data inner_lake_loc%,snake_passage_loc%,nowhere,nowhere,passage_crossing_loc%,nowhere,nowhere
+data passage_crossing_loc%,nowhere,cave_exit_loc%,inner_lake_loc%,ambrosios_home_loc%,nowhere,nowhere
+data ambrosios_home_loc%,nowhere,nowhere,passage_crossing_loc%,nowhere,nowhere,nowhere
+data cave_exit_loc%,passage_crossing_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
+data cave_exit_forest_loc%,nowhere,nowhere,cave_exit_loc%,forest_path_loc%,nowhere,nowhere
+data forest_path_loc%,nowhere,nowhere,cave_exit_forest_loc%,north_road_loc%,nowhere,nowhere
+data north_road_loc%,nowhere,westmorland_loc%,forest_path_loc%,nowhere,nowhere,nowhere
+data westmorland_loc%,north_road_loc%,nowhere,nowhere,nowhere,nowhere,nowhere
 
 ' Nouns
 
 ' data: entity, noun
 ' (for every entity id, the last noun listed will be the main one)
 label @nouns_start
-data ambrosio,"ambrosio"
-data the_altar,"altar"
-data the_cloak,"lana"
-data the_cloak,"prenda"
-data the_cloak,"capa"
-data the_door,"puerta"
-data the_emerald,"joya"
-data the_emerald,"brillante"
-data the_emerald,"esmeralda"
-data the_fallen_away,"derrumbe"
-data the_flags,"estandartes"
-data the_flags,"enseñas"
-data the_flags,"pendones"
-data the_flags,"banderas"
-data the_flint,"pedernal"
-data the_idol,"agujeros"
-data the_idol,"agujero"
-data the_idol,"ojos"
-data the_idol,"ojo"
-data the_idol,"ídolo"
-data the_key,"llave"
-data the_lake,"agua"
-data the_lake,"laguna"
-data the_lake,"lago"
-data the_lock,"cerradura"
-data the_lock,"cerrojo"
-data the_lock,"cierre"
-data the_lock,"candado"
-data the_log,"leño"
-data the_log,"madero"
-data the_log,"tronco"
-data the_man,"tipo"
-data the_man,"anciano"
-data the_man,"jefe"
-data the_man,"viejo"
-data the_man,"hombre"
-data the_piece,"pedazo"
-data the_piece,"trozo"
-data the_rags,"harapo"
-data the_rocks,"piedras"
-data the_rocks,"rocas"
-data the_snake,"culebra"
-data the_snake,"ofidio"
-data the_snake,"reptil"
-data the_snake,"serpiente"
-data the_stone,"pedrusco"
-data the_stone,"piedra"
-data the_sword,"arma"
-data the_sword,"tizona"
-data the_sword,"espada"
-data the_thread,"hebra"
-data the_thread,"hilo"
-data the_torch,"tea"
-data the_torch,"antorcha"
-data the_waterfall,"catarata"
-data the_waterfall,"cascada"
+data ambrosio%,"ambrosio"
+data the_altar%,"altar"
+data the_cloak%,"lana"
+data the_cloak%,"prenda"
+data the_cloak%,"capa"
+data the_door%,"puerta"
+data the_emerald%,"joya"
+data the_emerald%,"brillante"
+data the_emerald%,"esmeralda"
+data the_fallen_away%,"derrumbe"
+data the_flags%,"estandartes"
+data the_flags%,"enseñas"
+data the_flags%,"pendones"
+data the_flags%,"banderas"
+data the_flint%,"pedernal"
+data the_idol%,"agujeros"
+data the_idol%,"agujero"
+data the_idol%,"ojos"
+data the_idol%,"ojo"
+data the_idol%,"ídolo"
+data the_key%,"llave"
+data the_lake%,"agua"
+data the_lake%,"laguna"
+data the_lake%,"lago"
+data the_lock%,"cerradura"
+data the_lock%,"cerrojo"
+data the_lock%,"cierre"
+data the_lock%,"candado"
+data the_log%,"leño"
+data the_log%,"madero"
+data the_log%,"tronco"
+data the_man%,"tipo"
+data the_man%,"anciano"
+data the_man%,"jefe"
+data the_man%,"viejo"
+data the_man%,"hombre"
+data the_piece%,"pedazo"
+data the_piece%,"trozo"
+data the_rags%,"harapo"
+data the_rocks%,"piedras"
+data the_rocks%,"rocas"
+data the_snake%,"culebra"
+data the_snake%,"ofidio"
+data the_snake%,"reptil"
+data the_snake%,"serpiente"
+data the_stone%,"pedrusco"
+data the_stone%,"piedra"
+data the_sword%,"arma"
+data the_sword%,"tizona"
+data the_sword%,"espada"
+data the_thread%,"hebra"
+data the_thread%,"hilo"
+data the_torch%,"tea"
+data the_torch%,"antorcha"
+data the_waterfall%,"catarata"
+data the_waterfall%,"cascada"
 label @nouns_end
 rem XXX TMP -- to prevent labels clash
 
@@ -2464,55 +2464,55 @@ rem XXX TMP -- to prevent labels clash
 
 ' data: entity,location,attribute,description
 label @entities_start
-data the_altar,stone_bridge_loc,untakeable_attr
+data the_altar%,stone_bridge_loc%,untakeable_attr
 data "Justo en la mitad del puente, debe sostener algo importante."
-data ambrosio,channel_sand_corner_loc,person_attr
+data ambrosio%,channel_sand_corner_loc%,person_attr
 data "Ambrosio es un hombre de mediana edad, que te mira afable." ' XXX FIXME text
-data the_torch,limbo,takeable_attr
+data the_torch%,limbo,takeable_attr
 data "Está apagada."
-data the_flags,refuge_loc,untakeable_attr
+data the_flags%,refuge_loc%,untakeable_attr
 data "Son las banderas britana y sajona: \
   dos dragones rampantes, rojo y blanco respectivamente, enfrentados."
-data the_cloak,protagonist,takeable_attr
+data the_cloak%,protagonist%,takeable_attr
 data "Tu capa de general, de fina lana tintada de negro."
-data the_waterfall,big_waterfall_loc,untakeable_attr
+data the_waterfall%,big_waterfall_loc%,untakeable_attr
 data "No ves nada por la cortina de agua. \
   El lago es muy poco profundo."
-data the_fallen_away,fallen_away_loc,untakeable_attr
+data the_fallen_away%,fallen_away_loc%,untakeable_attr
 data "Muchas, inalcanzables rocas, apiladas una sobre otra."
-data the_emerald,inside_waterfall_loc,takeable_attr
+data the_emerald%,inside_waterfall_loc%,takeable_attr
 data "Es preciosa."
-data the_sword,protagonist,takeable_attr
+data the_sword%,protagonist%,takeable_attr
 data "Legado de tu padre, fiel herramienta en mil batallas."
-data the_rags,limbo,takeable_attr
+data the_rags%,limbo,takeable_attr
 data "Un trozo un poco grande de capa."
-data the_thread,limbo,takeable_attr
+data the_thread%,limbo,takeable_attr
 data "Un hilo se ha desprendido al cortar la capa con la espada."
-data the_man,refuge_loc,untakeable_attr
+data the_man%,refuge_loc%,untakeable_attr
 data "Es el jefe de los refugiados."
-data the_idol,idol_loc,untakeable_attr
+data the_idol%,idol_loc%,untakeable_attr
 data "El ídolo tiene dos agujeros por ojos."
-data the_lake,inner_lake_loc,untakeable_attr
+data the_lake%,inner_lake_loc%,untakeable_attr
 data "La luz entra por un resquicio, \
   y caprichosos reflejos te maravillan."
-data the_key,ambrosios_home_loc,untakeable_attr
+data the_key%,ambrosios_home_loc%,untakeable_attr
 data "Una llave grande, de hierro herrumboso."
-data the_flint,limbo,takeable_attr
+data the_flint%,limbo,takeable_attr
 data "Se trata de una dura y afilada piedra."
-data the_stone,channel_sand_corner_loc,takeable_attr
+data the_stone%,channel_sand_corner_loc%,takeable_attr
 data "Recia y pesada, pero no muy grande, de forma piramidal."
-data the_door,cave_exit_loc,untakeable_attr
+data the_door%,cave_exit_loc%,untakeable_attr
 data "Muy recia y con un gran candado."
-data the_rocks,north_gate_loc,untakeable_attr
+data the_rocks%,north_gate_loc%,untakeable_attr
 data "Son muchas, aunque parecen ligeras y con huecos entre ellas."
-data the_snake,snake_passage_loc,untakeable_attr
+data the_snake%,snake_passage_loc%,untakeable_attr
 data "Una serpiente bloquea el paso al sur, \
   corriendo a su lado el agua."
-data the_log,sand_passage_loc,takeable_attr
+data the_log%,sand_passage_loc%,takeable_attr
 data "Es un tronco recio, pero de liviano peso."
-data the_piece,limbo,takeable_attr
+data the_piece%,limbo,takeable_attr
 data "Es un poco de lo que antes era tu capa."
-data the_lock,cave_exit_loc,untakeable_attr
+data the_lock%,cave_exit_loc%,untakeable_attr
 data "Está cerrado. Es muy grande y parece resistente."
 label @entities_end
 rem XXX TMP -- to prevent labels clash
