@@ -1,8 +1,10 @@
 # S*BASIC sources:
 *_bas linguist-language=BASIC
+*.bas linguist-language=BASIC
 
 # SBim-format S*BASIC sources:
 *_sbim linguist-language=BASIC
+*.sbim linguist-language=BASIC
 
 # Binary S*BASIC extensions:
 *_code binary
