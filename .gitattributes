@@ -1,9 +1,22 @@
+# .gitattributes
+
+# This file is part of Asalto y castigo
+# http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
+
+# 2017-09-17: Unfortunately, GitHub does not recognize the BASIC
+# language, only a few dialects with their specific filename
+# extensions; even worst, the generic .bas, used by many BASIC
+# dialects, is taken by Visual Basic! Therefore the override here is
+# useless:
+
 # SBASIC sources:
 *_bas linguist-language=BASIC
 *.bas linguist-language=BASIC
+*_bas linguist-generated
 
 # SBASIC extensions:
 *_code binary
+target/ext/* linguist-vendored
 
 # Pictures:
 *_scr binary
@@ -13,5 +26,11 @@
 
 # Fonts:
 *_font binary
+*_font linguist-vendored
+
+# SMSQmulator:
+target/SMSQ* linguist-vendored
+target/lib/* linguist-vendored
+target/SMSQmulator.ini linguist-vendored=false
 
 # vim: filetype=config
