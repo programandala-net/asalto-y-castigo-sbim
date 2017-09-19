@@ -3,13 +3,16 @@
 # This file is part of _Asalto y castigo_
 # (http://programandala.net/es.programa.asalto_y_castigo.superbasic.html)
 
-# Last modified 201709170059
+# Last modified 201709180014
 # See change log at the end of the file
 
 # ==============================================================
 # Requirements
 
-# ImageMagick (http://imagemagick.org)
+# ImageMagick
+# 	http://imagemagick.org
+# SBim
+# 	http://programandala.net/en.program.sbim.html
 
 # ==============================================================
 # Notes
@@ -56,3 +59,5 @@ images: $(wildcard img/*.png)
 # 2017-09-16: Convert PNG splash screens to BMP.
 #
 # 2017-09-17: Update SBIM extension to BAS.
+#
+# 2017-09-18: Update the note about requirements.
