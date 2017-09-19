@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.37+201709170054" ' after http://semver.org
+let version$="0.2.0-dev.38+201709192102" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1406,40 +1406,7 @@ enddef
 ' ==============================================================
 ' Strings
 
-deffn iso_upper%(char%)
-
-  ' Return the uppercase char code of the given ISO 8859-1 char.
-
-  sel on char%
-    =97 to 122,224 to 246,248 to 254:\
-      ret char%-32
-    =remainder:\
-      ret char%
-  endsel
-
-enddef
-
-deffn iso_upper$(text$)
-
-  ' Return the given ISO 8859-1 text in uppercase.
-
-  loc i%,upper_text$
-  let upper_text$=text$
-  for i%=1 to len(upper_text$)
-    let upper_text$(i%)=chr$(iso_upper%(code(text$(i%))))
-  endfor i%
-  ret upper_text$
-
-enddef
-
-deffn iso_upper_1$(text$)
-
-  ' Return the given ISO 8859-1 text with the first letter in
-  ' uppercase.
-
-  ret iso_upper$(text$(1))&text$(2 to)
-
-enddef
+#include iso_upper.bas
 
 ' ==============================================================
 ' Screen
