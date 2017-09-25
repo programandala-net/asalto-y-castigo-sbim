@@ -3,7 +3,7 @@
 # This file is part of _Asalto y castigo_
 # (http://programandala.net/es.programa.asalto_y_castigo.superbasic.html)
 
-# Last modified 201709180014
+# Last modified 201709251813
 # See change log at the end of the file
 
 # ==============================================================
@@ -42,7 +42,7 @@ clean:
 target/boot: src/boot.bas
 	sbim $< $@
 
-target/ayc_bas: src/ayc.bas
+target/ayc_bas: src/ayc.bas src/lib/iso_upper.bas
 	sbim $< $@
 
 .PHONY: images
@@ -61,3 +61,5 @@ images: $(wildcard img/*.png)
 # 2017-09-17: Update SBIM extension to BAS.
 #
 # 2017-09-18: Update the note about requirements.
+#
+# 2017-09-25: Include <src/lib/iso_upper.bas> as prerequisite.
