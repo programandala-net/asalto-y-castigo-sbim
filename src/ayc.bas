@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.38+201709192102" ' after http://semver.org
+let version$="0.2.0-dev.39+201709251806" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1532,7 +1532,6 @@ defproc first_time_init
 
   ' Init needed only once.
 
-  let dev$=device$("ayc_bas","mdvflpwinsubdevdosnfasfafdk")
   init_keyboard
   init_screen
   init_windows
@@ -1542,8 +1541,6 @@ defproc first_time_init
   clear_screen
 
 enddef
-
-#include device.bas
 
 defproc game_init
 
@@ -1582,7 +1579,7 @@ defproc init_keyboard
 
   if ver$="HBA"
     if language<>spanish%
-      lrespr dev$&"qxl-es_kbt"
+      lrespr home_dir$&"qxl-es_kbt"
       kbd_table spanish%
       lang_use spanish%
     endif
@@ -1727,14 +1724,14 @@ enddef
 
 defproc load_bmp(channel%,filename$)
 
-  wl_bmp8load #channel%,dev$&"img_"&filename$
+  wl_bmp8load #channel%,home_dir$&"img_"&filename$
 
 enddef
 
 defproc init_font
 
   loc font_size%
-  let font$=dev$&"iso8859-1_font"
+  let font$=home_dir$&"iso8859-1_font"
   font_size%=flen(\font$)
   font_address=alchp(font_size%)
   lbytes font$,font_address
