@@ -1,44 +1,45 @@
-rem iso_lower.bas
+rem iso_upper.bas
 
 rem SBASIC functions to convert ISO 8859-1
-rem characters and strings to lowercase.
+rem characters and strings to uppercase.
 
 rem Author: Marcos Cruz (programandala.net)
 
-' 2017-09-19: Start.
+' 2017-09-19: Start: Code from Asalto y castigo
+' (http://programandala.net/es.programa.asalto_y_castigo.superbasic.html)
 
-deffn iso_lower%(char%)
+deffn iso_upper%(char%)
 
-  ' Return the lowercase char code of the given ISO 8859-1 char.
+  ' Return the uppercase char code of the given ISO 8859-1 char.
 
   sel on char%
-    =65 to 90,192 to 214,216 to 222:\
-      ret char%+32
+    =97 to 122,224 to 246,248 to 254:\
+      ret char%-32
     =remainder:\
       ret char%
   endsel
 
 enddef
 
-deffn iso_lower$(text$)
+deffn iso_upper$(text$)
 
-  ' Return the given ISO 8859-1 text in lowercase.
+  ' Return the given ISO 8859-1 text in uppercase.
 
-  loc i%,lower_text$
-  let lower_text$=text$
-  for i%=1 to len(lower_text$)
-    let lower_text$(i%)=chr$(iso_lower%(code(text$(i%))))
+  loc i%,upper_text$
+  let upper_text$=text$
+  for i%=1 to len(upper_text$)
+    let upper_text$(i%)=chr$(iso_upper%(code(text$(i%))))
   endfor i%
-  ret lower_text$
+  ret upper_text$
 
 enddef
 
-deffn iso_lower_1$(text$)
+deffn iso_upper_1$(text$)
 
   ' Return the given ISO 8859-1 text with the first letter in
-  ' lowercase.
+  ' uppercase.
 
-  ret iso_lower$(text$(1))&text$(2 to)
+  ret iso_upper$(text$(1))&text$(2 to)
 
 enddef
 
