@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.43+201710011551" ' after http://semver.org
+let version$="0.2.0-dev.44+201710011558" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -100,8 +100,8 @@ defproc ambush
   narrate "En el estrecho paso es posible resistir, \
     aunque por desgracia sus tropas \
     son más numerosas que las tuyas."
-  end_of_scene:\
-  clear_screen
+  end_of_scene
+  wipe
   narrate "Tus oficiales te conminan a huir."
   speak "Capturando a un general britano, ganan doblemente."
   narrate "Sabes que es cierto, y te duele."
@@ -111,12 +111,15 @@ enddef
 defproc battle
 
   let under_attack%=under_attack%+1
+
   narrate "No sabes cuánto tiempo te queda..."
+
   if under_attack%>rnd(7 to 10)
     captured
-  endif
-  if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?
-    narrate "Tus hombres luchan con denuedo contra los sajones."
+  else
+    if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?
+      narrate "Tus hombres luchan con denuedo contra los sajones."
+    endif
   endif
 
 enddef
@@ -127,8 +130,8 @@ defproc captured
     Su general, sonriendo ampliamente, dice:"
   speak "Bien, bien... \
     Del gran Ulfius podremos sacar una buena ventaja."
-  end_of_scene:\
-  clear_screen
+  end_of_scene
+  wipe
   do_end
 
 enddef
@@ -148,8 +151,8 @@ defproc arrive_in_westmorland
     y de lo que ha pasado."
   short_pause
   narrate "Pides audiencia al rey, Uther Pendragon."
-  end_of_scene:\
-  clear_screen
+  end_of_scene
+  wipe
   speak "El rey"&r_quote$&", te indica el valido, "&l_quote$&\
     "ha ordenado que no se le moleste, \
     pues sufre una amarga tristeza."
@@ -162,7 +165,7 @@ defproc arrive_in_westmorland
   short_pause
   narrate "Te has ganado un buen descanso."
   end_of_scene
-  clear_screen
+  wipe
   do_end ' XXX TODO happy end instead
 
 enddef
@@ -417,7 +420,7 @@ defproc do_end
   if yes%("¿Quieres volver a intentarlo?")
     let start_over%=true
   else
-    clear_screen:\
+    wipe
     stop
   endif
 
@@ -426,7 +429,7 @@ enddef
 defproc do_swim
 
   if current_location%=big_lake_loc%
-    clear_screen
+    wipe
     narrate "Caes hacia el fondo por el peso de tu coraza. \
       Como puedes, te desprendes de ella y buceas, \
       pensando en avanzar, aunque perdido."
@@ -657,13 +660,13 @@ defproc talk_to_ambrosio
 
     speak "Hola, buen hombre."
     speak "Hola, Ulfius. Mi nombre es Ambrosio."
-    end_of_scene:\
-    clear_screen
+    end_of_scene
+    wipe
     narrate "Por primera vez, \
       te sientas y cuentas a Ambrosio todo lo que ha pasado. \
       Y, tras tanto acontecido, lloras desconsoladamente."
-    end_of_scene:\
-    clear_screen
+    end_of_scene
+    wipe
     narrate "Ambrosio te propone un trato, que aceptas: \
       por ayudarle a salir de la cueva, \
       objetos, vitales para la empresa, te son entregados."
@@ -678,8 +681,8 @@ defproc talk_to_ambrosio
     short_pause
     narrate "Piensas entonces \
       en el hecho curioso de que supiera tu nombre."
-    end_of_scene:\
-    clear_screen
+    end_of_scene
+    wipe
 
   else
 
@@ -847,7 +850,7 @@ enddef
 
 defproc do_look_around
 
-  clear_screen
+  wipe
   ' narrate "["&current_location%&"]" ' XXX INFORMER
 
   describe location_description$(current_location%)
@@ -1404,10 +1407,15 @@ enddef
 ' ==============================================================
 ' Screen
 
-defproc clear_screen
+defproc wipe
 
+  ' Wipe the text window.
+
+  paper #tw%,black%
   ink #tw%,light_grey%
+  border #tw%,0
   cls #tw%
+  border #tw%,8
 
 enddef
 
@@ -1478,7 +1486,7 @@ defproc about
 
   ' Show the credits.
 
-  clear_screen
+  wipe
   ink #tw%,light_red%:\
   print #tw%,"Asalto y castigo"
   ink #tw%,dark_cyan%
@@ -1498,7 +1506,7 @@ defproc intro
 
   ' Game intro.
 
-  clear_screen
+  wipe
   narrate "El sol despunta de entre la niebla, \
     haciendo humear los tejados de paja."
   short_pause
@@ -1508,13 +1516,13 @@ defproc intro
   short_pause
   narrate "Los hombres se ciernen sobre la aldea, y la destruyen. \
     No hubo tropas enemigas, ni honor en la batalla."
-  end_of_scene:\
-  clear_screen
+  end_of_scene
+  wipe
   speak "Sire Ulfius, la batalla ha terminado."
   narrate "Lentamente, das la orden de volver a casa. \
     Los oficiales detienen como pueden el saqueo."
-  end_of_scene:\
-  clear_screen
+  end_of_scene
+  wipe
 
 enddef
 
@@ -1531,7 +1539,7 @@ defproc first_time_init
   load_splash_screen
   init_constants
   init_preferences
-  clear_screen
+  wipe
 
 enddef
 
@@ -1627,18 +1635,8 @@ defproc init_text_window
   let tw_x%=(scr_xlim-tw_w%)/2
   let tw_y%=(scr_ylim-tw_h%)/2
   window #tw%,tw_w%,tw_h%,tw_x%,tw_y%
-  paper #tw%,black%
-  ink #tw%,light_grey%
-  wipe_the_text_window
+  wipe
   init_font
-
-enddef
-
-defproc wipe_the_text_window
-
-  border #tw%,0
-  cls #tw%
-  border #tw%,8
 
 enddef
 
