@@ -2,13 +2,13 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.44+201710011558" ' after http://semver.org
+let version$="0.2.0-dev.44+201710012336" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
 
 ' ==============================================================
-' Credits
+' Credits {{{1
 
 rem Original version
 rem written in Sinclar BASIC (Sinclair ZX Spectrum),
@@ -22,12 +22,12 @@ rem inlay designed by Neil Parsons for the original ZX Spectrum
 rem version.
 
 ' ==============================================================
-' Requirements
+' Requirements {{{1
 
 ' See <boot.bas>.
 
 ' ==============================================================
-' Main
+' Main {{{1
 
 main
 
@@ -51,7 +51,7 @@ defproc main
 enddef
 
 ' ==============================================================
-' Plot
+' Plot {{{1
 
 defproc plot
 
@@ -241,7 +241,7 @@ defproc open_the_door
 enddef
 
 ' ==============================================================
-' Parser
+' Parser {{{1
 
 defproc command
 
@@ -349,7 +349,7 @@ deffn fine_command
 enddef
 
 ' ==============================================================
-' Actions
+' Actions {{{1
 
 defproc do_action(action%)
 
@@ -883,7 +883,7 @@ defproc list_present_entities
 enddef
 
 ' ==============================================================
-' Data interface
+' Data interface {{{1
 
 deffn is_a_person%(entity%)
 
@@ -960,7 +960,7 @@ deffn is_vanished%(entity%)
 enddef
 
 ' ==============================================================
-' Input
+' Input {{{1
 
 deffn accept$
 
@@ -1400,12 +1400,12 @@ defproc wait_for_key_press(seconds%)
 enddef
 
 ' ==============================================================
-' Strings
+' Strings {{{1
 
 #include lib/iso_upper.bas
 
 ' ==============================================================
-' Screen
+' Screen {{{1
 
 defproc wipe
 
@@ -1420,7 +1420,7 @@ defproc wipe
 enddef
 
 ' ==============================================================
-' Text output
+' Text output {{{1
 
 defproc speak(quote$)
 
@@ -1480,7 +1480,7 @@ defproc tell(txt$)
 enddef
 
 ' ==============================================================
-' About
+' About {{{1
 
 defproc about
 
@@ -1527,7 +1527,7 @@ defproc intro
 enddef
 
 ' ==============================================================
-' Init
+' Init {{{1
 
 defproc first_time_init
 
@@ -1993,7 +1993,7 @@ defproc init_data
 enddef
 
 ' ==============================================================
-' Data
+' Data {{{1
 
 ' Location descriptions
 
@@ -2727,7 +2727,7 @@ data to_take%,"tomar"
 label @verbs_end
 
 ' ==============================================================
-' Meta
+' Meta {{{1
 
 defproc all_bmp_to_pic
   ' Convert all BMP to PIC.
