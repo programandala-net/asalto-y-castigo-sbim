@@ -28,9 +28,8 @@ target/ext/* linguist-vendored
 *_font binary
 *_font linguist-vendored
 
-# SMSQmulator:
-target/SMSQ* linguist-vendored
-target/lib/* linguist-vendored
-target/SMSQmulator.ini linguist-vendored=false
+# Media
+*.zip binary
+*.win binary
 
 # vim: filetype=config

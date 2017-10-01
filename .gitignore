@@ -1,3 +1,4 @@
-img/*.png
+img/*
+media/*
 
 # vim: filetype=config

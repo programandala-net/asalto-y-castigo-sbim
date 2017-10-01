@@ -33,24 +33,62 @@ MAKEFLAGS = --no-print-directory
 .ONESHELL:
 
 .PHONY: all
-all: target/boot target/ayc_bas
+all: target/boot target/ayc_bas target/SMSQmulator.ini
+
+# ==============================================================
+# Cleaning
 
 .PHONY: clean
-clean:
+clean: cleantarget cleanmedia
+
+.PHONY: cleantarget
+cleantarget:
 	rm -f target/*_bas target/boot
+
+.PHONY: cleanmedia
+cleanmedia:
+	rm -f media/*.zip media/*.win
+
+# ==============================================================
+# Target
+
+lib_files=$(wildcard src/lib/*.bas)
 
 target/boot: src/boot.bas
 	sbim $< $@
 
-target/ayc_bas: src/ayc.bas src/lib/iso_upper.bas
+target/ayc_bas: src/ayc.bas $(lib_files)
 	sbim $< $@
 
-.PHONY: images
+target/SMSQmulator.ini: src/SMSQmulator.ini
+	cp -f $< $@
+
+# ==============================================================
+# Images
+
 # XXX OLD
+
+.PHONY: images
 images: $(wildcard img/*.png)
 		for file in $^; do
 	 	 	convert $$file BMP3:target/img/$$(basename $${file%\.*}).bmp
 		done;
+
+# ==============================================================
+# Media
+
+.PHONY: zip
+zip: media/asalto_y_castigo.zip
+
+media/asalto_y_castigo.zip: target/boot \
+	 						target/ayc_bas \
+							target/SMSQmulator.ini
+	ln -sf target ayc
+	cp README.adoc LICENSE.txt TO-DO.adoc ayc
+	zip -9 -r \
+		--exclude=**/.gitignore \
+		media/asalto_y_castigo.zip ayc/*
+	rm -f ayc/README.adoc ayc/LICENSE.txt ayc/TO-DO.adoc ayc
 
 # ==============================================================
 # Change log
@@ -66,4 +104,4 @@ images: $(wildcard img/*.png)
 # 2017-09-25: Include <src/lib/iso_upper.bas> as prerequisite.
 #
 # 2017-10-01: Deactivate conversion of PNG images to BMP. Their PIC versions
-# are used instead.
+# are used instead. Add rule to build the zip package.
