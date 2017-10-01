@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.41+201710011317" ' after http://semver.org
+let version$="0.2.0-dev.42+201710011326" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1650,42 +1650,21 @@ defproc init_splash_screen_window
   =fits%(1280,800)
     let sw_w%=1280
     let sw_h%=800
-  =fits%(1110,800)
-    let sw_w%=1110
-    let sw_h%=800
   =fits%(1024,768)
     let sw_w%=1024
     let sw_h%=768
-  =fits%(1024,600)
-    let sw_w%=1024
-    let sw_h%=600
   =fits%(800,600)
     let sw_w%=800
     let sw_h%=600
-  =fits%(800,577)
-    let sw_w%=800
-    let sw_h%=577
-  =fits%(800,480)
-    let sw_w%=800
-    let sw_h%=480
   =fits%(640,480)
     let sw_w%=640
     let sw_h%=480
-  =fits%(555,400)
-    let sw_w%=555
-    let sw_h%=400
-  =fits%(512,256)
-    let sw_w%=512
-    let sw_h%=256
-  =fits%(355,256)
-    let sw_w%=355
-    let sw_h%=256
   =remainder
-    let sw_w%=256
+    let sw_w%=512
     let sw_h%=256
   endsel
 
-  let splash_screen_file$="splash_screen_"&sw_w%&"x"&sw_h%&".bmp"
+  let splash_screen_file$="splash_screen_"&sw_w%&"x"&sw_h%&"_pic"
 
   let sw_x%=(scr_xlim-sw_w%)/2
   let sw_y%=(scr_ylim-sw_h%)/2
@@ -1702,7 +1681,7 @@ enddef
 
 defproc load_splash_screen
 
-  load_bmp sw%,splash_screen_file$
+  load_pic sw%,splash_screen_file$
   seconds 10
 
 enddef
@@ -1718,6 +1697,14 @@ enddef
 defproc load_bmp(channel%,filename$)
 
   wl_bmp8load #channel%,home_dir$&"img_"&filename$
+
+enddef
+
+defproc load_pic(channel%,filename$)
+
+  loc pic_address
+  let pic_address=l_wsa(home_dir$&"img_"&filename$)
+  wsars #sw%,pic_address,
 
 enddef
 

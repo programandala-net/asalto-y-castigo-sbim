@@ -3,7 +3,7 @@
 # This file is part of _Asalto y castigo_
 # (http://programandala.net/es.programa.asalto_y_castigo.superbasic.html)
 
-# Last modified 201709251813
+# Last modified 201710011336
 # See change log at the end of the file
 
 # ==============================================================
@@ -33,7 +33,7 @@ MAKEFLAGS = --no-print-directory
 .ONESHELL:
 
 .PHONY: all
-all: target/boot target/ayc_bas images
+all: target/boot target/ayc_bas
 
 .PHONY: clean
 clean:
@@ -46,6 +46,7 @@ target/ayc_bas: src/ayc.bas src/lib/iso_upper.bas
 	sbim $< $@
 
 .PHONY: images
+# XXX OLD
 images: $(wildcard img/*.png)
 		for file in $^; do
 	 	 	convert $$file BMP3:target/img/$$(basename $${file%\.*}).bmp
@@ -63,3 +64,6 @@ images: $(wildcard img/*.png)
 # 2017-09-18: Update the note about requirements.
 #
 # 2017-09-25: Include <src/lib/iso_upper.bas> as prerequisite.
+#
+# 2017-10-01: Deactivate conversion of PNG images to BMP. Their PIC versions
+# are used instead.
