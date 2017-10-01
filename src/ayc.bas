@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.39+201709251812" ' after http://semver.org
+let version$="0.2.0-dev.40+201710010220" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1096,8 +1096,8 @@ defproc tab(offset%)
     mistype_bell
   else
     let cursor_pos%=cursor_pos%+offset%
-    let cursor_pos%=maximum(cursor_pos%,1)
-    let cursor_pos%=minimum(cursor_pos%,len(output$)+1)
+    let cursor_pos%=maximum%(cursor_pos%,1)
+    let cursor_pos%=minimum%(cursor_pos%,len(output$)+1)
     set_cursor cursor_pos%
   endif
 
@@ -1629,8 +1629,8 @@ defproc init_text_window
   let csize_h%=scr_xlim>512
   let tw%=fopen("con_")
   csize #tw%,csize_w%,csize_h%
-  let tw_w%=minimum(800,scr_xlim)
-  let tw_h%=minimum(600,scr_ylim)
+  let tw_w%=minimum%(800,scr_xlim)
+  let tw_h%=minimum%(600,scr_ylim)
   let tw_x%=(scr_xlim-tw_w%)/2
   let tw_y%=(scr_ylim-tw_h%)/2
   window #tw%,tw_w%,tw_h%,tw_x%,tw_y%
