@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.40+201710010220" ' after http://semver.org
+let version$="0.2.0-dev.41+201710011317" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -24,14 +24,7 @@ rem version.
 ' ==============================================================
 ' Requirements
 
-' From "MegaToolkit", (C) 1992 Michael A. Crowe:
-'   true, false, char_w, char_x, pos_x, pos_y
-
-' From "DIY Toolkit", (C) Simon N. Goodwin:
-'   minimum, maximum, inarray%
-
-' From "BMPCVT", (C) W. Lenerz 2002:
-'   wl_bmp8load
+' See <boot.bas>.
 
 ' ==============================================================
 ' Main
@@ -2750,6 +2743,46 @@ label @verbs_end
 
 ' ==============================================================
 ' Meta
+
+defproc all_bmp_to_pic
+  ' Convert all BMP to PIC.
+  bmp_to_pic "splash_screen_0256x256"
+  bmp_to_pic "splash_screen_0355x256"
+  bmp_to_pic "splash_screen_0512x256"
+  bmp_to_pic "splash_screen_0555x400"
+  bmp_to_pic "splash_screen_0640x480"
+  bmp_to_pic "splash_screen_0800x480"
+  bmp_to_pic "splash_screen_0800x577"
+  bmp_to_pic "splash_screen_0800x600"
+  bmp_to_pic "splash_screen_1024x600"
+  bmp_to_pic "splash_screen_1024x768"
+  bmp_to_pic "splash_screen_1110x800"
+  bmp_to_pic "splash_screen_1280x800"
+enddef
+
+defproc bmp_to_pic(base_filename$)
+ 
+  loc pic_address,len%,width%,height%,bmp_file$,pic_file$
+ 
+  let len%=len(base_filename$)
+  let width%=base_filename$(len%-7 to len%-4)
+  let height%=base_filename$(len%-2 to)
+  
+  let bmp_file$=home_dir$&"img_"&base_filename$&".bmp"
+  let pic_file$=home_dir$&"img_"&base_filename$&"_pic"
+
+  window #sw%,width%,height%,0,0
+
+  wl_bmp8load #sw%,bmp_file$ ' load the BMP
+
+  ' Convert the BMP to PIC, ready for the next time.
+
+  let pic_address=wsain(#sw%)
+  wsasv #sw%,pic_address
+  s_wsa #sw%,pic_address,pic_file$
+  rechp pic_address
+
+enddef
 
 defproc fatal_error(message$)
 
