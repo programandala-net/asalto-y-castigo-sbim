@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.42+201710011326" ' after http://semver.org
+let version$="0.2.0-dev.43+201710011551" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -112,7 +112,7 @@ defproc battle
 
   let under_attack%=under_attack%+1
   narrate "No sabes cuánto tiempo te queda..."
-  if under_attack%>10 ' XXX TODO random
+  if under_attack%>rnd(7 to 10)
     captured
   endif
   if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?

@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-17
+:revdate: 2017-10-01
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -30,12 +30,12 @@
   identifiers.
 - Fix: "rocks" are mentioned in the description of the fallen away,
   but `the_rocks` entity exists in other location. The easiest
-  solution is creating two entities with identical name and a layer to
-  choose the right one depending on the current location or other
+  solution is to create two entities with identical name and a layer
+  to choose the right one depending on the current location or other
   conditions.
 - Combine locations and ordinary entities into one array.
 - Improve: Compare `ex x` when `x` is not recognized and when `x` is
   not present.
 - Improve: trap error when the splash screen file does not exist.
 - Adjust the text window to the splash screen, leaving a border.
-- Update <.gitattributes> with "vendored".
+- Improve displaying of credits.
