@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.48+201710021753" ' after http://semver.org
+let version$="0.2.0-dev.49+201710021814" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -45,7 +45,7 @@ defproc main
     rep your_turn
       plot
       command
-      if var%(start_over%):\
+      if start_over%
         exit your_turn
     endrep your_turn
   endrep game
@@ -433,7 +433,7 @@ enddef
 defproc do_end
 
   if yes%("¿Quieres volver a intentarlo?")
-    let var%(start_over%)=true
+    let start_over%=true
   else
     wipe
     stop
@@ -1020,7 +1020,7 @@ deffn iso_input$(channel%,max_chars%)
     let key$=inkey$(#channel%,-1)
     let key%=code(key$)
     sel on key%
-      =2:let mistype_bell_active%=not mistype_bell_active% ' Ctrl+B
+      =2:let var%(mistype_bell%)=not var%(mistype_bell%) ' Ctrl+B
       =9:tab 8 ' Tab
       =nl%:if len(output$):exit typing:else mistype_bell
       =space%:type_space
@@ -1342,7 +1342,7 @@ defproc mistype_bell
 
   ' Mistype sound.
 
-  if mistype_bell_active%:\
+  if var%(mistype_bell%):\
     beep 1000,0
 
 enddef
@@ -1567,6 +1567,8 @@ defproc init_game
 
   let var%(current_location%)=saxon_village_loc%
 
+  let start_over%=true
+
   ' Special init conditions for checking and debuging:
 
   sel on true
@@ -1748,8 +1750,7 @@ defproc init_preferences
 
   ' Init the game preferences.
 
-  let mistype_bell_active%=true
-  ' XXX TODO -- save with game sessions
+  let var%(mistype_bell%)=true
 
 enddef
 
@@ -1933,10 +1934,7 @@ defproc init_constants
   let talked_to_the_man%=enum% ' Have I talked to the man?
   let hacked_the_log%=enum%    ' Did I hacked the log?
   let lit_the_torch%=enum%     ' Is the torch lit?
-  let start_over%=enum%        ' Start a new game?
-
-  ' XXX TODO -- Probably `start_over%` can be an ordinary variable.
-  ' Confirm it.
+  let mistype_bell%=enum%      ' Input preference
 
   let session_variables%=next_enum%
 

@@ -42,3 +42,7 @@
 - Use `data_use`.
 - Move session variables that are entity attributes to a flags field
   of the entity array.
+- Add a command to toggle `mistype_bell%`.
+- Add `#verbos`, `#nombres` and similar to list the available words.
+- Make `#ayuda` show a list of second-level help commands, like
+  `#verbos` and `#nombres`.
