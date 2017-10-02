@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.50+201710021842" ' after http://semver.org
+let version$="0.2.0-dev.51+201710022238" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -2759,7 +2759,8 @@ defproc save_session
   ' Save a game session.
 
   loc base_filename$
-  let base_filename$=session_filename$
+  let base_filename$=session_base_filename$
+  ' narrate base_filename$&" in save_session" ' XXX INFORMER
   save_arrays(base_filename$)
 
 enddef
@@ -2770,11 +2771,13 @@ defproc save_arrays(base_filename$)
 
   ' XXX TMP -- a previous session with identical name is overwritten
 
-  saro base_filename$&"_a_data",attribute%
-  saro base_filename$&"_l_data",location%
-  saro base_filename$&"_p_data",pref%
-  saro base_filename$&"_v_data",var%
-  saro base_filename$&"_w_data",way_out%
+  ' narrate base_filename$&" in save_arrays" ' XXX INFORMER
+
+  saro base_filename$&"_a_dat",attribute%
+  saro base_filename$&"_l_dat",location%
+  saro base_filename$&"_p_dat",pref%
+  saro base_filename$&"_v_dat",var%
+  saro base_filename$&"_w_dat",way_out%
 
 enddef
 
@@ -2782,8 +2785,10 @@ defproc load_session
 
   ' Load a game session.
 
+  ' XXX TODO --
+
   loc base_filename$
-  let base_filename$=session_filename$
+  let base_filename$=session_base_filename$ ' XXX OLD
   load_arrays(base_filename$)
   do_look_around
 
@@ -2793,17 +2798,38 @@ defproc load_arrays(base_filename$)
 
   ' Load the arrays of a game session.
 
-  lar base_filename$&"_a_data",attribute%
-  lar base_filename$&"_l_data",location%
-  lar base_filename$&"_p_data",pref%
-  lar base_filename$&"_v_data",var%
-  lar base_filename$&"_w_data",way_out%
+  lar base_filename$&"_a_dat",attribute%
+  lar base_filename$&"_l_dat",location%
+  lar base_filename$&"_p_dat",pref%
+  lar base_filename$&"_v_dat",var%
+  lar base_filename$&"_w_dat",way_out%
 
 enddef
 
-deffn session_filename$
+deffn session_base_filename$
 
-  ret home_dir$&"game_session" ' XXX TMP --
+  ret home_dir$&session_id$
+
+enddef
+
+
+deffn session_id$
+
+  ret "ayc_"&current_time_string$
+
+enddef
+
+deffn current_time_string$
+
+  loc now$
+  let now$=date$(date)
+  ret \
+    year%\
+    &"0"(to len(month%)=1)&month%\
+    &"0"(to len(day%)=1)&day%\
+    &now$(13 to 14)\
+    &now$(16 to 17)\
+    &now$(19 to 20)
 
 enddef
 
