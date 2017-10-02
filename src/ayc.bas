@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.49+201710021814" ' after http://semver.org
+let version$="0.2.0-dev.50+201710021842" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -45,7 +45,7 @@ defproc main
     rep your_turn
       plot
       command
-      if start_over%
+      if start_over%:\
         exit your_turn
     endrep your_turn
   endrep game
@@ -1020,7 +1020,7 @@ deffn iso_input$(channel%,max_chars%)
     let key$=inkey$(#channel%,-1)
     let key%=code(key$)
     sel on key%
-      =2:let var%(mistype_bell%)=not var%(mistype_bell%) ' Ctrl+B
+      =2:let pref%(mistype_bell%)=not pref%(mistype_bell%) ' Ctrl+B
       =9:tab 8 ' Tab
       =nl%:if len(output$):exit typing:else mistype_bell
       =space%:type_space
@@ -1342,7 +1342,7 @@ defproc mistype_bell
 
   ' Mistype sound.
 
-  if var%(mistype_bell%):\
+  if pref%(mistype_bell%):\
     beep 1000,0
 
 enddef
@@ -1567,7 +1567,7 @@ defproc init_game
 
   let var%(current_location%)=saxon_village_loc%
 
-  let start_over%=true
+  let start_over%=false
 
   ' Special init conditions for checking and debuging:
 
@@ -1750,7 +1750,11 @@ defproc init_preferences
 
   ' Init the game preferences.
 
-  let var%(mistype_bell%)=true
+  let next_enum%=0
+  let mistype_bell%=enum%
+  let preference_variables%=next_enum%
+  dim pref%(preference_variables%)
+  let pref%(mistype_bell%)=true
 
 enddef
 
@@ -2766,10 +2770,11 @@ defproc save_arrays(base_filename$)
 
   ' XXX TMP -- a previous session with identical name is overwritten
 
+  saro base_filename$&"_a_data",attribute%
+  saro base_filename$&"_l_data",location%
+  saro base_filename$&"_p_data",pref%
   saro base_filename$&"_v_data",var%
   saro base_filename$&"_w_data",way_out%
-  saro base_filename$&"_l_data",location%
-  saro base_filename$&"_a_data",attribute%
 
 enddef
 
@@ -2788,16 +2793,15 @@ defproc load_arrays(base_filename$)
 
   ' Load the arrays of a game session.
 
+  lar base_filename$&"_a_data",attribute%
+  lar base_filename$&"_l_data",location%
+  lar base_filename$&"_p_data",pref%
   lar base_filename$&"_v_data",var%
   lar base_filename$&"_w_data",way_out%
-  lar base_filename$&"_l_data",location%
-  lar base_filename$&"_a_data",attribute%
 
 enddef
 
 deffn session_filename$
-
-  ' XXX TODO --
 
   ret home_dir$&"game_session" ' XXX TMP --
 
