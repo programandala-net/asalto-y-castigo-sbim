@@ -4,7 +4,7 @@ rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
 rem Author: Marcos Cruz (programandala.net), 2011, 2015, 2017
 
-' Last modified 201710011243
+' Last modified 201710012334
 
 ' ==============================================================
 ' Screen
@@ -42,6 +42,11 @@ lrespr home_dir$&"ext_bmpcvt_code"
 ' `l_wsa`, `wsars`, `wsain`, `wsasv`, `s_wsa`.
 
 lrespr home_dir$&"ext_easyptr_code"
+
+' From ARRAY, by Wolfgang Lenerz, 1991:
+' `sar`, `saro`, `lar`.
+
+lrespr home_dir$&"ext_array_code"
 
 ' ==============================================================
 ' Boot

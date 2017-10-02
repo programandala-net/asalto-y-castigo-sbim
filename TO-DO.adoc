@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-10-01
+:revdate: 2017-10-02
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -39,3 +39,4 @@
 - Improve: trap error when the splash screen file does not exist.
 - Adjust the text window to the splash screen, leaving a border.
 - Improve displaying of credits.
+- Use `data_use`.

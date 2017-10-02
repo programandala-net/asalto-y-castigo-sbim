@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.44+201710012336" ' after http://semver.org
+let version$="0.2.0-dev.45+201710021357" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -28,6 +28,8 @@ rem version.
 
 ' ==============================================================
 ' Main {{{1
+
+#define debugging ' XXX TMP --
 
 main
 
@@ -318,13 +320,21 @@ deffn fine_command
 
     sel on syntax%(action%)
       =object_needed%
-        if not object%:\
-          narrate not_understood$:\
+        if not object%
+          #ifdef debugging
+            narrate "NO OBJECT"  ' XXX INFORMER
+          #endif
+          narrate not_understood$
           ret false
+        endif
       =object_and_complement_needed%
-        if (not object% or not complement%):\
-          narrate not_understood$:\
+        if (not object% or not complement%)
+          #ifdef debugging
+            narrate "NO OBJECT AND NO COMPLEMENT" ' XXX INFORMER
+          #endif
+          narrate not_understood$
           ret false
+        endif
     endsel
 
     if object%:\
@@ -339,7 +349,10 @@ deffn fine_command
 
   else
 
-    narrate not_understood$:\
+    #ifdef debugging
+      narrate "NO ACTION" ' XXX INFORMER
+    #endif
+    narrate not_understood$
     ret false
     
   endif 
@@ -368,8 +381,10 @@ defproc do_action(action%)
     =to_help%:do_help
     =to_insert%:do_insert
     =to_inventory%:do_inventory
+    =to_load_session%:load_session
     =to_look%:do_look
     =to_open%:do_open
+    =to_save_session%:save_session
     =to_sharpen%:do_sharpen
     =to_speak%:do_speak
     =to_swim%:do_swim
@@ -887,13 +902,13 @@ enddef
 
 deffn is_a_person%(entity%)
 
-  ret attribute(entity%)=person_attr%
+  ret attribute%(entity%)=person_attr%
 
 enddef
 
 defproc be_takeable(entity%)
 
-  let attribute(entity%)=takeable_attr%
+  let attribute%(entity%)=takeable_attr%
 
 enddef
 
@@ -901,19 +916,19 @@ defproc be_untakeable(entity%)
 
   ' XXX REMARK -- Not used.
 
-  let attribute(entity%)=untakeable_attr%
+  let attribute%(entity%)=untakeable_attr%
 
 enddef
 
 deffn is_takeable%(entity%)
 
-  ret attribute(entity%)=takeable_attr%
+  ret attribute%(entity%)=takeable_attr%
 
 enddef
 
 deffn is_untakeable%(entity%)
 
-  ret attribute(entity%)<>takeable_attr%
+  ret attribute%(entity%)<>takeable_attr%
 
 enddef
 
@@ -1009,6 +1024,7 @@ deffn iso_input$(channel%,max_chars%)
       =9:tab 8 ' Tab
       =nl%:if len(output$):exit typing:else mistype_bell
       =space%:type_space
+      =35:if not len(output$):type "#"
       =65 to 90:type chr$(key%+32)
       =97 to 122:type key$
       =131,163:type chr$(233) ' é/É
@@ -1779,26 +1795,28 @@ defproc init_constants
 
   let next_enum%=1
 
-  let to_go_down%=enum%
-  let to_open%=enum%
-  let to_go_up%=enum%
   let to_break%=enum%
-  let to_help%=enum%
-  let to_swim%=enum%
-  let to_take%=enum%
   let to_drop%=enum%
-  let to_go_east%=enum%
   let to_examine%=enum%
-  let to_speak%=enum%
-  let to_insert%=enum%
-  let to_look%=enum%
-  let to_go_north%=enum%
-  let to_go_west%=enum%
-  let to_go_south%=enum%
   let to_finish%=enum%
   let to_fling%=enum%
-  let to_sharpen%=enum%
+  let to_go_down%=enum%
+  let to_go_east%=enum%
+  let to_go_north%=enum%
+  let to_go_south%=enum%
+  let to_go_up%=enum%
+  let to_go_west%=enum%
+  let to_help%=enum%
+  let to_insert%=enum%
   let to_inventory%=enum%
+  let to_load_session%=enum%
+  let to_look%=enum%
+  let to_open%=enum%
+  let to_save_session%=enum%
+  let to_sharpen%=enum%
+  let to_speak%=enum%
+  let to_swim%=enum%
+  let to_take%=enum%
   ' XXX TODO calculate `actions%` here
 
   ' Entity identifiers
@@ -1910,6 +1928,10 @@ defproc init_constants
   let untakeable_attr%=true
   let person_attr%=2
 
+  ' Other
+
+  let restore_variables%=32000 ' line number of routine
+
 enddef
 
 deffn enum%
@@ -1964,17 +1986,18 @@ defproc init_data
   endfor i%
 
   dim location%(entities%)
-  dim attribute(entities%)
+  dim attribute%(entities%)
   dim description$(entities%,128)
   restore @entities_start
   for i%=1 to entities%
     read \
       entity%,\
       location%(entity%),\
-      attribute(entity%),\
+      attribute%(entity%),\
       description$(entity%)
   endfor i%
 
+  restore @actions_start
   let actions%=@actions_end-@actions_start
   dim syntax%(actions%)
   restore @actions_start
@@ -2538,13 +2561,15 @@ data to_go_up%,no_object_needed%
 data to_go_west%,no_object_needed%
 data to_help%,no_object_needed%
 data to_insert%,object_and_complement_needed%
+data to_inventory%,no_object_needed%
+data to_load_session%,no_object_needed%
 data to_look%,no_object_needed%
 data to_open%,object_needed%
+data to_save_session%,no_object_needed%
+data to_sharpen%,object_needed%
+data to_speak%,object_needed%
 data to_swim%,no_object_needed%
 data to_take%,object_needed%
-data to_speak%,object_needed%
-data to_sharpen%,object_needed%
-data to_inventory%,no_object_needed%
 label @actions_end
 rem XXX TMP -- to prevent labels clash
 
@@ -2615,11 +2640,6 @@ data to_go_up%,"sube"
 data to_go_up%,"subir"
 data to_go_west%,"o"
 data to_go_west%,"oeste"
-data to_help%,"auxilio"
-data to_help%,"ayuda"
-data to_help%,"ayudar"
-data to_help%,"ayúdame"
-data to_help%,"socorro"
 data to_insert%,"coloca"
 data to_insert%,"colocar"
 data to_insert%,"colocarle"
@@ -2724,7 +2744,102 @@ data to_take%,"recoge"
 data to_take%,"recoger"
 data to_take%,"toma"
 data to_take%,"tomar"
+
+data to_help%,"#ayuda"
+data to_load_session%,"#carga"
+data to_save_session%,"#graba"
+
 label @verbs_end
+
+' ==============================================================
+' Sessions {{{1
+
+defproc save_session
+
+  ' Save a game session.
+
+  loc file$
+  let file$=session_filename$
+  save_variables(file$)
+  save_arrays(file$)
+
+enddef
+
+defproc save_variables(session_filename$)
+
+  ' Save the variables of a game session.
+
+  ' XXX TODO -- `merge` does not work if used from within a procedure
+  ' or subroutine.  Solution: convert these variables to an array and
+  ' save/restore them with the rest of the game session arrays.
+
+  loc session%
+  let session%=fop_new(session_filename$&"_bas")
+
+  let next_enum%=restore_variables%
+
+  print #session%,enum%&" let ambrosio_follows%="&ambrosio_follows%
+  print #session%,enum%&" let under_attack%="&under_attack%
+  print #session%,enum%&" let talked_to_the_man%="&talked_to_the_man%
+  print #session%,enum%&" let hacked_the_log%="&hacked_the_log%
+  print #session%,enum%&" let lit_the_torch%="&lit_the_torch%
+  print #session%,enum%&" let start_over%="&start_over%
+  print #session%,enum%&" return"
+
+  close #session%
+
+enddef
+
+defproc save_arrays(session_file$)
+
+  ' Save the arrays of a game session.
+
+  sar session_file$&"_w_data",way_out%
+  sar session_file$&"_l_data",location%
+  sar session_file$&"_a_data",attribute%
+
+enddef
+
+defproc load_session
+
+  ' Load a game session.
+
+  loc file$
+
+  let file$=session_filename$
+
+  load_variables(file$)
+  load_arrays(file$)
+  do_look_around
+
+enddef
+
+defproc load_variables(session_file$)
+
+  ' Load the variables of a game session.
+
+  merge session_file$&"_bas"
+  gosub restore_variables%
+
+enddef
+
+defproc load_arrays(session_file$)
+
+  ' Load the arrays of a game session.
+
+  lar session_file$&"_w_data",way_out%
+  lar session_file$&"_l_data",location%
+  lar session_file$&"_a_data",attribute%
+
+enddef
+
+deffn session_filename$
+
+  ' XXX TODO --
+
+  ret home_dir$&"game_session" ' XXX TMP --
+
+enddef
 
 ' ==============================================================
 ' Meta {{{1
