@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.45+201710021357" ' after http://semver.org
+let version$="0.2.0-dev.46+201710021637" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -35,17 +35,17 @@ main
 
 defproc main
 
-  first_time_init
+  init_once
   rep game
     about
-    game_init
+    init_game
     end_of_scene
     intro
     do_look_around
     rep your_turn
       plot
       command
-      if start_over%:\
+      if var%(start_over%):\
         exit your_turn
     endrep your_turn
   endrep game
@@ -66,13 +66,13 @@ defproc plot
 
       ambush
 
-    =under_attack%<>0
+    =var%(under_attack%)<>0
 
       battle
 
     =(current_location%=cave_strait_1_loc% \
       and (not is_accessible%(the_torch%) \
-      or not lit_the_torch%))
+      or not var%(lit_the_torch%)))
 
       ' XXX TODO -- Why `>channel_sand_corner_loc%` in the
       ' original?  I put `=cave_strait_1_loc%`, which is the exit
@@ -94,7 +94,7 @@ enddef
 defproc ambush
 
   let way_out%(cave_entrance_loc%,north%)=nowhere%
-  let under_attack%=1
+  let var%(under_attack%)=1
   narrate "Una partida sajona aparece por el este. \
     Para cuando te vuelves al norte, ya no te queda ninguna duda: \
     era una trampa."
@@ -112,11 +112,11 @@ enddef
 
 defproc battle
 
-  let under_attack%=under_attack%+1
+  let var%(under_attack%)=var%(under_attack%)+1
 
   narrate "No sabes cuánto tiempo te queda..."
 
-  if under_attack%>rnd(7 to 10)
+  if var%(under_attack%)>rnd(7 to 10)
     captured
   else
     if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?
@@ -200,7 +200,7 @@ defproc location_plot
 
   if not is_vanished%(ambrosio%) \
     and is_takeable%(the_key%) \
-    and (current_location%=ambrosios_home_loc% or ambrosio_follows%)
+    and (current_location%=ambrosios_home_loc% or var%(ambrosio_follows%))
     be_here ambrosio%
     narrate "Tu benefactor te sigue, esperanzado."
   endif
@@ -211,7 +211,7 @@ defproc rocks_and_log
 
   ' Action using the log with rocks.
 
-  if hacked_the_log%
+  if var%(hacked_the_log%)
     narrate "Haciendo palanca, consigues desencajar una, \
       y el resto caen por su propio peso."
     vanish the_rocks%
@@ -433,7 +433,7 @@ enddef
 defproc do_end
 
   if yes%("¿Quieres volver a intentarlo?")
-    let start_over%=true
+    let var%(start_over%)=true
   else
     wipe
     stop
@@ -453,7 +453,7 @@ defproc do_swim
       si bien en un sitio desconocido de la caverna..."
     end_of_scene
     enter secret_exit_loc%
-    let under_attack%=false
+    let var%(under_attack%)=false
   else
     narrate "No tiene sentido nadar ahora."
   endif
@@ -487,7 +487,7 @@ defproc do_drop
         narrate "No, es lo que queda de mi padre.":\
         ret
     =the_torch%:\
-      if lit_the_torch%:\
+      if var%(lit_the_torch%):\
         narrate "No, sin luz es imposible moverse por la caverna.":\
         ret
   endsel
@@ -542,7 +542,7 @@ defproc do_break
           narrate not_by_hand$
         =the_sword%
           if is_accessible%(the_torch%)
-            let lit_the_torch%=true
+            let var%(lit_the_torch%)=true
             let description$(the_torch%)=\
               "Ilumina perfectamente."
             narrate "Poderosas chispas salen \
@@ -625,7 +625,7 @@ defproc do_sharpen
 
       ' XXX factor, reuse with `to_break%`, `to_cut%`...
 
-      if hacked_the_log%
+      if var%(hacked_the_log%)
         narrate "La punta ya está suficientemente afilada."
       else
         sel on complement%
@@ -634,7 +634,7 @@ defproc do_sharpen
           =the_sword%
             narrate not_by_sword$
           =the_flint%
-            let hacked_the_log%=true
+            let var%(hacked_the_log%)=true
             let description$(the_log%)=\
               description$(the_log%)&" Su punta está afilada."
             narrate "Con el pedernal, afilas la punta del tronco."
@@ -702,7 +702,7 @@ defproc talk_to_ambrosio
   else
 
     if current_location%=ambrosios_home_loc%
-      if not ambrosio_follows%
+      if not var%(ambrosio_follows%)
         speak "La llave, Ambrosio, estaba ya en tu poder. \
           Y es obvio que conocéis un camino más corto."
         speak "Estoy atrapado en la cueva \
@@ -721,7 +721,7 @@ defproc talk_to_ambrosio
         Toma la llave en tu mano y abre la puerta de la cueva."
       be_hold the_key%
       be_takeable the_key%
-      let ambrosio_follows%=true
+      let var%(ambrosio_follows%)=true
 
     endif
 
@@ -731,9 +731,9 @@ enddef
 
 defproc talk_to_the_man
 
-  if not talked_to_the_man%
+  if not var%(talked_to_the_man%)
     speak "Me llamo Ulfius y..."
-    let talked_to_the_man%=true
+    let var%(talked_to_the_man%)=true
     narrate "El hombre asiente, impaciente."
     speak "Somos refugiados de la gran guerra. Buscamos la paz."
     short_pause
@@ -768,7 +768,7 @@ defproc do_fling
       narrate "No hay suficiente profundidad."
     =channel_sand_corner_loc%
       if (object%=the_sword% or object%=the_stone%) \
-        and talked_to_the_man%
+        and var%(talked_to_the_man%)
         let location%(object%)=inside_waterfall_loc%
         narrate "La corriente lo arrastra fuertemente, \
           hasta perderlo de vista."
@@ -1545,7 +1545,7 @@ enddef
 ' ==============================================================
 ' Init {{{1
 
-defproc first_time_init
+defproc init_once
 
   ' Init needed only once.
 
@@ -1559,18 +1559,13 @@ defproc first_time_init
 
 enddef
 
-defproc game_init
+defproc init_game
 
   ' Init needed before every game.
 
-  loc y%
-  let y%=pos_y(#tw%)
-  print #tw%,"Preparando los datos..."
-  init_plot
-  init_data
+  init_arrays
+
   let current_location%=saxon_village_loc%
-  cls #tw%,3
-  cursor #tw%,0,y%
 
   ' Special init conditions for checking and debuging:
 
@@ -1756,6 +1751,7 @@ defproc init_preferences
   ' Init the game preferences.
 
   let mistype_bell_active%=true
+  ' XXX TODO -- save with game sessions
 
 enddef
 
@@ -1928,9 +1924,22 @@ defproc init_constants
   let untakeable_attr%=true
   let person_attr%=2
 
-  ' Other
+  ' Pointers to the var%() array, which hold the session variables,
+  ' ie. the variables that must be saved in a game session.
 
-  let restore_variables%=32000 ' line number of routine
+  let next_enum%=0
+
+  let ambrosio_follows%=enum%  ' Does Ambrosio follow me?
+  let under_attack%=enum%      ' Battle counter
+  let talked_to_the_man%=enum% ' Have I talked to the man?
+  let hacked_the_log%=enum%    ' Did I hacked the log?
+  let lit_the_torch%=enum%     ' Is the torch lit?
+  let start_over%=enum%        ' Start a new game?
+
+  ' XXX TODO -- Probably `start_over%` can be an ordinary variable.
+  ' Confirm it.
+
+  let session_variables%=next_enum%
 
 enddef
 
@@ -1941,21 +1950,9 @@ deffn enum%
 
 enddef
 
-defproc init_plot
+defproc init_arrays
 
-  let ambrosio_follows%=false  ' Does Ambrosio follow me?
-  let under_attack%=0          ' Battle counter
-  let talked_to_the_man%=false ' Have I talked to the man?
-  let hacked_the_log%=false    ' Did I hacked the log?
-  let lit_the_torch%=false     ' Is the torch lit?
-  let start_over%=false        ' Start a new game?
-
-enddef
-
-defproc init_data
-
-  ' Init the data arrays. The first element (0) of the arrays is not
-  ' used, except for the directions.
+  ' Init the data arrays.
 
   loc i%,max_word_lenght%,action%,from_location%,to_location%,entity%
 
@@ -2012,6 +2009,8 @@ defproc init_data
   for i%=1 to verbs%
     read verb_action(i%),verb$(i%)
   endfor i%
+
+  dim var%(session_variables%)
 
 enddef
 
