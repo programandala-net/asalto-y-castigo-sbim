@@ -39,7 +39,6 @@
 - Improve: trap error when the splash screen file does not exist.
 - Adjust the text window to the splash screen, leaving a border.
 - Improve displaying of credits.
-- Use `data_use`.
 - Move session variables that are entity attributes to a flags field
   of the entity array.
 - Add a command to toggle `mistype_bell%`.

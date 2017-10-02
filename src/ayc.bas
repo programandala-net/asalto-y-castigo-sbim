@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.51+201710022238" ' after http://semver.org
+let version$="0.2.0-dev.52+201710022249" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1592,7 +1592,7 @@ defproc init_keyboard
   let spanish%=34
 
   if language<>spanish%
-    lrespr home_dir$&"qxl-es_kbt"
+    lrespr "qxl-es_kbt"
     kbd_table spanish%
     lang_use spanish%
   endif
@@ -1705,14 +1705,17 @@ enddef
 
 defproc load_bmp(channel%,filename$)
 
-  wl_bmp8load #channel%,home_dir$&"img_"&filename$
+  wl_bmp8load #channel%,"img_"&filename$
 
 enddef
 
 defproc load_pic(channel%,filename$)
 
+  ' XXX REMARK -- `l_wsa` does not use the default data device,
+  ' therefore `datad$` must be added
+
   loc pic_address
-  let pic_address=l_wsa(home_dir$&"img_"&filename$)
+  let pic_address=l_wsa(datad$&"img_"&filename$)
   wsars #sw%,pic_address,
 
 enddef
@@ -1720,7 +1723,7 @@ enddef
 defproc init_font
 
   loc font_size%
-  let font$=home_dir$&"iso8859-1_font"
+  let font$="iso8859-1_font"
   font_size%=flen(\font$)
   font_address=alchp(font_size%)
   lbytes font$,font_address
@@ -2808,7 +2811,7 @@ enddef
 
 deffn session_base_filename$
 
-  ret home_dir$&session_id$
+  ret session_id$
 
 enddef
 
@@ -2860,8 +2863,8 @@ defproc bmp_to_pic(base_filename$)
   let width%=base_filename$(len%-7 to len%-4)
   let height%=base_filename$(len%-2 to)
   
-  let bmp_file$=home_dir$&"img_"&base_filename$&".bmp"
-  let pic_file$=home_dir$&"img_"&base_filename$&"_pic"
+  let bmp_file$="img_"&base_filename$&".bmp"
+  let pic_file$="img_"&base_filename$&"_pic"
 
   window #sw%,width%,height%,0,0
 
