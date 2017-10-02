@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.47+201710021638" ' after http://semver.org
+let version$="0.2.0-dev.48+201710021753" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -61,7 +61,7 @@ defproc plot
 
   sel on true
 
-    =(current_location%=cave_entrance_loc% \
+    =(var%(current_location%)=cave_entrance_loc% \
       and way_out%(cave_entrance_loc%,north%))
 
       ambush
@@ -70,7 +70,7 @@ defproc plot
 
       battle
 
-    =(current_location%=cave_strait_1_loc% \
+    =(var%(current_location%)=cave_strait_1_loc% \
       and (not is_accessible%(the_torch%) \
       or not var%(lit_the_torch%)))
 
@@ -84,7 +84,7 @@ defproc plot
 
       dark_cave_strait_1
 
-    =(current_location%=westmorland_loc%) ' XXX TODO move to `location_plot`?
+    =(var%(current_location%)=westmorland_loc%) ' XXX TODO move to `location_plot`?
       arrive_in_westmorland
 
   endsel
@@ -119,7 +119,7 @@ defproc battle
   if var%(under_attack%)>rnd(7 to 10)
     captured
   else
-    if current_location%<cave_hall_loc% ' XXX TODO `=` is enough?
+    if var%(current_location%)<cave_hall_loc% ' XXX TODO `=` is enough?
       narrate "Tus hombres luchan con denuedo contra los sajones."
     endif
   endif
@@ -176,7 +176,7 @@ defproc location_plot
 
   ' Check the plot conditions related to the new location.
 
-  sel on current_location%
+  sel on var%(current_location%)
     =big_lake_loc%,big_waterfall_loc%,inner_lake_loc%
       be_here the_lake%
     =saxon_village_loc% to fallen_away_loc%
@@ -200,7 +200,7 @@ defproc location_plot
 
   if not is_vanished%(ambrosio%) \
     and is_takeable%(the_key%) \
-    and (current_location%=ambrosios_home_loc% or var%(ambrosio_follows%))
+    and (var%(current_location%)=ambrosios_home_loc% or var%(ambrosio_follows%))
     be_here ambrosio%
     narrate "Tu benefactor te sigue, esperanzado."
   endif
@@ -443,7 +443,7 @@ enddef
 
 defproc do_swim
 
-  if current_location%=big_lake_loc%
+  if var%(current_location%)=big_lake_loc%
     wipe
     narrate "Caes hacia el fondo por el peso de tu coraza. \
       Como puedes, te desprendes de ella y buceas, \
@@ -462,7 +462,7 @@ enddef
 
 defproc do_open
 
-  if current_location%=cave_exit_loc%
+  if var%(current_location%)=cave_exit_loc%
     if object%=the_door% or object%=the_lock%
       if is_accessible%(the_key%)
         open_the_door
@@ -483,7 +483,7 @@ defproc do_drop
   ' XXX TODO -- Remove these cases:
   sel on object%
     =the_sword%:\
-      if current_location%<secret_exit_loc%:\
+      if var%(current_location%)<secret_exit_loc%:\
         narrate "No, es lo que queda de mi padre.":\
         ret
     =the_torch%:\
@@ -701,7 +701,7 @@ defproc talk_to_ambrosio
 
   else
 
-    if current_location%=ambrosios_home_loc%
+    if var%(current_location%)=ambrosios_home_loc%
       if not var%(ambrosio_follows%)
         speak "La llave, Ambrosio, estaba ya en tu poder. \
           Y es obvio que conocéis un camino más corto."
@@ -714,8 +714,8 @@ defproc talk_to_ambrosio
       endif
     endif
 
-    if current_location%>=passage_crossing_loc% \
-      and current_location%<=cave_exit_loc%
+    if var%(current_location%)>=passage_crossing_loc% \
+      and var%(current_location%)<=cave_exit_loc%
 
       speak "Por favor, Ulfius, cumple tu promesa. \
         Toma la llave en tu mano y abre la puerta de la cueva."
@@ -763,7 +763,7 @@ enddef
 
 defproc do_fling
 
-  sel on current_location%
+  sel on var%(current_location%)
     =ruined_bridge_loc%,water_passage_loc%
       narrate "No hay suficiente profundidad."
     =channel_sand_corner_loc%
@@ -821,8 +821,8 @@ enddef
 
 defproc do_move(direction%)
 
-  if way_out%(current_location%,direction%)
-    enter way_out%(current_location%,direction%)
+  if way_out%(var%(current_location%),direction%)
+    enter way_out%(var%(current_location%),direction%)
   else
     narrate "No es posible."
   endif
@@ -858,7 +858,7 @@ enddef
 
 defproc enter(new_location%)
 
-  let current_location%=new_location%
+  let var%(current_location%)=new_location%
   do_look_around
 
 enddef
@@ -866,9 +866,9 @@ enddef
 defproc do_look_around
 
   wipe
-  ' narrate "["&current_location%&"]" ' XXX INFORMER
+  ' narrate "["&var%(current_location%)&"]" ' XXX INFORMER
 
-  describe location_description$(current_location%)
+  describe location_description$(var%(current_location%))
 
   location_plot ' XXX FIXME only when entering the location
   list_present_entities
@@ -934,13 +934,13 @@ enddef
 
 defproc be_here(entity%)
 
-  let location%(entity%)=current_location%
+  let location%(entity%)=var%(current_location%)
 
 enddef
 
 deffn is_here%(entity%)
 
-  ret location%(entity%)=current_location%
+  ret location%(entity%)=var%(current_location%)
 
 enddef
 
@@ -1565,7 +1565,7 @@ defproc init_game
 
   init_arrays
 
-  let current_location%=saxon_village_loc%
+  let var%(current_location%)=saxon_village_loc%
 
   ' Special init conditions for checking and debuging:
 
@@ -1927,6 +1927,7 @@ defproc init_constants
 
   let next_enum%=0
 
+  let current_location%=enum%  ' Location of the protagonist
   let ambrosio_follows%=enum%  ' Does Ambrosio follow me?
   let under_attack%=enum%      ' Battle counter
   let talked_to_the_man%=enum% ' Have I talked to the man?
@@ -2755,45 +2756,22 @@ defproc save_session
 
   ' Save a game session.
 
-  loc file$
-  let file$=session_filename$
-  save_variables(file$)
-  save_arrays(file$)
+  loc base_filename$
+  let base_filename$=session_filename$
+  save_arrays(base_filename$)
 
 enddef
 
-defproc save_variables(session_filename$)
-
-  ' Save the variables of a game session.
-
-  ' XXX TODO -- `merge` does not work if used from within a procedure
-  ' or subroutine.  Solution: convert these variables to an array and
-  ' save/restore them with the rest of the game session arrays.
-
-  loc session%
-  let session%=fop_new(session_filename$&"_bas")
-
-  let next_enum%=restore_variables%
-
-  print #session%,enum%&" let ambrosio_follows%="&ambrosio_follows%
-  print #session%,enum%&" let under_attack%="&under_attack%
-  print #session%,enum%&" let talked_to_the_man%="&talked_to_the_man%
-  print #session%,enum%&" let hacked_the_log%="&hacked_the_log%
-  print #session%,enum%&" let lit_the_torch%="&lit_the_torch%
-  print #session%,enum%&" let start_over%="&start_over%
-  print #session%,enum%&" return"
-
-  close #session%
-
-enddef
-
-defproc save_arrays(session_file$)
+defproc save_arrays(base_filename$)
 
   ' Save the arrays of a game session.
 
-  sar session_file$&"_w_data",way_out%
-  sar session_file$&"_l_data",location%
-  sar session_file$&"_a_data",attribute%
+  ' XXX TMP -- a previous session with identical name is overwritten
+
+  saro base_filename$&"_v_data",var%
+  saro base_filename$&"_w_data",way_out%
+  saro base_filename$&"_l_data",location%
+  saro base_filename$&"_a_data",attribute%
 
 enddef
 
@@ -2801,32 +2779,21 @@ defproc load_session
 
   ' Load a game session.
 
-  loc file$
-
-  let file$=session_filename$
-
-  load_variables(file$)
-  load_arrays(file$)
+  loc base_filename$
+  let base_filename$=session_filename$
+  load_arrays(base_filename$)
   do_look_around
 
 enddef
 
-defproc load_variables(session_file$)
-
-  ' Load the variables of a game session.
-
-  merge session_file$&"_bas"
-  gosub restore_variables%
-
-enddef
-
-defproc load_arrays(session_file$)
+defproc load_arrays(base_filename$)
 
   ' Load the arrays of a game session.
 
-  lar session_file$&"_w_data",way_out%
-  lar session_file$&"_l_data",location%
-  lar session_file$&"_a_data",attribute%
+  lar base_filename$&"_v_data",var%
+  lar base_filename$&"_w_data",way_out%
+  lar base_filename$&"_l_data",location%
+  lar base_filename$&"_a_data",attribute%
 
 enddef
 
