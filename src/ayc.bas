@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.46+201710021637" ' after http://semver.org
+let version$="0.2.0-dev.47+201710021638" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1589,12 +1589,10 @@ defproc init_keyboard
   loc spanish%
   let spanish%=34
 
-  if ver$="HBA"
-    if language<>spanish%
-      lrespr home_dir$&"qxl-es_kbt"
-      kbd_table spanish%
-      lang_use spanish%
-    endif
+  if language<>spanish%
+    lrespr home_dir$&"qxl-es_kbt"
+    kbd_table spanish%
+    lang_use spanish%
   endif
 
 enddef
