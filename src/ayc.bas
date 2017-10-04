@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.52+201710022249" ' after http://semver.org
+let version$="0.2.0-dev.53+201710041940" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1506,15 +1506,13 @@ defproc about
   ink #tw%,light_red%:\
   print #tw%,"Asalto y castigo"
   ink #tw%,dark_cyan%
-  print #tw%,\"Por Baltasar el Arquero, 2009"
+  print #tw%,\"Programa original escrito en BASIC por:"
+  print #tw%,"Baltasar el Arquero, 2009"
   print #tw%,"http://caad.es/baltasarq/"
-  print #tw%,\"Reescrita en SuperBASIC para QL por"
+  print #tw%,\"Reescrito en SBASIC con SBim para SMSQ/E por:"
   print #tw%,"Marcos Cruz (programandala.net), 2011, 2017"
-  print #tw%,"http://programandala.net/"
-  print #tw%,"Versión"!version$
-  ink #tw%,light_grey%
-  print #tw%,\\"http://www.caad.es/"
-  print #tw%,"http://www.sinclairql.es/"\\\:
+  print #tw%,"http://programandala.net/es.programa.asalto_y_castigo.sbim.html"
+  print #tw%,\"Versión"!version$\\:
 
 enddef
 
