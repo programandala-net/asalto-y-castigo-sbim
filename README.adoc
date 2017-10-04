@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-09-11
+:revdate: 2017-10-04
 
 In <<en,English>> below.
 
@@ -9,66 +9,78 @@ In <<en,English>> below.
 === Descripción
 
 _Asalto y castigo_ es una versión para
-http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
-QL] de la http://www.caad.es/baltasarq/if/asaltoDicen.html[aventura de
-texto homónima original] (2009), en español.
+https://en.wikipedia.org/wiki/SMSQ/E[SMSQ/E]
+de la http://www.caad.es/baltasarq/if/asaltoDicen.html[aventura de
+texto homónima original] (2009).
 
-_Asalto y castigo_ está escrito en SuperBASIC con el preprocesador
+_Asalto y castigo_ está escrito en SBASIC con el preprocesador
 http://programandala.net/es.programa.sbim.html[SBim].
 
 Sede del proyecto:
-http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
+http://programandala.net/es.programa.asalto_y_castigo.sbim.html
 
-Otras versiones en desarrollo:
+Otras versiones:
 http://programandala.net/es.programa.asalto_y_castigo.html
 
 === Herramientas de desarrollo
 
-- Editor http://www.vim.org[Vim]
-- Preprocesador de S*BASIC
+- Editor: http://www.vim.org[Vim]
+- Preprocesador de S*BASIC:
   http://programandala.net/es.programa.sbim.html[SBim]
-- Emulador http://www.wlenerz.com/SMSQmulator/[SMSQmulator]
+- Emulador: http://www.wlenerz.com/SMSQmulator/[SMSQmulator]
 
 === Historia y estado actual
 
-El proyecto fue desarrollado entre 2011-04 y 2011-07, con algunos
-retoques en 2015-12.
+El proyecto fue desarrollado originalmente en
+https://es.wikipedia.org/wiki/SuperBASIC[SuperBASIC], tanto para
+https://es.wikipedia.org/wiki/Sinclair_QDOS[QDOS] como SMSQ/E.  El
+desarrollo tuvo lugar entre 2011-04 y 2011-07. Esta primera versión se
+etiquetó como B-20170711 y puede descargarse en varios formatos de
+archivo.
+
+En 2015-12 se hicieron algunas mejoras en el código, que no fueron
+publicadas.
 
 En 2017-09-10 se creó un repositorio de Git a partir de las copias de
 respaldo, con el fin de preservar la evolución del código y trabajar
-en una nueva versión mejorada.
+en una nueva versión mejorada, ya solo para SMSQ/E.
 
 == [[en]]English
 
 === Description
 
-_Asalto y castigo_ (Assault and Punishment) is a
-http://qlwiki.qlforum.co.uk/doku.php?id=qlwiki:sinclair_ql_home_computer[Sinclair
-QL].  port of the Spanish
+_Asalto y castigo_ (Assault and Punishment) is an
+https://en.wikipedia.org/wiki/SMSQ/E[SMSQ/E]
+port of the Spanish
 http://www.caad.es/baltasarq/if/asaltoDicen.html[original homonymous
 text adventure] (2009).
 
-_Asalto y castigo_ is written in SuperBASIC with the
-http://programandala.net/es.programa.sbim.html[SBim] preprocessor.
+_Asalto y castigo_ is written in SBASIC with the
+http://programandala.net/en.program.sbim.html[SBim] preprocessor.
 
-Project homepage:
+Project homepage (in Spanish):
 http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-Other versions under development:
+Other versions (in Spanish):
 http://programandala.net/es.programa.asalto_y_castigo.html
 
 === Development tools
 
-- http://www.vim.org[Vim] editor
-- http://programandala.net/es.programa.sbim.html[SBim] S*BASIC
-  preprocessor
-- http://www.wlenerz.com/SMSQmulator/[SMSQmulator] emulator
+- Editor: http://www.vim.org[Vim]
+- S*BASIC preprocessor: http://programandala.net/es.programa.sbim.html[SBim]
+- Emulator: http://www.wlenerz.com/SMSQmulator/[SMSQmulator]
 
 === History and current status
 
-The project was developed from 2011-04 to 2011-07, with some
-additions in 2015-12.
+The first version of the project was developed in
+https://en.wikipedia.org/wiki/SuperBASIC[SuperBASIC], for
+https://en.wikipedia.org/wiki/Sinclair_QDOS[QDOS] and SMSQ/E.  The
+development was done between 2011-04 and 2011-07.  This version was
+tagged as B-20170711 and can be downloaded in several archive formats.
+
+Some code improvements were done in 2015-12, but they were not
+released.
 
 On 2017-09-10 a Git repository was created from the development
 backups in order to preserve the evolution of the project and to work
-on an improved version.
+on an improved version, only for SMSQ/E.
