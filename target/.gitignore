@@ -1,14 +1,15 @@
-# Iginore the emulator SMSQmulator:
-SMSQ*
-lib/
+# Iginore the SMSQmulator config files:
+*.ini
 
 # Ignore the sources:
 boot
 *_bas
 
-# Ignore the images, extensions, keyboard table and fonts:
+# Ignore the images, sounds, extensions, keyboard table and fonts:
 img/*
 !img/.gitignore
+snd/*
+!snd/.gitignore
 ext/*
 !ext/.gitignore
 *_kbt
