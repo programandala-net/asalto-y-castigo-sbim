@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.54+201710062232" ' after http://semver.org
+let version$="0.2.0-dev.55+201710062235" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1035,7 +1035,7 @@ deffn iso_input$(channel%,max_chars%)
       =9:tab 8 ' Tab
       =nl%:if len(output$):exit typing:else mistype_bell
       =space%:type_space
-      =35:if not len(output$):type "#"
+      =58:if not len(output$):type ":"
       =65 to 90:type chr$(key%+32)
       =97 to 122:type key$
       =131,163:type chr$(233) ' é/É
@@ -2757,9 +2757,9 @@ data to_take%,"recoger"
 data to_take%,"toma"
 data to_take%,"tomar"
 
-data to_help%,"#ayuda"
-data to_load_session%,"#carga"
-data to_save_session%,"#graba"
+data to_help%,":ayuda"
+data to_load_session%,":carga"
+data to_save_session%,":graba"
 
 label @verbs_end
 
