@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.53+201710041940" ' after http://semver.org
+let version$="0.2.0-dev.54+201710062232" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -249,12 +249,22 @@ defproc command
 
   ' Accept a command, analize it and execute it.
 
-  loc next_space%,command$
+  loc command$
+
+  let command$=accept$
+  parse command$
+  if fine_command:\
+    do_action action%
+
+enddef
+
+defproc parse(command$)
+
+  loc next_space%
 
   let action%=nothing%
   let object%=nothing%
   let complement%=nothing%
-  let command$=accept$
 
   rep find_word
     let next_space%=" " instr command$
@@ -263,9 +273,6 @@ defproc command
       exit find_word
     let command$=command$(next_space%+1 to)
   endrep find_word
-
-  if fine_command:\
-    do_action action%
 
 enddef
 
@@ -337,15 +344,19 @@ deffn fine_command
         endif
     endsel
 
-    if object%:\
-      if not is_accessible%(object%):\
-         narrate not_seen$:\
+    if object%
+      if not is_accessible%(object%)
+         narrate not_seen$
          ret false
+      endif
+    endif
 
-    if complement%:\
-      if not is_accessible%(complement%):\
-        narrate not_seen$:\
+    if complement%
+      if not is_accessible%(complement%)
+        narrate not_seen$
         ret false
+      endif
+    endif
 
   else
 
