@@ -2,7 +2,7 @@ rem This file is part of "Asalto y castigo",
 rem a Spanish text adventure for Sinclair QL
 rem http://programandala.net/es.programa.asalto_y_castigo.superbasic.html
 
-let version$="0.2.0-dev.55+201710062235" ' after http://semver.org
+let version$="0.2.0-dev.55+201710100156" ' after http://semver.org
 
 rem Copyright (C) 2011,2015,2017 Marcos Cruz (programandala.net)
 rem License: http://programandala.net/license
@@ -1612,9 +1612,11 @@ defproc init_screen
 
   ' Set the screen mode and colours.
 
-  if disp_type<>32:\
-    mode 32
-  init_colours
+  ' XXX OLD
+
+  ' if disp_type<>32:\
+  '   mode 32
+  ' init_colours
 
 enddef
 
