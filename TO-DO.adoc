@@ -1,6 +1,6 @@
 = Asalto y castigo
 :author: Marcos Cruz (programandala.net)
-:revdate: 2017-10-02
+:revdate: 2017-12-03
 
 - Review the texts.
 - Rewrite and improve the help.
@@ -45,3 +45,4 @@
 - Add `#verbos`, `#nombres` and similar to list the available words.
 - Make `#ayuda` show a list of second-level help commands, like
   `#verbos` and `#nombres`.
+- Use `hot_getstuff$`.
